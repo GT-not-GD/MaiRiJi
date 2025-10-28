@@ -1,0 +1,326 @@
+:root {
+  --duration-short: 100ms;
+  --duration-default: 200ms;
+  --duration-long: 500ms;
+}
+
+.hidden{
+  display: none !important;
+}
+
+#vouchers-modal-backdrop{
+  display: none;
+  opacity: 0;
+}
+
+.vouchers-modal-wrapper {
+  position: relative;
+}
+
+.vouchers-modal-wrapper .vouchers-modal {
+  display: block;
+}
+
+.vouchers-modal {
+  color: #000;
+  background-color: #F8F9FA;
+  border-color: rgba(18, 18, 18, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  position: fixed;
+  top: 10vh;
+  left: 50%;
+  transform: translate(-50%,100%);
+  visibility: hidden;
+  width: 100%;
+  z-index: -1;
+  display: none;
+  opacity: 0;
+}
+
+#MainContent .vouchers-modal {
+  color: rgb(var(--color-foreground));
+  border-color: rgb(var(--color-foreground));
+  background-color: rgb(var(--color-background));
+}
+#MainContent .modal__close-button .icon {
+  color: rgb(var(--color-foreground));
+}
+
+@media screen and (min-width: 750px) {
+  .vouchers-modal {
+    max-width: 500px;
+  }
+}
+
+@media screen and (max-width: 750px) {
+  .vouchers-modal {
+    top: inherit;
+    bottom: 0;
+    min-height: 450px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+}
+
+.vouchers-modal.animate {
+  transition: transform var(--duration-short) ease,
+    visibility 0s var(--duration-short) ease;
+}
+
+.vouchers-modal.active {
+  transform: translate(-50%,0);
+  transition: transform var(--duration-default) ease, visibility 0s;
+  visibility: visible;
+  z-index: 10000;
+  opacity: 1;
+}
+
+#vouchers-modal-backdrop.active{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.75);
+  z-index: 3001;
+  display: block;
+  opacity: 1;
+  transition: opacity var(--duration-default) ease, visibility 0s;
+}
+
+.vouchers-modal__header {
+  align-items: flex-start;
+  display: flex;
+  padding: 25px 35px 0;
+}
+
+.vouchers-modal__heading {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  margin-bottom: 10px;
+  margin-top: 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.vouchers-modal__close {
+  margin-top: -8px;
+  margin-right: -15px;
+}
+
+vouchers-modal discount-input{
+  display: block;
+  max-width: none;
+  padding: 0 35px;
+}
+
+.vouchers-list-heading {
+  padding: 0 35px;
+}
+
+.vouchers-list-wrapper{
+  overflow: auto;
+  max-height: 330px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 0 35px 15px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+}
+
+.vouchers-list-wrapper input[type="radio"]{
+  display: none;
+}
+
+.vouchers-modal__buttons {
+  padding: 0 35px 35px;
+}
+
+.voucher-option__item{
+  cursor: pointer;
+  display: block;
+  background: #fff;
+  color: #000;
+  border-radius: 5px;
+  padding: 10px 20px;
+  border: 2px solid #fff;
+  line-height: 1.2;
+}
+
+.voucher-option__item > div{
+  display: flex;
+  align-items: center;
+}
+
+.voucher-option__item .form__message{
+  margin-top: 5px;
+}
+
+.voucher-option__item:not(:last-child){
+  margin-bottom: 10px;
+}
+
+.voucher-option_radio{
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 1em;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+input[type="radio"]:checked + .voucher-option__item{
+  border: 2px solid #4C7BD5; 
+}
+
+input[type="radio"]:checked + .voucher-option__item .voucher-option_radio{
+  background-color: #fff;
+  border: 0.3em solid #4C7BD5;
+}
+
+.voucher-option__item.voucher-disabled{
+  color: #999;
+  cursor: disabled;
+}
+
+.voucher-option__item.voucher-disabled .form__message{
+  color: #DC3444;
+}
+
+.voucher-option__item.voucher-disabled .form__message svg{
+  fill: #DC3444;
+}
+
+.voucher-disabled .voucher-option_radio{
+  background: #eee;
+  border-color: #ddd;
+}
+
+.empty-vouchers_placeholder{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 220px;
+}
+
+.voucher-toggle-wrapper{
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+@media screen and (max-width: 750px){
+  #main-cart-footer .voucher-toggle-wrapper ,
+  .cart__footer .voucher-toggle-wrapper {
+      justify-content: center;
+  }
+}
+
+.voucher-toggle {
+  color: #000;
+  background-color: #eaeaea;
+  padding: 15px 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 15px 0px;
+}
+
+.voucher-toggle-title {
+  font-size: 1em;
+  margin-bottom: 3px;
+}
+
+.voucher-toggle .icon-chevron-right{
+  margin-left: 15px;
+  margin-right: -6px;
+}
+
+.voucher-toggle-content{
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}
+
+.voucher-toggle-content .text-muted {
+  color: #6c757d;
+}
+
+discount-input .field{
+  display: flex;
+  align-items: center;
+}
+
+discount-input .field > *{
+  margin-bottom: 0;
+}
+
+.modal__close-button.link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0rem;
+  height: 3em;
+  width: 3em;
+  background-color: transparent;
+  border: none;
+}
+
+.modal__close-button .icon {
+  width: 17px;
+  height: 17px;
+  color: #000;
+}
+
+
+.form__message {
+  align-items: center;
+  display: flex;
+  font-size: 0.9em;
+  line-height: 1;
+  margin-top: 1em;
+}
+
+.form__message--large {
+  font-size: 1.3em;
+}
+
+.customer .field .form__message {
+  font-size: 1em;
+  text-align: left;
+}
+
+.form__message .icon,
+.customer .form__message svg {
+  flex-shrink: 0;
+  height: 1.1em;
+  width: 1.1em;
+  margin-right: 0.5em;
+}
+
+#cart-template discount-input,
+#CartTemplate discount-input {
+  display: block;
+  max-width: 350px;
+  margin: 15px 0 15px auto;
+}
+
+@media screen and (max-width: 750px){
+  #cart-template discount-input,
+  #CartTemplate discount-input {
+    margin: 15px auto;
+  }
+}

@@ -1,0 +1,529 @@
+ /* =================================== */
+ /* === account/vouchers stylesheet === */
+ /* =================================== */
+
+
+ /* ==== TAB navigation ==== */
+ /* Style the tab */
+ .tab {
+   display: inline-flex;
+   flex-wrap: wrap;
+   margin: 30px 0 20px;
+   padding-right: 3px;
+   row-gap: 5px;
+ }
+
+ /* Style the buttons inside the tab */
+ .tablinks {
+   cursor: pointer;
+   padding: 5px 20px;
+   margin: 0 20px 0 0;
+   text-align: center;
+   text-decoration: none;
+   box-sizing: border-box;
+   position: relative;
+ }
+
+ .tablinks:not(.active)::before {
+   display: block;
+   content: attr(tab);
+   font-weight: bold;
+   height: 0;
+   overflow: hidden;
+   visibility: hidden;
+ }
+
+ .tab__divider {
+   border-right: 1px solid rgba(0, 0, 0, 0.1);
+   position: absolute;
+   top: 0;
+   right: -10px;
+   bottom: 0;
+   margin: 8px auto;
+ }
+
+ /* Create an active/current tablink class */
+ .tablinks.active {
+   background-color: rgba(0, 0, 0, 0.05);
+ }
+
+ .tablinks.active,
+ .tablinks:hover {
+   font-weight: bold;
+ }
+
+ /* ==== TAB navigation ==== */
+
+ /* The Modal (background) */
+ .reward-modal {
+   display: none;
+   /* Hidden by default */
+   position: fixed;
+   /* Stay in place */
+   z-index: 2000;
+   /* Sit on top */
+   padding-top: 100px;
+   /* Location of the box */
+   left: 0;
+   top: 0;
+   width: 100%;
+   /* Full width */
+   height: 100%;
+   /* Full height */
+   overflow: auto;
+   /* Enable scroll if needed */
+   background-color: rgb(0, 0, 0);
+   /* Fallback color */
+   background-color: rgba(0, 0, 0, 0.4);
+   /* Black w/ opacity */
+ }
+
+ /* Modal Content */
+ .reward-modal-content {
+   background-color: #fefefe;
+   color: #000;
+   margin: auto;
+   padding: 20px;
+   border: 1px solid #888;
+   width: 400px;
+   position: relative;
+ }
+
+ /* The Close Button */
+ .close {
+   color: #aaaaaa;
+   float: right;
+   font-size: 20px;
+   font-weight: bold;
+   position: absolute;
+   right: 20px;
+   top: 7px;
+   text-decoration: none;
+ }
+
+ .close:hover,
+ .close:focus {
+   color: #000;
+   text-decoration: none;
+   cursor: pointer;
+ }
+
+ .reward-modal-content ul {
+   margin: 0;
+   list-style: inside;
+   padding-left: 0;
+ }
+
+ .reward-modal-content li {
+   margin-bottom: 0.25em;
+ }
+
+
+ /* ==== Toast ==== */
+ #toast {
+   display: none;
+   visibility: hidden;
+   max-width: 95%;
+   min-width: 250px;
+   padding: 30px 45px;
+   font-size: 16px;
+   background-color: rgb(51, 51, 51);
+   color: #fff;
+   text-align: center;
+   border-radius: 2px;
+   position: fixed;
+   z-index: 1;
+   left: 50%;
+   -webkit-transform: translateX(-50%);
+   transform: translateX(-50%);
+   bottom: 50px;
+   z-index: -10000;
+   box-shadow: 0px 0px 5px #fff;
+ }
+
+ #toast.show {
+   display: block;
+   visibility: visible;
+   -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+   animation: fadein 0.5s, fadeout 0.5s 2.5s;
+   z-index: 2147483647;
+ }
+
+ #toastContent a {
+   color: #fff;
+   text-decoration: underline;
+   margin-top: 10px;
+   display: block;
+ }
+
+ #toastContent .svg-icon {
+   margin-right: 8px;
+   margin-top: -1px;
+ }
+
+ /* ==== End of Toast ==== */
+
+ /* Safari */
+ @-webkit-keyframes spin {
+   0% {
+     -webkit-transform: rotate(0deg);
+   }
+
+   100% {
+     -webkit-transform: rotate(360deg);
+   }
+ }
+
+ @keyframes spin {
+   0% {
+     transform: rotate(0deg);
+   }
+
+   100% {
+     transform: rotate(360deg);
+   }
+ }
+
+ /* Animations to fade the Toast in and out */
+ @-webkit-keyframes fadein {
+   from {
+     bottom: 0;
+     opacity: 0;
+   }
+
+   to {
+     bottom: 30px;
+     opacity: 1;
+   }
+ }
+
+ @keyframes fadein {
+   from {
+     bottom: 0;
+     opacity: 0;
+   }
+
+   to {
+     bottom: 30px;
+     opacity: 1;
+   }
+ }
+
+ @-webkit-keyframes fadeout {
+   from {
+     bottom: 30px;
+     opacity: 1;
+   }
+
+   to {
+     bottom: 0;
+     opacity: 0;
+   }
+ }
+
+ @keyframes fadeout {
+   from {
+     bottom: 30px;
+     opacity: 1;
+   }
+
+   to {
+     bottom: 0;
+     opacity: 0;
+   }
+ }
+
+ /* End of animation */
+
+ .redeem-btn {
+   background-color: black;
+   color: white;
+   margin-top: 15px;
+   width: 100%;
+   border-radius: 6px;
+ }
+
+ .reward-content-wrapper {
+   position: relative;
+ }
+
+ .reward-tab-wrapper {
+   display: flex;
+   justify-content: space-between;
+   flex-wrap: wrap;
+   width: -webkit-fill-available;
+ }
+
+ .redeem-input-wrapper {
+   text-align: -webkit-center;
+   align-self: center;
+   margin-bottom: 20px;
+   display: flex;
+ }
+
+ .redeem-input-wrapper .apply-btn {
+   background-color: white;
+   border-radius: 5px;
+   border: 1px solid black;
+   margin-bottom: 0;
+   box-shadow: none;
+   color: black;
+ }
+
+ .btn.btn--loading {
+   color: transparent !important;
+ }
+
+ .redeem-input-wrapper .code-input {
+   border: .5px solid rgb(205, 205, 205);
+   border-radius: 5px;
+   margin-bottom: 0;
+   margin-right: 1rem;
+   padding: 10px 15px;
+ }
+
+ .reward-btn-wrapper {
+   text-align: -webkit-center;
+   align-self: center;
+   font-size: 12px;
+ }
+
+ .reward-btn-wrapper .reward-btn {
+   background-color: black;
+   color: white;
+   border-radius: 6px;
+   box-shadow: none;
+ }
+
+
+ .reward-grid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   grid-gap: 20px;
+ }
+
+ .reward-grid-item {
+   border-radius: 8px;
+   border: .5px solid rgb(205, 205, 205);
+   padding: 25px 20px;
+   height: 100%;
+   min-width: 500px;
+   place-content: space-between;
+   position: relative;
+ }
+
+ .reward-details-wrapper {
+   width: 70%;
+   display: grid;
+ }
+
+ .reward-loader {
+   border: 5px solid #dedede;
+   border-radius: 50%;
+   border-top: 5px solid #333;
+   width: 60px;
+   height: 60px;
+   -webkit-animation: spin 700ms linear infinite;
+   animation: spin 700ms linear infinite;
+   margin: auto;
+   display: block !important;
+ }
+
+ .reward-is-loading {
+   position: absolute;
+   cursor: not-allowed;
+   pointer-events: none;
+   color: transparent !important;
+   top: 50%;
+   /* position the top  edge of the element at the middle of the parent */
+   left: 50%;
+   /* position the left edge of the element at the middle of the parent */
+   transform: translate(-50%, -50%);
+ }
+
+ .reward-is-loading:after {
+   content: "";
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   width: 24px;
+   height: 24px;
+   border: 4px solid #dedede;
+   border-radius: 50%;
+   border-top: 4px solid #333;
+   -webkit-animation: spin 700ms linear infinite;
+   animation: spin 700ms linear infinite;
+   z-index: 2;
+ }
+
+ .reward-loading-wrapper {
+   display: flex;
+   place-content: center;
+   text-align: center;
+   position: absolute;
+   z-index: 12;
+   width: 100%;
+   height: 100%;
+   border-radius: 10px;
+   background-color: rgba(0, 0, 0, 0.5);
+ }
+
+ .reward-page-loading-wrapper {
+   display: flex;
+   place-content: center;
+   text-align: center;
+   z-index: 12;
+   width: 100%;
+   height: 100%;
+   margin-top: 100px;
+ }
+
+ /* TODO: switch to jquery */
+ .hide {
+   display: none;
+ }
+
+ /* #reward-apply-btn.btn--loading:after {
+   border: 3px solid #000;
+   border-top-color: transparent;
+ } */
+
+ #reward-empty-state.reward-empty {
+   text-align: center;
+   color: #CBCBCB;
+   margin-top: 2rem;
+ }
+
+ .main-wrapper {
+   margin: 6rem auto 9rem;
+   max-width: var(--page-width);
+   padding: 0 5rem;
+ }
+
+ label {
+   display: block;
+ }
+
+ .code-wrapper {
+   width: fit-content;
+   background-color: #D5F5E3;
+   padding: 5px 10px;
+   font-size: .8em;
+   border-radius: 5px;
+ }
+
+ .usage-wrapper {
+   width: fit-content;
+   background-color: black;
+   color: white;
+   padding: 0 20px;
+   font-weight: bold;
+   border-radius: 10px 0px 0px 10px;
+   position: absolute;
+   right: 0%;
+   top: 7%;
+ }
+
+ .active-svg-icon {
+   margin-right: 8px;
+   margin-left: 3px;
+   width: 15px;
+   height: 15px;
+   flex-shrink: 0;
+ }
+
+ @media only screen and (max-width: 700px) {
+   .reward-grid {
+     display: grid;
+     grid-template-columns: auto;
+     grid-gap: 20px;
+   }
+
+   .reward-tab-wrapper {
+     display: block;
+   }
+
+   .tab button {
+     padding: 0px 9px;
+     font-size: 14px;
+   }
+
+   .reward-modal-content {
+     position: absolute;
+     width: 100%;
+     bottom: 0;
+   }
+
+   .reward-details-wrapper {
+     width: 100%;
+   }
+
+   .reward-btn-wrapper {
+     text-align: left;
+     margin-top: 15px;
+   }
+
+   .reward-grid-item {
+     display: block;
+     min-width: unset;
+   }
+
+   .main-wrapper {
+     padding: 0 1rem;
+     margin: 0rem auto 9rem;
+   }
+
+   #toast {
+     padding: 15px 20px;
+   }
+
+   .btn {
+     padding: 10px 20px;
+   }
+ }
+
+
+ /* === voucher widget === */
+ /* widget layout */
+ .voucher-widget-list {
+   display: grid;
+   grid-gap: 1em;
+   margin-top: 1em;
+   /* grid-template-columns: 2fr 2fr;
+     */
+   /* flex-wrap: wrap; */
+ }
+
+ .voucher-widget-list__item {
+   /* width: 100%; */
+   min-width: 100%;
+ }
+
+ .voucher-widget-list__item.disabled {
+   opacity: 0.5;
+   pointer-events: none;
+   cursor: not-allowed;
+ }
+
+ @media (min-width: 1024px) {
+   .voucher-widget-list {
+     /* grid-template-columns: 2fr 2fr; */
+     grid-template-columns: 50% 50%;
+   }
+ }
+
+ .voucher-widget-list--mobile .voucher-widget-list {
+   grid-template-columns: 100%;
+ }
+
+ @media (min-width: 1280px) {
+   /* .voucher-widget-list {
+     grid-template-columns: 32.5% 32.5% 32.5%;
+     grid-template-columns: 32.5% 32.5% 32.5%;
+   } */
+
+   /* .voucher-widget-list__item {
+      width: calc(33.33% - 0.667em);
+    } */
+ }
