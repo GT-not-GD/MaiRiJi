@@ -93,7 +93,8 @@ footer.main-footer .cols .col.logo div img {
 
 /* --- 新增样式：修改标题颜色 --- */
 .text-section-centered .centered-content h3 {
-	font-family: 'Mastadoni', sans-serif; /* 新增：指定字体为 Mastadoni */
+	font-family: 'Cormorant Garamond', serif; /* 新增：指定字体为 Cormorant Garamond */
+	font-weight: 600; /* 使用我们加载的稍粗字重 */
     color: #92683b;          /* 设置为您模板中常用的棕色，与品牌风格保持一致 */
 	font-size: 38px;       /* 新增：加大字体大小 */
     margin-bottom: 1.5rem;     /* 稍微加大标题和下方段落的间距 */
@@ -466,7 +467,7 @@ slider-component { position: relative; display: block; }
 
 /* 1. 全宽幅图片分隔区块的样式 */
 .full-width-image-divider {
-    height: 199px; /* 图片的高度，您可以根据喜好调整 */
+    height: 250px; /* 图片的高度，您可以根据喜好调整 */
     background-size: cover; /* 确保图片填满整个区域 */
     background-position: center; /* 图片居中显示 */
     background-attachment: fixed; /* 制造视差滚动效果，非常高级！ */
