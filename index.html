@@ -45,6 +45,8 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Kalam&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel='stylesheet' id='wnk-styles-css'  href='assets/css/styles.min.css' type='text/css' media='all' />
 	
 	<!-- 加载样式表和 JS 库 -->
 	<link rel='stylesheet' id='wnk-styles-css'  href='assets/css/styles.min.css' type='text/css' media='all' />
@@ -62,19 +64,30 @@
                 <img src="assets/img/logo-black.png" class="big-black"/>
                 <img src="assets/img/logo-mini-black.png" class="small"/>
             </a>
-            <div class="m-burger"></div>
+            <button class="m-burger" aria-label="Open menu">
+				<span class="burger-icon">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+			</button>
             <div class="m-close"></div>
         </div>
         <div class="navs">
-            <nav role="navigation" class="main-nav">
-                <ul class="menu">
+			<!-- Add Logo inside the menu panel -->
+			<a href="index.html" rel="nofollow" class="menu-panel-logo" title="麦日记">
+				<img src="assets/img/logo-black.png" alt="麦日记 Logo"/>
+			</a>
+
+			<nav role="navigation" class="main-nav">
+				<ul class="menu">
 					<li><a href="index.html">首页</a></li>
 					<li><a href="menu/index.html">菜单</a></li>
 					<li><a href="diary/index.html">日记</a></li>
 					<li><a href="about/index.html">关于我</a></li>
 				</ul>
 			</nav>
-        </div>
+		</div>
     </div>
 </header>
 
