@@ -136,18 +136,33 @@
 				<ul class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
 					
 					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
-									<img src="assets/img/your-bread-1.jpg" alt="乡村酵母欧包">
-									<img src="assets/img/your-bread-1-hover.mp4" alt="乡村酵母欧包 悬停图片">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">乡村酵母欧包</span>
-									<div class="price"><span class="price-item">RM 15.00</span></div>
-								</div></div>
-							</a>
-						</div>
+					    <div class="product-card-wrapper card-wrapper">
+					        <a href="#" class="full-unstyled-link">
+					            <div class="card card--product">
+					                <div class="card__inner">
+					                    <div class="media media--transparent media--square media--hover-effect">
+					                        <!-- 默认显示的图片 -->
+					                        <img src="assets/img/your-bread-1.png" alt="乡村酵母欧包" class="product-image default-image">
+					                        <!-- 鼠标悬停时播放的视频 -->
+					                        <video src="assets/img/your-bread-1-hover.mp4" 
+					                               alt="乡村酵母欧包 悬停视频" 
+					                               preload="auto" 
+					                               loop 
+					                               muted 
+					                               playsinline 
+					                               class="product-video hover-video"></video>
+					                        <!-- 'playsinline' 属性对于 iOS 设备上的自动播放很重要 -->
+					                    </div>
+					                </div>
+					            </div>
+					            <div class="card-information">
+					                <div class="card-information__wrapper">
+					                    <span class="card-information__text">乡村酵母欧包</span>
+					                    <div class="price"><span class="price-item">RM 15.00</span></div>
+					                </div>
+					            </div>
+					        </a>
+					    </div>
 					</li>
 
 					<li class="grid__item slider__slide">
