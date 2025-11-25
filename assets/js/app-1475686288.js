@@ -19,3 +19,33 @@ $('a.down').click(function(){$.scrollTo($('.post-fixed'),650,{'axis':'y',offset:
 $('.m-close-produit').click(function(){$('nav.liste-produits').removeClass('open')});$('.home-intro, .page-intro').addClass('show');$(document).on('scroll',function(e){if(window.pageYOffset<$(window).height()&&!$('body').hasClass('mobile')){var percent=(window.pageYOffset/($(window).height()/2.5));$('.home-intro .wrap, .page-intro .wrap, header.intro .wrap').css({opacity:1-percent})}})},onLoad:function(){this.wax.addElement($('.page-intro .bg, .home-intro  .bg, header.intro .bg'),null,{deltaY:1.2,mode:'translate'});$('.page-intro, .home-intro, header.intro').each(function(){if(!$(this).hasClass('short')){$this.wax.addElement($(this).find('.wrap'),null,{deltaY:1.0,mode:'translate'})}})
 this.wax.addElement($('.main-footer .bg'),null,{deltaY:0.6,mode:'translate'});if($('body').hasClass('home'))//{this.wax.addElement($('.home-awards .bg'),null,{deltaY:0.8,mode:'translate'})}
 this.wax.start()},}
+
+// 添加到 app-1475686288.js 或你的自定义 JS 文件中
+// 确保此代码在 DOM 完全加载后执行，例如放在 $(document).ready() 或 $(window).load() 里面
+
+$(document).ready(function() { // 或者 $(window).load(function() { ... }); 根据你的现有脚本结构选择
+
+    // 针对所有带有 .media--hover-effect 类的产品卡片应用悬停视频逻辑
+    $('.media--hover-effect').each(function() {
+        const $card = $(this);
+        const $defaultImage = $card.find('.default-image');
+        const $hoverVideo = $card.find('.hover-video');
+
+        // 仅当找到图片和视频时才添加事件监听器
+        if ($defaultImage.length && $hoverVideo.length) {
+            $card.on('mouseenter', function() {
+                $defaultImage.hide();
+                $hoverVideo.show();
+                $hoverVideo[0].play(); // 获取原生的 video DOM 元素并播放
+            });
+
+            $card.on('mouseleave', function() {
+                $defaultImage.show();
+                $hoverVideo.hide();
+                $hoverVideo[0].pause(); // 暂停视频
+                $hoverVideo[0].currentTime = 0; // 重置视频到开头
+            });
+        }
+    });
+
+});
