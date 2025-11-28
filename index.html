@@ -44,7 +44,7 @@
 	<!-- 外部字体与图标库 -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Kalam&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Kalam&family=Noto+Serif+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	
 	<!-- 主样式表和 JS 库 -->
@@ -54,6 +54,27 @@
 </head>
 
 <body class="home">
+
+<!-- 🍞 优化版转场层 -->
+<div id="toast-transition">
+    
+    <!-- 1. 膨胀层：这是一个圆，负责变大填满屏幕 -->
+    <!-- 注意：它的颜色和吐司面包的颜色必须一模一样 -->
+    <div class="expander"></div>
+
+    <!-- 2. 图标层：负责卖萌，始终保持小巧 -->
+    <div class="icon-container">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+             <path class="body" d="M20,35 Q20,10 50,10 Q80,10 80,35 L80,80 Q80,90 70,90 L30,90 Q20,90 20,80 Z" />
+             <g class="face" fill="#5a3a22">
+                <circle cx="35" cy="45" r="3" />
+                <circle cx="65" cy="45" r="3" />
+                <path d="M40,55 Q50,65 60,55" fill="none" stroke="#5a3a22" stroke-width="3" stroke-linecap="round" />
+             </g>
+        </svg>
+    </div>
+
+</div>
 
 <!-- ======================= 页眉 ======================= -->
 <header class="main-header">
@@ -78,190 +99,458 @@
 			</a>
 			<nav role="navigation" class="main-nav">
 				<ul class="menu">
-					<li><a href="index.html">首页</a></li>
-					<li><a href="menu/index.html">菜单</a></li>
-					<li><a href="diary/index.html">日记</a></li>
-					<li><a href="about/index.html">关于我</a></li>
+					<!-- 注意：href 设为 #，通过 data-target 指向上面定义的 id -->
+					<li><a href="#" class="nav-link" data-target="view-home">首页</a></li>
+					<li><a href="#" class="nav-link" data-target="view-menu">菜单</a></li>
+					<li><a href="#" class="nav-link" data-target="view-diary">日记</a></li> <!-- 以后你可以加 view-diary -->
+					<li><a href="#" class="nav-link" data-target="view-about">关于我</a></li>
 				</ul>
 			</nav>
 		</div>
     </div>
 </header>
 
-<!-- ======================= 英雄区域 (首屏) ======================= -->
-<section class="intro home-intro fixed">
-	<div class="bg" style="background-image: url('assets/img/hero-main.png');"></div>
-	<div class="wrap">
-		<div class="inner">
-			<h1 style="text-align: right; margin-right: 5%; margin-bottom: 15px;">
-				记录每一次烘焙的<br>温度与故事
-			</h1>
-			<p style="text-align: right; margin-right: 5%; margin-top: 0;">
-				<a href="menu.html" class="button">预定</a>
-			</p>
-		</div>
-	</div>
-	<a href="#" class="down"><img src="assets/img/scroll-down.png"/></a>
-</section>
-
 <!-- ======================= 页面滚动内容容器 ======================= -->
 <div id="page-container"> 
 
-	<!-- 烘焙哲学 -->
-	<section class="scrollTrigger post-fixed pbig text-section-centered">
-		<div class="wrap with-inner">
-			<div class="centered-content">
-				<div>
-					<h3>我们的烘焙哲学</h3>
-					<p>《麦日记》，是我们与面粉、水和酵母对话的日记。这里记录的并非冰冷的配方，而是每一次烘焙背后的灵感、情绪与故事。</p>
-					<p>我坚信，最好的味道源于最纯粹的食材和最耐心的守候。在这里，我想与你分享这份源自手作的温暖，以及烘焙带给我的简单快乐。让我们一起，用双手创造生活中的美好点滴。</p>
+	<!-- 🟢 1. 首页视图 (Home View) -->
+    <div id="view-home" class="page-view active-view">
+
+		<!-- ======================= 首屏 ======================= -->
+		<section class="intro home-intro fixed" id="top">
+			<!-- 外层 bg 负责视差，内层 bg-inner 负责缩放 -->
+			<div class="bg">
+				<div class="bg-inner" style="background-image: url('assets/img/hero-main.png');"></div>
+			</div>
+			<div class="wrap">
+				<div class="inner">
+					<h1 style="text-align: right; margin-right: 5%; margin-bottom: 15px;">
+						记录每一次烘焙的<br>温度与故事
+					</h1>
+					<p style="text-align: right; margin-right: 5%; margin-top: 0;">
+						<a href="menu.html" class="button">预定</a>
+					</p>
 				</div>
 			</div>
-		</div>
-	</section>
-		
-	<!-- 全宽幅图片分隔 -->
-	<section class="full-width-image-divider" style="background-image: url('assets/img/bread-banner.jpg');">
-	</section>
-		
-	<!-- 产品展示区 -->
-	<section class="product-showcase-section">
-		<div id="easystore-section-bread-and-pastries" class="page-width page-width-desktop">
-			<div class="showcase-title-wrapper">
-				<h2>欧包展示</h2>
-				<p>每日新鲜制作，甄选天然酵母与优质麦粉，感受手作的温度。</p>
-			</div>
+			<a href="#" class="down"><img src="assets/img/scroll-down.png"/></a>
+		</section>
 
-			<slider-component class="slider-mobile-gutter">
-				<ul class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
-					
-					<li class="grid__item slider__slide">
-					    <div class="product-card-wrapper card-wrapper">
-					        <a href="#" class="full-unstyled-link">
-					            <div class="card card--product">
-					                <div class="card__inner">
-					                    <div class="media media--transparent media--square media--hover-effect">
-					                        <img src="assets/img/your-bread-1.jpg" alt="乡村酵母欧包" class="product-image default-image">
-											<img src="assets/img/your-bread-1-hover.jpg" alt="乡村酵母欧包 悬停图片">
-					                    </div>
-					                </div>
-					            </div>
-					            <div class="card-information">
-					                <div class="card-information__wrapper">
-					                    <span class="card-information__text">乡村酵母欧包</span>
-					                    <div class="price"><span class="price-item">RM 15.00</span></div>
-					                </div>
-					            </div>
-					        </a>
-					    </div>
-					</li>
-
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
-									<img src="assets/img/your-bread-2.jpg" alt="葡萄核桃欧包">
-									<img src="assets/img/your-bread-2-hover.jpg" alt="葡萄核桃欧包 悬停图片">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">葡萄核桃欧包</span>
-									<div class="price"><span class="price-item">RM 16.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
-									<img src="assets/img/your-bread-3.jpg" alt="巧克力核桃欧包">
-									<img src="assets/img/your-bread-3-hover.jpg" alt="巧克力核桃欧包 悬停图片">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">巧克力核桃欧包</span>
-									<div class="price"><span class="price-item">RM 16.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
-									<img src="assets/img/your-bread-4.jpg" alt="柠檬蓝莓欧包">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">柠檬蓝莓欧包</span>
-									<div class="price"><span class="price-item">RM 17.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-					
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
-									<img src="assets/img/your-bread-5.jpg" alt="火龙果欧包">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">火龙果欧包</span>
-									<div class="price"><span class="price-item">RM 16.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
-									<img src="assets/img/your-bread-6.jpg" alt="抹茶蔓越莓欧包">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">抹茶蔓越莓欧包</span>
-									<div class="price"><span class="price-item">RM 16.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-				
-					<li class="grid__item slider__slide">
-						<div class="product-card-wrapper card-wrapper">
-							<a href="#" class="full-unstyled-link">
-								<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
-									<img src="assets/img/your-bread-7.jpg" alt="蜂蜜金瓜欧包">
-								</div></div></div>
-								<div class="card-information"><div class="card-information__wrapper">
-									<span class="card-information__text">蜂蜜金瓜欧包</span>
-									<div class="price"><span class="price-item">RM 17.00</span></div>
-								</div></div>
-							</a>
-						</div>
-					</li>
-				</ul>
-				
-				<div class="slider-buttons no-js-hidden">
-					<button type="button" class="slider-button slider-button--prev" name="previous">
-						<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
-					</button>
-					<div class="slider-counter caption">
-						<span class="slider-counter--current">1</span> / <span class="slider-counter--total">7</span>
+		<!-- 烘焙哲学 -->
+		<section id="home-start" class="scrollTrigger post-fixed pbig text-section-centered">
+			<div class="wrap with-inner">
+				<div class="centered-content">
+					<div>
+						<h3>我们的烘焙哲学</h3>
+						<p>《麦日记》，是我们与面粉、水和酵母对话的日记。这里记录的并非冰冷的配方，而是每一次烘焙背后的灵感、情绪与故事。</p>
+						<p>我坚信，最好的味道源于最纯粹的食材和最耐心的守候。在这里，我想与你分享这份源自手作的温暖，以及烘焙带给我的简单快乐。让我们一起，用双手创造生活中的美好点滴。</p>
 					</div>
-					<button type="button" class="slider-button slider-button--next" name="next">
-						<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
-					</button>
 				</div>
-			</slider-component>
-
-			<div class="center small-hide medium-hide">
-				<a href="menu/index.html" class="button">全部产品</a>
 			</div>
-		</div>
-	</section>
+		</section>
 
+		<!-- 2. 全宽幅图片分隔 (保持不变) -->
+        <section class="full-width-image-divider" style="background-image: url('assets/img/bread-banner.jpg');">
+        </section>
+			
+		<!-- ✨✨✨【Savoria 风格：粘性横向滚动区】✨✨✨ -->
+		<!-- 外层容器：高度设为 300vh~400vh，用来创造“暂停”的滚动距离 -->
+		<div class="horizontal-scroll-wrapper">
+			
+			<!-- 粘性视窗：这就是会“卡住”不动的屏幕 -->
+			<section class="savoria-sticky-viewport" id="ambiance-section">
+				<div class="wrap">
+					<!-- 标题部分 -->
+					<div class="savoria-header">
+						<h2>氛围与风味</h2>
+						<p>The Ambiance & Flavor</p>
+					</div>
+					
+					<!-- 滚动轨道 (Track) -->
+					<div class="savoria-track">
+						
+						<!-- =========== 第一组 (原始卡片) =========== -->
+						<!-- 卡片 1 (上浮) -->
+						<div class="savoria-card up">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-1.jpg');"></div>
+							<div class="card-overlay"><span>Signature / 招牌</span></div>
+						</div>
+
+						<!-- 卡片 2 (下沉) -->
+						<div class="savoria-card down">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-2.jpg');"></div>
+						</div>
+
+						<!-- 卡片 3 (上浮) -->
+						<div class="savoria-card up">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-3.jpg');"></div>
+							<div class="card-overlay"><span>Fresh / 新鲜</span></div>
+						</div>
+
+						<!-- 卡片 4 (下沉) -->
+						<div class="savoria-card down">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-4.jpg');"></div>
+						</div>
+
+						<!-- 卡片 5 (上浮) -->
+						<div class="savoria-card up">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-5.jpg');"></div>
+							<div class="card-overlay"><span>Sweet / 甜点</span></div>
+						</div>
+
+						<!-- 卡片 6 (下沉) -->
+						<div class="savoria-card down">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-6.jpg');"></div>
+						</div>
+						<!-- 卡片 7 (上浮) -->
+						<div class="savoria-card up">
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-7.jpg');"></div>
+						</div>
+						
+						<!-- =========== 第二组 (手机专用克隆组) =========== -->
+						<div class="mobile-clones">
+							<!-- 卡片 1 (上浮) -->
+							<div class="savoria-card up">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-1.jpg');"></div>
+								<div class="card-overlay"><span>Signature / 招牌</span></div>
+							</div>
+
+							<!-- 卡片 2 (下沉) -->
+							<div class="savoria-card down">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-2.jpg');"></div>
+							</div>
+
+							<!-- 卡片 3 (上浮) -->
+							<div class="savoria-card up">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-3.jpg');"></div>
+								<div class="card-overlay"><span>Fresh / 新鲜</span></div>
+							</div>
+
+							<!-- 卡片 4 (下沉) -->
+							<div class="savoria-card down">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-4.jpg');"></div>
+							</div>
+
+							<!-- 卡片 5 (上浮) -->
+							<div class="savoria-card up">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-5.jpg');"></div>
+								<div class="card-overlay"><span>Sweet / 甜点</span></div>
+							</div>
+
+							<!-- 卡片 6 (下沉) -->
+							<div class="savoria-card down">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-6.jpg');"></div>
+							</div>
+							<!-- 卡片 7 (上浮) -->
+							<div class="savoria-card up">
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-7.jpg');"></div>
+							</div>
+						</div> <!-- 结束 mobile-clones -->
+					</div>
+				</div>
+
+				<!-- =======================  日记摘录  ======================= -->
+				<section id="home-diary" class="text-section-centered">
+					<div class="wrap with-inner">
+						<div class="centered-content" style="max-width: 800px;">
+							<p style="font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; color: #555; line-height: 1.6;">
+								“今天午后，阳光正好。我尝试在面团里加入了昨天新买的桂花干，烤箱运作时，整个屋子都弥漫着秋天的香气。那一刻我明白，烘焙于我而言，更像是一场温柔的创作。”
+							</p>
+							<p style="text-align: right; margin-top: 30px; font-family: 'Kalam', cursive; font-size: 18px; color: #888;">
+								—— 麦日记，十一月三日
+							</p>
+							<div style="margin-top: 40px;">
+								<a href="#" class="button nav-link" data-target="view-diary">阅读更多日记</a>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			</section><!-- savoria-sticky-viewport 结束 -->
+		</div><!-- horizontal-scroll-wrapper 结束 -->
+
+	</div> <!-- 首页结束 -->
+
+	<!-- 🟠 2. 菜单视图 (Menu View) -->
+    <div id="view-menu" class="page-view">
+        
+        <!-- 菜单页顶部 Banner -->
+        <section class="intro short">
+			<div class="bg">
+				<div class="bg-inner" style="background-image: url('assets/img/menu-bg.jpg');"></div>
+			</div>
+        </section>
+
+		<!-- ======================= 欧包制作工艺说明 ======================= -->
+		<section class="pbig text-section-centered">
+			<div class="wrap with-inner">
+				<div class="centered-content">
+					<div>
+						<h3>时间的馈赠：我们的酸种欧包</h3>
+						<p>我们相信，最好的风味源自最纯粹的食材与最耐心的守候。每一颗欧包，都始于我们亲手培育的天然酵母，经过超过18小时的低温长时间发酵，让麦香与风味物质得以缓慢、充分地孕育。</p>
+						<p>这不仅赋予了面包深邃、微酸的独特风味，更让面包体变得湿润、柔软且易于消化。这是我们对传统的致敬，也是献给您的、来自时间的馈赠。</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 全宽幅图片分隔 -->
+        <section class="full-width-image-divider" style="background-image: url('assets/img/bread-banner.jpg');">
+        </section>
+
+		<!-- 产品展示区 -->
+		<section class="product-showcase-section" style="padding: 50px 0 0px;">
+			<div id="easystore-section-bread-and-pastries" class="page-width page-width-desktop">
+				<h2 class="menu-title">Sourdough / 酸种欧包</h2>
+				<slider-component class="slider-mobile-gutter">
+					<ul class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
+						
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product">
+										<div class="card__inner">
+											<div class="media media--transparent media--square media--hover-effect">
+												<img src="assets/img/your-bread-1.jpg" alt="乡村酵母欧包" class="product-image default-image">
+												<img src="assets/img/your-bread-1-hover.jpg" alt="乡村酵母欧包 悬停图片">
+											</div>
+										</div>
+									</div>
+									<div class="card-information">
+										<div class="card-information__wrapper">
+											<span class="card-information__text">乡村酵母欧包</span>
+											<div class="price"><span class="price-item">RM 15.00</span></div>
+										</div>
+									</div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
+										<img src="assets/img/your-bread-2.jpg" alt="葡萄核桃欧包">
+										<img src="assets/img/your-bread-2-hover.jpg" alt="葡萄核桃欧包 悬停图片">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">葡萄核桃欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
+										<img src="assets/img/your-bread-3.jpg" alt="巧克力核桃欧包">
+										<img src="assets/img/your-bread-3-hover.jpg" alt="巧克力核桃欧包 悬停图片">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">巧克力核桃欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-4.jpg" alt="柠檬蓝莓欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">柠檬蓝莓欧包</span>
+										<div class="price"><span class="price-item">RM 17.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+						
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-5.jpg" alt="火龙果欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">火龙果欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-6.jpg" alt="抹茶蔓越莓欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">抹茶蔓越莓欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+					
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-7.jpg" alt="蜂蜜金瓜欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">蜂蜜金瓜欧包</span>
+										<div class="price"><span class="price-item">RM 17.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+					</ul>
+					
+					<div class="slider-buttons no-js-hidden">
+						<button type="button" class="slider-button slider-button--prev" name="previous">
+							<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+						</button>
+						<div class="slider-counter caption">
+							<span class="slider-counter--current">1</span> / <span class="slider-counter--total">7</span>
+						</div>
+						<button type="button" class="slider-button slider-button--next" name="next">
+							<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+						</button>
+					</div>
+				</slider-component>
+
+				<h2 class="menu-title">Dessert / 甜点</h2>
+				<slider-component class="slider-mobile-gutter">
+					<ul class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
+						
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product">
+										<div class="card__inner">
+											<div class="media media--transparent media--square media--hover-effect">
+												<img src="assets/img/your-bread-1.jpg" alt="乡村酵母欧包" class="product-image default-image">
+												<img src="assets/img/your-bread-1-hover.jpg" alt="乡村酵母欧包 悬停图片">
+											</div>
+										</div>
+									</div>
+									<div class="card-information">
+										<div class="card-information__wrapper">
+											<span class="card-information__text">乡村酵母欧包</span>
+											<div class="price"><span class="price-item">RM 15.00</span></div>
+										</div>
+									</div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
+										<img src="assets/img/your-bread-2.jpg" alt="葡萄核桃欧包">
+										<img src="assets/img/your-bread-2-hover.jpg" alt="葡萄核桃欧包 悬停图片">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">葡萄核桃欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square media--hover-effect">
+										<img src="assets/img/your-bread-3.jpg" alt="巧克力核桃欧包">
+										<img src="assets/img/your-bread-3-hover.jpg" alt="巧克力核桃欧包 悬停图片">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">巧克力核桃欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-4.jpg" alt="柠檬蓝莓欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">柠檬蓝莓欧包</span>
+										<div class="price"><span class="price-item">RM 17.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+						
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-5.jpg" alt="火龙果欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">火龙果欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-6.jpg" alt="抹茶蔓越莓欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">抹茶蔓越莓欧包</span>
+										<div class="price"><span class="price-item">RM 16.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+					
+						<li class="grid__item slider__slide">
+							<div class="product-card-wrapper card-wrapper">
+								<a href="#" class="full-unstyled-link">
+									<div class="card card--product"><div class="card__inner"><div class="media media--transparent media--square">
+										<img src="assets/img/your-bread-7.jpg" alt="蜂蜜金瓜欧包">
+									</div></div></div>
+									<div class="card-information"><div class="card-information__wrapper">
+										<span class="card-information__text">蜂蜜金瓜欧包</span>
+										<div class="price"><span class="price-item">RM 17.00</span></div>
+									</div></div>
+								</a>
+							</div>
+						</li>
+					</ul>
+					
+					<div class="slider-buttons no-js-hidden">
+						<button type="button" class="slider-button slider-button--prev" name="previous">
+							<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+						</button>
+						<div class="slider-counter caption">
+							<span class="slider-counter--current">1</span> / <span class="slider-counter--total">7</span>
+						</div>
+						<button type="button" class="slider-button slider-button--next" name="next">
+							<svg aria-hidden="true" focusable="false" class="icon icon-caret" viewBox="0 0 10 6"><path d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+						</button>
+					</div>
+				</slider-component>
+			</div>
+		</section>
 </div>
 
 <!-- ======================= 页脚 ======================= -->
@@ -283,14 +572,16 @@
 </footer>
 
 <!-- ======================= 脚本 ======================= -->
-<!-- 注意加载顺序: jQuery -> 自定义脚本 -> 主题脚本 -->
-<script type='text/javascript' src='assets/js/doudou-slider.js'></script>
-<script type='text/javascript' src='assets/js/app-vendors-1475686289.js'></script>
-<script type='text/javascript' src='assets/js/app-1475686288.js'></script>
-
+<!-- 第三方插件 (ScrollTo, Waypoints, Fancybox) -->
+<script type='text/javascript' src='assets/js/vendors.js'></script>
+<!-- 自定义组件 (欧包轮播图) -->
+<script type='text/javascript' src='assets/js/slider.js'></script>
+<!-- 网站核心逻辑 (MaiRijiApp) -->
+<script type='text/javascript' src='assets/js/main.js'></script>
+<!-- 启动网站 -->
 <script type="text/javascript">
     $(window).load(function () {
-        var app = new LaParisienne();
+        var app = new MaiRijiApp();
         app.preload();
     })
 </script>

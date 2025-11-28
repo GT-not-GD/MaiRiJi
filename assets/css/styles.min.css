@@ -1,948 +1,842 @@
-@keyframes bounce{from,5%,17%,25%,35%,to{-webkit-animation-timing-function:cubic-bezier(0.215,0.61,0.355,1);animation-timing-function:cubic-bezier(0.215,0.61,0.355,1);-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}10%,13%{-webkit-animation-timing-function:cubic-bezier(0.755,0.05,0.855,0.06);animation-timing-function:cubic-bezier(0.755,0.05,0.855,0.06);-webkit-transform:translate3d(0,-15px,0);transform:translate3d(0,-15px,0)}20%{-webkit-animation-timing-function:cubic-bezier(0.755,0.05,0.855,0.06);animation-timing-function:cubic-bezier(0.755,0.05,0.855,0.06);-webkit-transform:translate3d(0,-6px,0);transform:translate3d(0,-6px,0)}30%{-webkit-transform:translate3d(0,-4px,0);transform:translate3d(0,-4px,0)}}html{color:#000;background:#fff}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0}table{border-collapse:collapse;border-spacing:0}fieldset,img{border:0}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal}ol,ul{list-style:none}caption,th{text-align:left}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}q:before,q:after{content:''}abbr,acronym{border:0;font-variant:normal}sup{vertical-align:text-top}sub{vertical-align:text-bottom}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit}input,textarea,select{*font-size:100%}legend{color:#000}#yui3-css-stamp.cssreset{display:none}.fa{display:inline-block;font:normal normal normal 30px/1 FontAwesome;font-size:inherit;text-rendering:auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.fa-lg{font-size:1.33333333em;line-height:.75em;vertical-align:-15%}.fa-2x{font-size:2em}.fa-3x{font-size:3em}.fa-4x{font-size:4em}.fa-5x{font-size:5em}.fa-fw{width:1.28571429em;text-align:center}.fa-ul{padding-left:0;margin-left:2.14285714em;list-style-type:none}.fa-ul>li{position:relative}.fa-li{position:absolute;left:-2.14285714em;width:2.14285714em;top:.14285714em;text-align:center}.fa-li.fa-lg{left:-1.85714286em}.fa-border{padding:.2em .25em .15em;border:solid .08em #eee;border-radius:.1em}.fa-pull-left{float:left}.fa-pull-right{float:right}.fa.fa-pull-left{margin-right:.3em}.fa.fa-pull-right{margin-left:.3em}.pull-right{float:right}.pull-left{float:left}.fa.pull-left{margin-right:.3em}.fa.pull-right{margin-left:.3em}.fa-spin{-webkit-animation:fa-spin 2s infinite linear;animation:fa-spin 2s infinite linear}.fa-pulse{-webkit-animation:fa-spin 1s infinite steps(8);animation:fa-spin 1s infinite steps(8)}@-webkit-keyframes fa-spin{0{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}@keyframes fa-spin{0{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}.fa-rotate-90{-ms-filter:"progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";-webkit-transform:rotate(90deg);-ms-transform:rotate(90deg);transform:rotate(90deg)}.fa-rotate-180{-ms-filter:"progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";-webkit-transform:rotate(180deg);-ms-transform:rotate(180deg);transform:rotate(180deg)}.fa-rotate-270{-ms-filter:"progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";-webkit-transform:rotate(270deg);-ms-transform:rotate(270deg);transform:rotate(270deg)}.fa-flip-horizontal{-ms-filter:"progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";-webkit-transform:scale(-1,1);-ms-transform:scale(-1,1);transform:scale(-1,1)}.fa-flip-vertical{-ms-filter:"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)";-webkit-transform:scale(1,-1);-ms-transform:scale(1,-1);transform:scale(1,-1)}:root .fa-rotate-90,:root .fa-rotate-180,:root .fa-rotate-270,:root .fa-flip-horizontal,:root .fa-flip-vertical{filter:none}.fa-stack{position:relative;display:inline-block;width:2em;height:2em;line-height:2em;vertical-align:middle}.fa-stack-1x,.fa-stack-2x{position:absolute;left:0;width:100%;text-align:center}.fa-stack-1x{line-height:inherit}.fa-stack-2x{font-size:2em}.fa-inverse{color:#fff}.fa-glass:before{content:"\f000"}.fa-music:before{content:"\f001"}.fa-search:before{content:"\f002"}.fa-envelope-o:before{content:"\f003"}.fa-heart:before{content:"\f004"}.fa-star:before{content:"\f005"}.fa-star-o:before{content:"\f006"}.fa-user:before{content:"\f007"}.fa-film:before{content:"\f008"}.fa-th-large:before{content:"\f009"}.fa-th:before{content:"\f00a"}.fa-th-list:before{content:"\f00b"}.fa-check:before{content:"\f00c"}.fa-remove:before,.fa-close:before,.fa-times:before{content:"\f00d"}.fa-search-plus:before{content:"\f00e"}.fa-search-minus:before{content:"\f010"}.fa-power-off:before{content:"\f011"}.fa-signal:before{content:"\f012"}.fa-gear:before,.fa-cog:before{content:"\f013"}.fa-trash-o:before{content:"\f014"}.fa-home:before{content:"\f015"}.fa-file-o:before{content:"\f016"}.fa-clock-o:before{content:"\f017"}.fa-road:before{content:"\f018"}.fa-download:before{content:"\f019"}.fa-arrow-circle-o-down:before{content:"\f01a"}.fa-arrow-circle-o-up:before{content:"\f01b"}.fa-inbox:before{content:"\f01c"}.fa-play-circle-o:before{content:"\f01d"}.fa-rotate-right:before,.fa-repeat:before{content:"\f01e"}.fa-refresh:before{content:"\f021"}.fa-list-alt:before{content:"\f022"}.fa-lock:before{content:"\f023"}.fa-flag:before{content:"\f024"}.fa-headphones:before{content:"\f025"}.fa-volume-off:before{content:"\f026"}.fa-volume-down:before{content:"\f027"}.fa-volume-up:before{content:"\f028"}.fa-qrcode:before{content:"\f029"}.fa-barcode:before{content:"\f02a"}.fa-tag:before{content:"\f02b"}.fa-tags:before{content:"\f02c"}.fa-book:before{content:"\f02d"}.fa-bookmark:before{content:"\f02e"}.fa-print:before{content:"\f02f"}.fa-camera:before{content:"\f030"}.fa-font:before{content:"\f031"}.fa-bold:before{content:"\f032"}.fa-italic:before{content:"\f033"}.fa-text-height:before{content:"\f034"}.fa-text-width:before{content:"\f035"}.fa-align-left:before{content:"\f036"}.fa-align-center:before{content:"\f037"}.fa-align-right:before{content:"\f038"}.fa-align-justify:before{content:"\f039"}.fa-list:before{content:"\f03a"}.fa-dedent:before,.fa-outdent:before{content:"\f03b"}.fa-indent:before{content:"\f03c"}.fa-video-camera:before{content:"\f03d"}.fa-photo:before,.fa-image:before,.fa-picture-o:before{content:"\f03e"}.fa-pencil:before{content:"\f040"}.fa-map-marker:before{content:"\f041"}.fa-adjust:before{content:"\f042"}.fa-tint:before{content:"\f043"}.fa-edit:before,.fa-pencil-square-o:before{content:"\f044"}.fa-share-square-o:before{content:"\f045"}.fa-check-square-o:before{content:"\f046"}.fa-arrows:before{content:"\f047"}.fa-step-backward:before{content:"\f048"}.fa-fast-backward:before{content:"\f049"}.fa-backward:before{content:"\f04a"}.fa-play:before{content:"\f04b"}.fa-pause:before{content:"\f04c"}.fa-stop:before{content:"\f04d"}.fa-forward:before{content:"\f04e"}.fa-fast-forward:before{content:"\f050"}.fa-step-forward:before{content:"\f051"}.fa-eject:before{content:"\f052"}.fa-chevron-left:before{content:"\f053"}.fa-chevron-right:before{content:"\f054"}.fa-plus-circle:before{content:"\f055"}.fa-minus-circle:before{content:"\f056"}.fa-times-circle:before{content:"\f057"}.fa-check-circle:before{content:"\f058"}.fa-question-circle:before{content:"\f059"}.fa-info-circle:before{content:"\f05a"}.fa-crosshairs:before{content:"\f05b"}.fa-times-circle-o:before{content:"\f05c"}.fa-check-circle-o:before{content:"\f05d"}.fa-ban:before{content:"\f05e"}.fa-arrow-left:before{content:"\f060"}.fa-arrow-right:before{content:"\f061"}.fa-arrow-up:before{content:"\f062"}.fa-arrow-down:before{content:"\f063"}.fa-mail-forward:before,.fa-share:before{content:"\f064"}.fa-expand:before{content:"\f065"}.fa-compress:before{content:"\f066"}.fa-plus:before{content:"\f067"}.fa-minus:before{content:"\f068"}.fa-asterisk:before{content:"\f069"}.fa-exclamation-circle:before{content:"\f06a"}.fa-gift:before{content:"\f06b"}.fa-leaf:before{content:"\f06c"}.fa-fire:before{content:"\f06d"}.fa-eye:before{content:"\f06e"}.fa-eye-slash:before{content:"\f070"}.fa-warning:before,.fa-exclamation-triangle:before{content:"\f071"}.fa-plane:before{content:"\f072"}.fa-calendar:before{content:"\f073"}.fa-random:before{content:"\f074"}.fa-comment:before{content:"\f075"}.fa-magnet:before{content:"\f076"}.fa-chevron-up:before{content:"\f077"}.fa-chevron-down:before{content:"\f078"}.fa-retweet:before{content:"\f079"}.fa-shopping-cart:before{content:"\f07a"}.fa-folder:before{content:"\f07b"}.fa-folder-open:before{content:"\f07c"}.fa-arrows-v:before{content:"\f07d"}.fa-arrows-h:before{content:"\f07e"}.fa-bar-chart-o:before,.fa-bar-chart:before{content:"\f080"}.fa-twitter-square:before{content:"\f081"}.fa-facebook-square:before{content:"\f082"}.fa-camera-retro:before{content:"\f083"}.fa-key:before{content:"\f084"}.fa-gears:before,.fa-cogs:before{content:"\f085"}.fa-comments:before{content:"\f086"}.fa-thumbs-o-up:before{content:"\f087"}.fa-thumbs-o-down:before{content:"\f088"}.fa-star-half:before{content:"\f089"}.fa-heart-o:before{content:"\f08a"}.fa-sign-out:before{content:"\f08b"}.fa-linkedin-square:before{content:"\f08c"}.fa-thumb-tack:before{content:"\f08d"}.fa-external-link:before{content:"\f08e"}.fa-sign-in:before{content:"\f090"}.fa-trophy:before{content:"\f091"}.fa-github-square:before{content:"\f092"}.fa-upload:before{content:"\f093"}.fa-lemon-o:before{content:"\f094"}.fa-phone:before{content:"\f095"}.fa-square-o:before{content:"\f096"}.fa-bookmark-o:before{content:"\f097"}.fa-phone-square:before{content:"\f098"}.fa-twitter:before{content:"\f099"}.fa-facebook-f:before,.fa-facebook:before{content:"\f09a"}.fa-github:before{content:"\f09b"}.fa-unlock:before{content:"\f09c"}.fa-credit-card:before{content:"\f09d"}.fa-feed:before,.fa-rss:before{content:"\f09e"}.fa-hdd-o:before{content:"\f0a0"}.fa-bullhorn:before{content:"\f0a1"}.fa-bell:before{content:"\f0f3"}.fa-certificate:before{content:"\f0a3"}.fa-hand-o-right:before{content:"\f0a4"}.fa-hand-o-left:before{content:"\f0a5"}.fa-hand-o-up:before{content:"\f0a6"}.fa-hand-o-down:before{content:"\f0a7"}.fa-arrow-circle-left:before{content:"\f0a8"}.fa-arrow-circle-right:before{content:"\f0a9"}.fa-arrow-circle-up:before{content:"\f0aa"}.fa-arrow-circle-down:before{content:"\f0ab"}.fa-globe:before{content:"\f0ac"}.fa-wrench:before{content:"\f0ad"}.fa-tasks:before{content:"\f0ae"}.fa-filter:before{content:"\f0b0"}.fa-briefcase:before{content:"\f0b1"}.fa-arrows-alt:before{content:"\f0b2"}.fa-group:before,.fa-users:before{content:"\f0c0"}.fa-chain:before,.fa-link:before{content:"\f0c1"}.fa-cloud:before{content:"\f0c2"}.fa-flask:before{content:"\f0c3"}.fa-cut:before,.fa-scissors:before{content:"\f0c4"}.fa-copy:before,.fa-files-o:before{content:"\f0c5"}.fa-paperclip:before{content:"\f0c6"}.fa-save:before,.fa-floppy-o:before{content:"\f0c7"}.fa-square:before{content:"\f0c8"}.fa-navicon:before,.fa-reorder:before,.fa-bars:before{content:"\f0c9"}.fa-list-ul:before{content:"\f0ca"}.fa-list-ol:before{content:"\f0cb"}.fa-strikethrough:before{content:"\f0cc"}.fa-underline:before{content:"\f0cd"}.fa-table:before{content:"\f0ce"}.fa-magic:before{content:"\f0d0"}.fa-truck:before{content:"\f0d1"}.fa-pinterest:before{content:"\f0d2"}.fa-pinterest-square:before{content:"\f0d3"}.fa-google-plus-square:before{content:"\f0d4"}.fa-google-plus:before{content:"\f0d5"}.fa-money:before{content:"\f0d6"}.fa-caret-down:before{content:"\f0d7"}.fa-caret-up:before{content:"\f0d8"}.fa-caret-left:before{content:"\f0d9"}.fa-caret-right:before{content:"\f0da"}.fa-columns:before{content:"\f0db"}.fa-unsorted:before,.fa-sort:before{content:"\f0dc"}.fa-sort-down:before,.fa-sort-desc:before{content:"\f0dd"}.fa-sort-up:before,.fa-sort-asc:before{content:"\f0de"}.fa-envelope:before{content:"\f0e0"}.fa-linkedin:before{content:"\f0e1"}.fa-rotate-left:before,.fa-undo:before{content:"\f0e2"}.fa-legal:before,.fa-gavel:before{content:"\f0e3"}.fa-dashboard:before,.fa-tachometer:before{content:"\f0e4"}.fa-comment-o:before{content:"\f0e5"}.fa-comments-o:before{content:"\f0e6"}.fa-flash:before,.fa-bolt:before{content:"\f0e7"}.fa-sitemap:before{content:"\f0e8"}.fa-umbrella:before{content:"\f0e9"}.fa-paste:before,.fa-clipboard:before{content:"\f0ea"}.fa-lightbulb-o:before{content:"\f0eb"}.fa-exchange:before{content:"\f0ec"}.fa-cloud-download:before{content:"\f0ed"}.fa-cloud-upload:before{content:"\f0ee"}.fa-user-md:before{content:"\f0f0"}.fa-stethoscope:before{content:"\f0f1"}.fa-suitcase:before{content:"\f0f2"}.fa-bell-o:before{content:"\f0a2"}.fa-coffee:before{content:"\f0f4"}.fa-cutlery:before{content:"\f0f5"}.fa-file-text-o:before{content:"\f0f6"}.fa-building-o:before{content:"\f0f7"}.fa-hospital-o:before{content:"\f0f8"}.fa-ambulance:before{content:"\f0f9"}.fa-medkit:before{content:"\f0fa"}.fa-fighter-jet:before{content:"\f0fb"}.fa-beer:before{content:"\f0fc"}.fa-h-square:before{content:"\f0fd"}.fa-plus-square:before{content:"\f0fe"}.fa-angle-double-left:before{content:"\f100"}.fa-angle-double-right:before{content:"\f101"}.fa-angle-double-up:before{content:"\f102"}.fa-angle-double-down:before{content:"\f103"}.fa-angle-left:before{content:"\f104"}.fa-angle-right:before{content:"\f105"}.fa-angle-up:before{content:"\f106"}.fa-angle-down:before{content:"\f107"}.fa-desktop:before{content:"\f108"}.fa-laptop:before{content:"\f109"}.fa-tablet:before{content:"\f10a"}.fa-mobile-phone:before,.fa-mobile:before{content:"\f10b"}.fa-circle-o:before{content:"\f10c"}.fa-quote-left:before{content:"\f10d"}.fa-quote-right:before{content:"\f10e"}.fa-spinner:before{content:"\f110"}.fa-circle:before{content:"\f111"}.fa-mail-reply:before,.fa-reply:before{content:"\f112"}.fa-github-alt:before{content:"\f113"}.fa-folder-o:before{content:"\f114"}.fa-folder-open-o:before{content:"\f115"}.fa-smile-o:before{content:"\f118"}.fa-frown-o:before{content:"\f119"}.fa-meh-o:before{content:"\f11a"}.fa-gamepad:before{content:"\f11b"}.fa-keyboard-o:before{content:"\f11c"}.fa-flag-o:before{content:"\f11d"}.fa-flag-checkered:before{content:"\f11e"}.fa-terminal:before{content:"\f120"}.fa-code:before{content:"\f121"}.fa-mail-reply-all:before,.fa-reply-all:before{content:"\f122"}.fa-star-half-empty:before,.fa-star-half-full:before,.fa-star-half-o:before{content:"\f123"}.fa-location-arrow:before{content:"\f124"}.fa-crop:before{content:"\f125"}.fa-code-fork:before{content:"\f126"}.fa-unlink:before,.fa-chain-broken:before{content:"\f127"}.fa-question:before{content:"\f128"}.fa-info:before{content:"\f129"}.fa-exclamation:before{content:"\f12a"}.fa-superscript:before{content:"\f12b"}.fa-subscript:before{content:"\f12c"}.fa-eraser:before{content:"\f12d"}.fa-puzzle-piece:before{content:"\f12e"}.fa-microphone:before{content:"\f130"}.fa-microphone-slash:before{content:"\f131"}.fa-shield:before{content:"\f132"}.fa-calendar-o:before{content:"\f133"}.fa-fire-extinguisher:before{content:"\f134"}.fa-rocket:before{content:"\f135"}.fa-maxcdn:before{content:"\f136"}.fa-chevron-circle-left:before{content:"\f137"}.fa-chevron-circle-right:before{content:"\f138"}.fa-chevron-circle-up:before{content:"\f139"}.fa-chevron-circle-down:before{content:"\f13a"}.fa-html5:before{content:"\f13b"}.fa-css3:before{content:"\f13c"}.fa-anchor:before{content:"\f13d"}.fa-unlock-alt:before{content:"\f13e"}.fa-bullseye:before{content:"\f140"}.fa-ellipsis-h:before{content:"\f141"}.fa-ellipsis-v:before{content:"\f142"}.fa-rss-square:before{content:"\f143"}.fa-play-circle:before{content:"\f144"}.fa-ticket:before{content:"\f145"}.fa-minus-square:before{content:"\f146"}.fa-minus-square-o:before{content:"\f147"}.fa-level-up:before{content:"\f148"}.fa-level-down:before{content:"\f149"}.fa-check-square:before{content:"\f14a"}.fa-pencil-square:before{content:"\f14b"}.fa-external-link-square:before{content:"\f14c"}.fa-share-square:before{content:"\f14d"}.fa-compass:before{content:"\f14e"}.fa-toggle-down:before,.fa-caret-square-o-down:before{content:"\f150"}.fa-toggle-up:before,.fa-caret-square-o-up:before{content:"\f151"}.fa-toggle-right:before,.fa-caret-square-o-right:before{content:"\f152"}.fa-euro:before,.fa-eur:before{content:"\f153"}.fa-gbp:before{content:"\f154"}.fa-dollar:before,.fa-usd:before{content:"\f155"}.fa-rupee:before,.fa-inr:before{content:"\f156"}.fa-cny:before,.fa-rmb:before,.fa-yen:before,.fa-jpy:before{content:"\f157"}.fa-ruble:before,.fa-rouble:before,.fa-rub:before{content:"\f158"}.fa-won:before,.fa-krw:before{content:"\f159"}.fa-bitcoin:before,.fa-btc:before{content:"\f15a"}.fa-file:before{content:"\f15b"}.fa-file-text:before{content:"\f15c"}.fa-sort-alpha-asc:before{content:"\f15d"}.fa-sort-alpha-desc:before{content:"\f15e"}.fa-sort-amount-asc:before{content:"\f160"}.fa-sort-amount-desc:before{content:"\f161"}.fa-sort-numeric-asc:before{content:"\f162"}.fa-sort-numeric-desc:before{content:"\f163"}.fa-thumbs-up:before{content:"\f164"}.fa-thumbs-down:before{content:"\f165"}.fa-youtube-square:before{content:"\f166"}.fa-youtube:before{content:"\f167"}.fa-xing:before{content:"\f168"}.fa-xing-square:before{content:"\f169"}.fa-youtube-play:before{content:"\f16a"}.fa-dropbox:before{content:"\f16b"}.fa-stack-overflow:before{content:"\f16c"}.fa-instagram:before{content:"\f16d"}.fa-flickr:before{content:"\f16e"}.fa-adn:before{content:"\f170"}.fa-bitbucket:before{content:"\f171"}.fa-bitbucket-square:before{content:"\f172"}.fa-tumblr:before{content:"\f173"}.fa-tumblr-square:before{content:"\f174"}.fa-long-arrow-down:before{content:"\f175"}.fa-long-arrow-up:before{content:"\f176"}.fa-long-arrow-left:before{content:"\f177"}.fa-long-arrow-right:before{content:"\f178"}.fa-apple:before{content:"\f179"}.fa-windows:before{content:"\f17a"}.fa-android:before{content:"\f17b"}.fa-linux:before{content:"\f17c"}.fa-dribbble:before{content:"\f17d"}.fa-skype:before{content:"\f17e"}.fa-foursquare:before{content:"\f180"}.fa-trello:before{content:"\f181"}.fa-female:before{content:"\f182"}.fa-male:before{content:"\f183"}.fa-gittip:before,.fa-gratipay:before{content:"\f184"}.fa-sun-o:before{content:"\f185"}.fa-moon-o:before{content:"\f186"}.fa-archive:before{content:"\f187"}.fa-bug:before{content:"\f188"}.fa-vk:before{content:"\f189"}.fa-weibo:before{content:"\f18a"}.fa-renren:before{content:"\f18b"}.fa-pagelines:before{content:"\f18c"}.fa-stack-exchange:before{content:"\f18d"}.fa-arrow-circle-o-right:before{content:"\f18e"}.fa-arrow-circle-o-left:before{content:"\f190"}.fa-toggle-left:before,.fa-caret-square-o-left:before{content:"\f191"}.fa-dot-circle-o:before{content:"\f192"}.fa-wheelchair:before{content:"\f193"}.fa-vimeo-square:before{content:"\f194"}.fa-turkish-lira:before,.fa-try:before{content:"\f195"}.fa-plus-square-o:before{content:"\f196"}.fa-space-shuttle:before{content:"\f197"}.fa-slack:before{content:"\f198"}.fa-envelope-square:before{content:"\f199"}.fa-wordpress:before{content:"\f19a"}.fa-openid:before{content:"\f19b"}.fa-institution:before,.fa-bank:before,.fa-university:before{content:"\f19c"}.fa-mortar-board:before,.fa-graduation-cap:before{content:"\f19d"}.fa-yahoo:before{content:"\f19e"}.fa-google:before{content:"\f1a0"}.fa-reddit:before{content:"\f1a1"}.fa-reddit-square:before{content:"\f1a2"}.fa-stumbleupon-circle:before{content:"\f1a3"}.fa-stumbleupon:before{content:"\f1a4"}.fa-delicious:before{content:"\f1a5"}.fa-digg:before{content:"\f1a6"}.fa-pied-piper-pp:before{content:"\f1a7"}.fa-pied-piper-alt:before{content:"\f1a8"}.fa-drupal:before{content:"\f1a9"}.fa-joomla:before{content:"\f1aa"}.fa-language:before{content:"\f1ab"}.fa-fax:before{content:"\f1ac"}.fa-building:before{content:"\f1ad"}.fa-child:before{content:"\f1ae"}.fa-paw:before{content:"\f1b0"}.fa-spoon:before{content:"\f1b1"}.fa-cube:before{content:"\f1b2"}.fa-cubes:before{content:"\f1b3"}.fa-behance:before{content:"\f1b4"}.fa-behance-square:before{content:"\f1b5"}.fa-steam:before{content:"\f1b6"}.fa-steam-square:before{content:"\f1b7"}.fa-recycle:before{content:"\f1b8"}.fa-automobile:before,.fa-car:before{content:"\f1b9"}.fa-cab:before,.fa-taxi:before{content:"\f1ba"}.fa-tree:before{content:"\f1bb"}.fa-spotify:before{content:"\f1bc"}.fa-deviantart:before{content:"\f1bd"}.fa-soundcloud:before{content:"\f1be"}.fa-database:before{content:"\f1c0"}.fa-file-pdf-o:before{content:"\f1c1"}.fa-file-word-o:before{content:"\f1c2"}.fa-file-excel-o:before{content:"\f1c3"}.fa-file-powerpoint-o:before{content:"\f1c4"}.fa-file-photo-o:before,.fa-file-picture-o:before,.fa-file-image-o:before{content:"\f1c5"}.fa-file-zip-o:before,.fa-file-archive-o:before{content:"\f1c6"}.fa-file-sound-o:before,.fa-file-audio-o:before{content:"\f1c7"}.fa-file-movie-o:before,.fa-file-video-o:before{content:"\f1c8"}.fa-file-code-o:before{content:"\f1c9"}.fa-vine:before{content:"\f1ca"}.fa-codepen:before{content:"\f1cb"}.fa-jsfiddle:before{content:"\f1cc"}.fa-life-bouy:before,.fa-life-buoy:before,.fa-life-saver:before,.fa-support:before,.fa-life-ring:before{content:"\f1cd"}.fa-circle-o-notch:before{content:"\f1ce"}.fa-ra:before,.fa-resistance:before,.fa-rebel:before{content:"\f1d0"}.fa-ge:before,.fa-empire:before{content:"\f1d1"}.fa-git-square:before{content:"\f1d2"}.fa-git:before{content:"\f1d3"}.fa-y-combinator-square:before,.fa-yc-square:before,.fa-hacker-news:before{content:"\f1d4"}.fa-tencent-weibo:before{content:"\f1d5"}.fa-qq:before{content:"\f1d6"}.fa-wechat:before,.fa-weixin:before{content:"\f1d7"}.fa-send:before,.fa-paper-plane:before{content:"\f1d8"}.fa-send-o:before,.fa-paper-plane-o:before{content:"\f1d9"}.fa-history:before{content:"\f1da"}.fa-circle-thin:before{content:"\f1db"}.fa-header:before{content:"\f1dc"}.fa-paragraph:before{content:"\f1dd"}.fa-sliders:before{content:"\f1de"}.fa-share-alt:before{content:"\f1e0"}.fa-share-alt-square:before{content:"\f1e1"}.fa-bomb:before{content:"\f1e2"}.fa-soccer-ball-o:before,.fa-futbol-o:before{content:"\f1e3"}.fa-tty:before{content:"\f1e4"}.fa-binoculars:before{content:"\f1e5"}.fa-plug:before{content:"\f1e6"}.fa-slideshare:before{content:"\f1e7"}.fa-twitch:before{content:"\f1e8"}.fa-yelp:before{content:"\f1e9"}.fa-newspaper-o:before{content:"\f1ea"}.fa-wifi:before{content:"\f1eb"}.fa-calculator:before{content:"\f1ec"}.fa-paypal:before{content:"\f1ed"}.fa-google-wallet:before{content:"\f1ee"}.fa-cc-visa:before{content:"\f1f0"}.fa-cc-mastercard:before{content:"\f1f1"}.fa-cc-discover:before{content:"\f1f2"}.fa-cc-amex:before{content:"\f1f3"}.fa-cc-paypal:before{content:"\f1f4"}.fa-cc-stripe:before{content:"\f1f5"}.fa-bell-slash:before{content:"\f1f6"}.fa-bell-slash-o:before{content:"\f1f7"}.fa-trash:before{content:"\f1f8"}.fa-copyright:before{content:"\f1f9"}.fa-at:before{content:"\f1fa"}.fa-eyedropper:before{content:"\f1fb"}.fa-paint-brush:before{content:"\f1fc"}.fa-birthday-cake:before{content:"\f1fd"}.fa-area-chart:before{content:"\f1fe"}.fa-pie-chart:before{content:"\f200"}.fa-line-chart:before{content:"\f201"}.fa-lastfm:before{content:"\f202"}.fa-lastfm-square:before{content:"\f203"}.fa-toggle-off:before{content:"\f204"}.fa-toggle-on:before{content:"\f205"}.fa-bicycle:before{content:"\f206"}.fa-bus:before{content:"\f207"}.fa-ioxhost:before{content:"\f208"}.fa-angellist:before{content:"\f209"}.fa-cc:before{content:"\f20a"}.fa-shekel:before,.fa-sheqel:before,.fa-ils:before{content:"\f20b"}.fa-meanpath:before{content:"\f20c"}.fa-buysellads:before{content:"\f20d"}.fa-connectdevelop:before{content:"\f20e"}.fa-dashcube:before{content:"\f210"}.fa-forumbee:before{content:"\f211"}.fa-leanpub:before{content:"\f212"}.fa-sellsy:before{content:"\f213"}.fa-shirtsinbulk:before{content:"\f214"}.fa-simplybuilt:before{content:"\f215"}.fa-skyatlas:before{content:"\f216"}.fa-cart-plus:before{content:"\f217"}.fa-cart-arrow-down:before{content:"\f218"}.fa-diamond:before{content:"\f219"}.fa-ship:before{content:"\f21a"}.fa-user-secret:before{content:"\f21b"}.fa-motorcycle:before{content:"\f21c"}.fa-street-view:before{content:"\f21d"}.fa-heartbeat:before{content:"\f21e"}.fa-venus:before{content:"\f221"}.fa-mars:before{content:"\f222"}.fa-mercury:before{content:"\f223"}.fa-intersex:before,.fa-transgender:before{content:"\f224"}.fa-transgender-alt:before{content:"\f225"}.fa-venus-double:before{content:"\f226"}.fa-mars-double:before{content:"\f227"}.fa-venus-mars:before{content:"\f228"}.fa-mars-stroke:before{content:"\f229"}.fa-mars-stroke-v:before{content:"\f22a"}.fa-mars-stroke-h:before{content:"\f22b"}.fa-neuter:before{content:"\f22c"}.fa-genderless:before{content:"\f22d"}.fa-facebook-official:before{content:"\f230"}.fa-pinterest-p:before{content:"\f231"}.fa-whatsapp:before{content:"\f232"}.fa-server:before{content:"\f233"}.fa-user-plus:before{content:"\f234"}.fa-user-times:before{content:"\f235"}.fa-hotel:before,.fa-bed:before{content:"\f236"}.fa-viacoin:before{content:"\f237"}.fa-train:before{content:"\f238"}.fa-subway:before{content:"\f239"}.fa-medium:before{content:"\f23a"}.fa-yc:before,.fa-y-combinator:before{content:"\f23b"}.fa-optin-monster:before{content:"\f23c"}.fa-opencart:before{content:"\f23d"}.fa-expeditedssl:before{content:"\f23e"}.fa-battery-4:before,.fa-battery-full:before{content:"\f240"}.fa-battery-3:before,.fa-battery-three-quarters:before{content:"\f241"}.fa-battery-2:before,.fa-battery-half:before{content:"\f242"}.fa-battery-1:before,.fa-battery-quarter:before{content:"\f243"}.fa-battery-0:before,.fa-battery-empty:before{content:"\f244"}.fa-mouse-pointer:before{content:"\f245"}.fa-i-cursor:before{content:"\f246"}.fa-object-group:before{content:"\f247"}.fa-object-ungroup:before{content:"\f248"}.fa-sticky-note:before{content:"\f249"}.fa-sticky-note-o:before{content:"\f24a"}.fa-cc-jcb:before{content:"\f24b"}.fa-cc-diners-club:before{content:"\f24c"}.fa-clone:before{content:"\f24d"}.fa-balance-scale:before{content:"\f24e"}.fa-hourglass-o:before{content:"\f250"}.fa-hourglass-1:before,.fa-hourglass-start:before{content:"\f251"}.fa-hourglass-2:before,.fa-hourglass-half:before{content:"\f252"}.fa-hourglass-3:before,.fa-hourglass-end:before{content:"\f253"}.fa-hourglass:before{content:"\f254"}.fa-hand-grab-o:before,.fa-hand-rock-o:before{content:"\f255"}.fa-hand-stop-o:before,.fa-hand-paper-o:before{content:"\f256"}.fa-hand-scissors-o:before{content:"\f257"}.fa-hand-lizard-o:before{content:"\f258"}.fa-hand-spock-o:before{content:"\f259"}.fa-hand-pointer-o:before{content:"\f25a"}.fa-hand-peace-o:before{content:"\f25b"}.fa-trademark:before{content:"\f25c"}.fa-registered:before{content:"\f25d"}.fa-creative-commons:before{content:"\f25e"}.fa-gg:before{content:"\f260"}.fa-gg-circle:before{content:"\f261"}.fa-tripadvisor:before{content:"\f262"}.fa-odnoklassniki:before{content:"\f263"}.fa-odnoklassniki-square:before{content:"\f264"}.fa-get-pocket:before{content:"\f265"}.fa-wikipedia-w:before{content:"\f266"}.fa-safari:before{content:"\f267"}.fa-chrome:before{content:"\f268"}.fa-firefox:before{content:"\f269"}.fa-opera:before{content:"\f26a"}.fa-internet-explorer:before{content:"\f26b"}.fa-tv:before,.fa-television:before{content:"\f26c"}.fa-contao:before{content:"\f26d"}.fa-500px:before{content:"\f26e"}.fa-amazon:before{content:"\f270"}.fa-calendar-plus-o:before{content:"\f271"}.fa-calendar-minus-o:before{content:"\f272"}.fa-calendar-times-o:before{content:"\f273"}.fa-calendar-check-o:before{content:"\f274"}.fa-industry:before{content:"\f275"}.fa-map-pin:before{content:"\f276"}.fa-map-signs:before{content:"\f277"}.fa-map-o:before{content:"\f278"}.fa-map:before{content:"\f279"}.fa-commenting:before{content:"\f27a"}.fa-commenting-o:before{content:"\f27b"}.fa-houzz:before{content:"\f27c"}.fa-vimeo:before{content:"\f27d"}.fa-black-tie:before{content:"\f27e"}.fa-fonticons:before{content:"\f280"}.fa-reddit-alien:before{content:"\f281"}.fa-edge:before{content:"\f282"}.fa-credit-card-alt:before{content:"\f283"}.fa-codiepie:before{content:"\f284"}.fa-modx:before{content:"\f285"}.fa-fort-awesome:before{content:"\f286"}.fa-usb:before{content:"\f287"}.fa-product-hunt:before{content:"\f288"}.fa-mixcloud:before{content:"\f289"}.fa-scribd:before{content:"\f28a"}.fa-pause-circle:before{content:"\f28b"}.fa-pause-circle-o:before{content:"\f28c"}.fa-stop-circle:before{content:"\f28d"}.fa-stop-circle-o:before{content:"\f28e"}.fa-shopping-bag:before{content:"\f290"}.fa-shopping-basket:before{content:"\f291"}.fa-hashtag:before{content:"\f292"}.fa-bluetooth:before{content:"\f293"}.fa-bluetooth-b:before{content:"\f294"}.fa-percent:before{content:"\f295"}.fa-gitlab:before{content:"\f296"}.fa-wpbeginner:before{content:"\f297"}.fa-wpforms:before{content:"\f298"}.fa-envira:before{content:"\f299"}.fa-universal-access:before{content:"\f29a"}.fa-wheelchair-alt:before{content:"\f29b"}.fa-question-circle-o:before{content:"\f29c"}.fa-blind:before{content:"\f29d"}.fa-audio-description:before{content:"\f29e"}.fa-volume-control-phone:before{content:"\f2a0"}.fa-braille:before{content:"\f2a1"}.fa-assistive-listening-systems:before{content:"\f2a2"}.fa-asl-interpreting:before,.fa-american-sign-language-interpreting:before{content:"\f2a3"}.fa-deafness:before,.fa-hard-of-hearing:before,.fa-deaf:before{content:"\f2a4"}.fa-glide:before{content:"\f2a5"}.fa-glide-g:before{content:"\f2a6"}.fa-signing:before,.fa-sign-language:before{content:"\f2a7"}.fa-low-vision:before{content:"\f2a8"}.fa-viadeo:before{content:"\f2a9"}.fa-viadeo-square:before{content:"\f2aa"}.fa-snapchat:before{content:"\f2ab"}.fa-snapchat-ghost:before{content:"\f2ac"}.fa-snapchat-square:before{content:"\f2ad"}.fa-pied-piper:before{content:"\f2ae"}.fa-first-order:before{content:"\f2b0"}.fa-yoast:before{content:"\f2b1"}.fa-themeisle:before{content:"\f2b2"}.fa-google-plus-circle:before,.fa-google-plus-official:before{content:"\f2b3"}.fa-fa:before,.fa-font-awesome:before{content:"\f2b4"}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.sr-only-focusable:active,.sr-only-focusable:focus{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}@font-face{font-family:'Mastadoni';src:url('fonts/mastadonig4-webfont.eot');src:url('fonts/mastadonig4-webfontd41d.eot?#iefix') format('embedded-opentype'),url('fonts/mastadonig4-webfont.woff') format('woff'),url('fonts/mastadonig4-webfont.ttf') format('truetype'),url('fonts/mastadonig4-webfont.svg#icon') format('svg');font-weight:normal;font-style:normal}@font-face{font-family:'TexGyre';src:url('fonts/texgyreadventor-bold-webfont.eot');src:url('fonts/texgyreadventor-bold-webfontd41d.eot?#iefix') format('embedded-opentype'),url('fonts/texgyreadventor-bold-webfont.woff') format('woff'),url('fonts/texgyreadventor-bold-webfont.ttf') format('truetype'),url('fonts/texgyreadventor-bold-webfont.svg#icon') format('svg');font-weight:700;font-style:normal}@font-face{font-family:'TexGyre';src:url('fonts/texgyreadventor-regular-webfont.eot');src:url('fonts/texgyreadventor-regular-webfontd41d.eot?#iefix') format('embedded-opentype'),url('fonts/texgyreadventor-regular-webfont.woff') format('woff'),url('fonts/texgyreadventor-regular-webfont.ttf') format('truetype'),url('fonts/texgyreadventor-regular-webfont.svg#icon') format('svg');font-weight:400;font-style:normal}html{background-color:#323232}body{color:#000;font-family:'TexGyre';font-weight:400}h1,h2,h3,h4,h5,h6{font-weight:normal}a{text-decoration:none;color:#fff}section,article header,article footer{position:relative;background-repeat:no-repeat;background-position:center center;background-size:cover;background-color:#fff;padding:50px 0 50px}section.half-bg,article header.half-bg,article footer.half-bg{background-position:left center;background-size:45% auto}section.half-bg-r,article header.half-bg-r,article footer.half-bg-r{background-position:right center;background-size:45% auto}section.psmall,article header.psmall,article footer.psmall{padding:25px 0 25px}section.pbig,article header.pbig,article footer.pbig{padding:75px 0 75px}section.pbigxxl,article header.pbigxxl,article footer.pbigxxl{padding:150px 0 100px}@media only screen and (max-width:767px){section.half-bg,article header.half-bg,article footer.half-bg{background-image:none !important}section.half-bg-r,article header.half-bg-r,article footer.half-bg-r{background-image:none !important}section.pbig,article header.pbig,article footer.pbig{padding:50px 0 30px}}.wrap{max-width:1400px;width:90%;margin:0 auto;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between}.wrap.with-inner{max-width:1280px}.wrap .col{width:46.25%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.wrap .col.vcenter{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}.wrap .col.maxi{width:53.75%}.wrap .col.col-image img{width:100%;height:auto}@media only screen and (max-width:767px){.wrap .col{width:100%}.wrap .col.maxi{with:100%}.wrap .col.col-image{width:100%;padding:50px 0 0}}#page-container{position:relative;z-index:1000}.carret-w:after{pointer-events:none;position:absolute;left:0;right:0;bottom:0;height:23px;background:url('../img/bg-carret-w.png') repeat-x center bottom;content:'';z-index:5}.wysi h2{font-family:'Mastadoni';font-size:35px;margin-bottom:20px;line-height:1.1em}.wysi h3{font-size:21px;text-transform:uppercase;margin-top:25px;margin-bottom:25px;color:#92683b;line-height:1.1em}.wysi p{color:#000;margin-bottom:20px}.wysi p.text-highlight{font-weight:700;font-size:35px;line-height:1.1em;width:80%}@media only screen and (max-width:767px){.wysi p.text-highlight{font-size:25px}}.wysi p strong{font-weight:700}.wysi a{text-decoration:underline;color:#000;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s;transition:all .3s}.wysi a:hover{color:#8e6747}.wysi a.button{color:#8e6747;border:1px solid #8e6747;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:25px 30px;display:inline-block;text-decoration:none;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s;transition:all .3s;position:relative;z-index:10}.wysi a.button:before{position:absolute;top:0;left:0;bottom:0;content:'';width:0;background-color:#8e6747;-webkit-transition:width .3s;-moz-transition:width .3s;-o-transition:width .3s;transition:width .3s;z-index:-1;pointer-events:none}.wysi a.button:hover{color:#fff}.wysi a.button:hover:before{width:100%}@media only screen and (max-width:767px){.wysi p.button-container{text-align:center}}.wysi ul li{padding-left:1em;text-indent:-0.7em;padding-bottom:1.5px;padding-top:1.5px}.wysi ul li:before{content:"\f111";padding-right:8px;text-align:left;font-family:"FontAwesome";font-size:8px;line-height:6px}.wysi .gallery{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:flex-start;-moz-box-pack:start;-webkit-justify-content:start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;margin-bottom:30px}.wysi .gallery dl{width:33%;margin:0 .33% .33% 0;overflow:hidden}.wysi .gallery dl dt{overflow:hidden;position:relative}.wysi .gallery dl dt a{display:block}.wysi .gallery dl dt img{width:100%;height:auto;margin-bottom:2px;-webkit-transition:.2s all;-moz-transition:.2s all;-o-transition:.2s all;transition:.2s all}.wysi .gallery dl dd{display:none}.wysi iframe{width:100%;max-width:100%}.wysi .video-container{position:relative;padding-bottom:56.25%;padding-top:0;height:0;overflow:hidden;margin:0}.wysi .video-container iframe,.wysi .video-container object,.wysi .video-container embed{position:absolute;top:0;left:0;width:100%;height:100%}.wysi .entry-content img,.wysi .entry-content iframe,.wysi .entry-content object,.wysi .entry-content embed{max-width:100%}.main-header{position:fixed;top:0;width:100vw;height:156px;z-index:2000}.main-header .wrap{max-width:1350px;height:156px;position:relative;z-index:10;display:block}.main-header .logos .m-burger,.main-header .logos .m-close{display:none}.main-header a#logo{position:absolute;left:50%;top:0;height:156px;width:245px;-webkit-transform:translateX(-50%);-moz-transform:translateX(-50%);-o-transform:translateX(-50%);-ms-transform:translateX(-50%);transform:translateX(-50%);text-align:center;-webkit-transition:height 0 linear .1s,width 0 linear .1s;-moz-transition:height 0 linear .1s,width 0 linear .1s;-o-transition:height 0 linear .1s,width 0 linear .1s;transition:height 0 linear .1s,width 0 linear .1s;z-index:200}.main-header a#logo img{position:absolute;top:50%;left:50%;-webkit-transform:translateX(-50%) translateY(-50%);-moz-transform:translateX(-50%) translateY(-50%);-o-transform:translateX(-50%) translateY(-50%);-ms-transform:translateX(-50%) translateY(-50%);transform:translateX(-50%) translateY(-50%);width:100%;height:auto;-webkit-opacity:1;-moz-opacity:1;opacity:1;-webkit-transition:opacity .1s linear .15s;-moz-transition:opacity .1s linear .15s;-o-transition:opacity .1s linear .15s;transition:opacity .1s linear .15s}.main-header a#logo img.small{display:none}.main-header a#logo img.big-black{display:none}.main-header nav.main-nav{width:100%;background:url('../img/bg-menu.png') repeat-x top center;position:absolute;top:45px;-webkit-transition:top .3s ease-in;-moz-transition:top .3s ease-in;-o-transition:top .3s ease-in;transition:top .3s ease-in;-webkit-transition-timing-function:ease;-moz-transition-timing-function:ease;-o-transition-timing-function:ease;transition-timing-function:ease;z-index:100}.main-header nav.main-nav ul{width:100%;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}.main-header nav.main-nav ul li{display:inline-block;padding:0 50px;-webkit-transition:.3s padding;-moz-transition:.3s padding;-o-transition:.3s padding;transition:.3s padding}.main-header nav.main-nav ul li a{width:100px;display:block;text-align:center;line-height:65px;font-size:13px;text-transform:uppercase;letter-spacing:2px;position:relative;-webkit-transition:color .1s linear;-moz-transition:color .1s linear;-o-transition:color .1s linear;transition:color .1s linear;color:#fff}.main-header nav.main-nav ul li a:after{background-color:rgba(255,255,255,0);position:absolute;bottom:0;height:5px;left:0;width:100%;content:'';-webkit-transition:.4s background-color;-moz-transition:.4s background-color;-o-transition:.4s background-color;transition:.4s background-color;-webkit-transition-delay:.3s;-moz-transition-delay:.3s;-o-transition-delay:.3s;transition-delay:.3s}.main-header nav.main-nav ul li a:hover:after{background-color:rgba(255,255,255,0.3)}.main-header nav.main-nav ul li.active a:after,.main-header nav.main-nav ul li.current-menu-item a:after{background-color:rgba(255,255,255,0.3)}.main-header nav.main-nav ul li:nth-child(2){padding-right:190px}.main-header nav.main-nav ul li:nth-child(3){padding-left:190px}.main-header nav.secondary-nav{height:65px;width:100%;position:relative;z-index:90}.main-header nav.secondary-nav ul{margin:-5px 0 0 0;display:inline-block;height:10px;position:absolute;top:35px;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-transition:.4s top;-moz-transition:.4s top;-o-transition:.4s top;transition:.4s top;-webkit-transition-timing-function:ease-in;-moz-transition-timing-function:ease-in;-o-transition-timing-function:ease-in;transition-timing-function:ease-in}.main-header nav.secondary-nav ul li{text-transform:uppercase;font-size:10px;color:#aaa;letter-spacing:1px;line-height:10px;display:block}.main-header nav.secondary-nav ul li a{text-transform:uppercase;font-size:10px;color:#aaa;display:inline-block;letter-spacing:1px;-webkit-transition:.8s color;-moz-transition:.8s color;-o-transition:.8s color;transition:.8s color;position:relative;display:block}.main-header nav.secondary-nav ul li a:hover{color:#fff}.main-header nav.secondary-nav ul li.active a,.main-header nav.secondary-nav ul li.current-menu-item a{color:#fff}.main-header nav.secondary-nav ul.menu{left:0}.main-header nav.secondary-nav ul.menu li{margin-right:15px}.main-header nav.secondary-nav ul.languages{right:0}.main-header nav.secondary-nav ul.languages li{margin-left:4px}.main-header nav.secondary-nav ul.languages li a{padding:0 1px}.main-header nav.liste-produits{position:fixed;top:156px;left:0;background-color:#fff;width:100vw;-webkit-transform:scaleY(0);-moz-transform:scaleY(0);-o-transform:scaleY(0);-ms-transform:scaleY(0);transform:scaleY(0);-webkit-transform-origin:0 0;-moz-transform-origin:0 0;-o-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0;-webkit-transition:all .3s;-moz-transition:all .3s;-o-transition:all .3s;transition:all .3s;-webkit-transition-delay:.2s;-moz-transition-delay:.2s;-o-transition-delay:.2s;transition-delay:.2s;-webkit-transition-duration:.2s;-moz-transition-duration:.2s;-o-transition-duration:.2s;transition-duration:.2s}.main-header nav.liste-produits .wrap{padding:35px 0 15px;max-width:1100px;height:auto}.main-header nav.liste-produits .wrap h1.liste-title{display:none}.main-header nav.liste-produits .wrap .m-close-produit{display:none}.main-header nav.liste-produits .wrap ul{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;width:100%}.main-header nav.liste-produits .wrap ul li{display:inline-block;width:20%;overflow:auto;-webkit-opacity:0;-moz-opacity:0;opacity:0;-webkit-transition:all .2s;-moz-transition:all .2s;-o-transition:all .2s;transition:all .2s}.main-header nav.liste-produits .wrap:before{position:absolute;top:-10px;left:26.4%;width:34px;height:10px;background:url('../img/cursor.png') no-repeat center center;content:''}.main-header nav.liste-produits.open{-webkit-transform:scaleY(1);-moz-transform:scaleY(1);-o-transform:scaleY(1);-ms-transform:scaleY(1);transform:scaleY(1);-webkit-transition-delay:0;-moz-transition-delay:0;-o-transition-delay:0;transition-delay:0;-webkit-transition-duration:.3s;-moz-transition-duration:.3s;-o-transition-duration:.3s;transition-duration:.3s}.main-header nav.liste-produits.open .wrap ul li{-webkit-transition-delay:.4s;-moz-transition-delay:.4s;-o-transition-delay:.4s;transition-delay:.4s;-webkit-transition-duration:.8s;-moz-transition-duration:.8s;-o-transition-duration:.8s;transition-duration:.8s;-webkit-opacity:1;-moz-opacity:1;opacity:1}.main-header nav.liste-produits.open .wrap ul li:nth-child(2){-webkit-transition-delay:.6s;-moz-transition-delay:.6s;-o-transition-delay:.6s;transition-delay:.6s}.main-header nav.liste-produits.open .wrap ul li:nth-child(3){-webkit-transition-delay:.8s;-moz-transition-delay:.8s;-o-transition-delay:.8s;transition-delay:.8s}.main-header nav.liste-produits.open .wrap ul li:nth-child(4){-webkit-transition-delay:1s;-moz-transition-delay:1s;-o-transition-delay:1s;transition-delay:1s}@media only screen and (min-width:1200px),only screen and (min-width:767px) and (max-width:1199px){.main-header.small a#logo{height:65px;width:102px;-webkit-transition-delay:0;-moz-transition-delay:0;-o-transition-delay:0;transition-delay:0;-webkit-transition-duration:0;-moz-transition-duration:0;-o-transition-duration:0;transition-duration:0}.main-header.small a#logo img.small{display:block}.main-header.small a#logo img.big{-webkit-opacity:0;-moz-opacity:0;opacity:0;-webkit-transition-delay:0;-moz-transition-delay:0;-o-transition-delay:0;transition-delay:0;-webkit-transition-duration:.15s;-moz-transition-duration:.15s;-o-transition-duration:.15s;transition-duration:.15s}.main-header.small nav.main-nav{top:0;background:0}.main-header.small nav.main-nav ul li{padding:0 35px}.main-header.small nav.main-nav ul li:nth-child(2){padding-right:100px}.main-header.small nav.main-nav ul li:nth-child(3){padding-left:100px}.main-header.small nav.main-nav ul li a{color:#242425;-webkit-transition-delay:.1s;-moz-transition-delay:.1s;-o-transition-delay:.1s;transition-delay:.1s}.main-header.small nav.secondary-nav ul{top:32.5px}.main-header.small nav.liste-produits{top:66px;border-bottom:1px solid rgba(0,0,0,0.1)}.main-header.small nav.liste-produits .wrap:before{display:none}.main-header.small:after{top:0;height:65px;-webkit-transition-delay:0;-moz-transition-delay:0;-o-transition-delay:0;transition-delay:0}.main-header:after{position:absolute;height:0;background-color:#fff;-webkit-transition:height .3s linear 0;-moz-transition:height .3s linear 0;-o-transition:height .3s linear 0;transition:height .3s linear 0;top:-1px;left:0;right:0;content:'';z-index:1;border-bottom:1px solid rgba(0,0,0,0.1)}}.scrollTrigger.post-fixed{margin-top:100vh}.scrollTrigger.post-fixed-short{margin-top:590px}section.intro,header.intro{height:100vh;widht:100vw;position:relative;color:#fff;background-color:transparent;background-position:center center;background-size:cover;background-repeat:no-repeat;padding:0}section.intro.fixed,header.intro.fixed{position:fixed;top:0;left:0;right:0}section.intro .wrap,header.intro .wrap{-webkit-opacity:1;-moz-opacity:1;opacity:1;-webkit-transition:opacity .1s;-moz-transition:opacity .1s;-o-transition:opacity .1s;transition:opacity .1s;position:relative;z-index:50}section.intro.faded .wrap,header.intro.faded .wrap{-webkit-opacity:0;-moz-opacity:0;opacity:0}section.intro .down,header.intro .down{position:absolute;bottom:60px;margin-top:10.5px;left:50%;margin-left:-29px;animation:bounce 7.0 ease infinite;z-index:50;-webkit-transform-origin:center bottom;-moz-transform-origin:center bottom;-o-transform-origin:center bottom;-ms-transform-origin:center bottom;transform-origin:center bottom}section.intro .bg,header.intro .bg{position:absolute;cursor-pointer:none;z-index:1;left:0;bottom:0;right:0;top:0;background-position:center center;background-size:cover}section.intro.short,header.intro.short{height:590px;background-color:#323232}section.intro.short .wrap,header.intro.short .wrap{height:590px;padding-top:50px;text-align:center;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}section.intro.short .down,header.intro.short .down{bottom:20px}section.texte-alone .wrap{max-width:950px;width:90%;margin:0 auto}section.texte-alone .wrap .col{width:100%}header.page-intro .wrap{height:100vh;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;text-align:center}header.page-intro .wrap h1{font-weight:700;font-size:40px;color:#fff;width:50%;margin:0 auto;line-height:1.2em}section.citation .wrap{text-align:center;display:block}section.citation .wrap blockquote{font-size:30px;font-weight:700;font-style:italic;padding:50px 0;line-height:1.1em;display:inline-block}section.image-full{padding:40px 0}section.image-full .wrap div{width:100%;height:auto}section.image-full .wrap div img{width:100%;height:auto}section.image-full-big{padding:30px 0}section.image-full-big img{width:100%;height:auto}section.liste .wrap h1.liste-title{font-size:35px;text-align:center;width:100%;margin-bottom:45px}section.liste .wrap ul{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;width:100%}section.liste .wrap ul li{display:inline-block;padding-bottom:40px;width:23%}section.liste .wrap ul.elx3 li{width:31.25%}section.liste .wrap ul.elx4 li{width:22.65625%}section.liste-produits{padding:0}section.liste-produits header.intro span{display:block;text-align:center;text-transform:uppercase;font-size:13px;line-height:1em;letter-spacing:1px}section.liste-produits header.intro h1{display:block;text-align:center;font-size:55px;font-family:'Mastadoni'}section.liste-produits .liste .wrap{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between}section.liste-produits .liste .wrap .first-line{width:65.71428571428571%}section.liste-produits .liste .wrap .first-line article{width:100%}section.liste-produits .liste .wrap .second-line{width:31.428571428571427%}section.liste-produits .liste .wrap .second-line article{width:100%}section.liste-produits .liste .wrap .next{width:100%;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between}section.liste-produits .liste .wrap .next article{width:31.428571428571427%}section.liste-produits .liste .wrap .bottom-texte{width:100%;font-size:23px;margin:50px 0;text-align:center}section.liste-produits .liste .wrap .bottom-texte a{color:#000;text-decoration:underline}section.boutiques{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;padding-top:30px !important}section.boutiques .map{height:550px;width:100%;padding:0 30px 0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}section.boutiques .map .inner{height:100%}section.boutiques .wrap{padding-top:60px}section.boutiques article{width:30%}section.home-intro .wrap{position:relative;height:100vh;z-index:1000}section.home-intro .bg{z-index:1;background-size:cover;background-position:center center;top:0;left:0;right:0;bottom:0}section.home-intro .inner{width:50%;position:absolute;bottom:18vh;right:0;-webkit-opacity:0;-moz-opacity:0;opacity:0;-webkit-transition:0 all 0 ease-out;-moz-transition:0 all 0 ease-out;-o-transition:0 all 0 ease-out;transition:0 all 0 ease-out}section.home-intro .inner h1{font-size:40px;font-family:'TexGyre';width:95%;margin-bottom:30px;line-height:1.2em;margin:30px 0 40px}section.home-intro.show .inner{-webkit-transition:2s all .5s ease-out;-moz-transition:2s all .5s ease-out;-o-transition:2s all .5s ease-out;transition:2s all .5s ease-out;bottom:21vh;-webkit-opacity:1;-moz-opacity:1;opacity:1}section.home-awards{padding:190px 0 185px;position:relative;overflow:hidden}section.home-awards .wrap{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;position:relative;z-index:100}section.home-awards .col{width:37.07142857142857%;text-align:right;color:#fff;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}section.home-awards .col h2{font-size:50px;line-height:1.1em}section.home-awards .col h3{font-size:35px;font-family:'Mastadoni';line-height:1.1em}section.home-awards .col h4{font-size:23px;font-weight:700;line-height:1.1em}section.home-awards .col.col-image{width:15.428571428571427%}section.home-awards .col.col-image img{width:100%;height:auto}section.home-awards .col:last-child{text-align:left}section.home-awards .bg{position:absolute;z-index:1;top:-50px;left:0;right:0;bottom:-50px;background-repeat:no-repeat;background-size:cover}article.tax-short{display:inline-block}article.tax-short .img{width:100%;position:relative;overflow:hidden;margin-bottom:15px}article.tax-short .img .overlay{position:absolute;background-size:50% 50%;top:0;left:0;right:0;bottom:0;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;text-align:center;-webkit-opacity:0;-moz-opacity:0;opacity:0;font-size:20px;text-transform:uppercase}article.tax-short .img .overlay .bg{position:absolute;background:#000 url('../img/logo-mini.png') no-repeat center center;background-size:50% 50%;top:0;left:0;right:0;bottom:0;-webkit-opacity:0;-moz-opacity:0;opacity:0;-webkit-transition:.5s all;-moz-transition:.5s all;-o-transition:.5s all;transition:.5s all;z-index:5}article.tax-short .img .overlay p{padding-top:30px;-webkit-opacity:0;-moz-opacity:0;opacity:0;-webkit-transition:.5s all .2s;-moz-transition:.5s all .2s;-o-transition:.5s all .2s;transition:.5s all .2s;text-transform:uppercase;color:#fff;position:relative;z-index:10}article.tax-short .img img{width:100%;height:auto;display:block;line-height:0;-webkit-opacity:1;-moz-opacity:1;opacity:1}article.tax-short p.label{text-align:center;font-size:12px;margin:0;text-transform:uppercase;color:#000;letter-spacing:.3px;-webkit-transition:color .3s;-moz-transition:color .3s;-o-transition:color .3s;transition:color .3s}article.tax-short:hover .img .overlay{bottom:0;-webkit-opacity:1;-moz-opacity:1;opacity:1}article.tax-short:hover .img .overlay .bg{-webkit-opacity:.35;-moz-opacity:.35;opacity:.35}article.tax-short:hover .img .overlay p{padding-top:15px;-webkit-opacity:.9;-moz-opacity:.9;opacity:.9}article.tax-short:hover p.label{color:#92683b}article.equipe img{width:100%;height:auto;margin-bottom:12px}article.equipe h1{font-weight:bold;font-size:18px;text-transform:uppercase;line-height:1em;text-align:left;margin:0 0 8px 0}article.equipe p.poste{font-size:14px;font-style:italic;margin-bottom:15px;line-height:1em;color:#92683b;font-weight:bold}article.equipe p.bio{font-size:14px}article.produit{cursor:pointer}article.produit header{padding:0}article.produit header .img{background-color:#8e6747;margin-bottom:20px;width:100%}article.produit header .img img{width:100%;height:auto;display:block;-webkit-opacity:1;-moz-opacity:1;opacity:1;-webkit-transition:opacity .6s;-moz-transition:opacity .6s;-o-transition:opacity .6s;transition:opacity .6s}article.produit header h1{font-size:12px;font-weight:700;text-transform:uppercase;color:#000;margin-bottom:45px;line-height:1em;letter-spacing:.5px}article.produit header h1 span{font-weight:400;display:inline-block;padding:0 10px}article.produit .galerie{display:none}article.produit:hover .img img{-webkit-opacity:.8;-moz-opacity:.8;opacity:.8}article.boutique{text-align:center;margin-bottom:60px}article.boutique img{width:100%;height:auto;margin-bottom:30px;display:block;line-height:0}article.boutique h1{font-weight:700;font-size:18px;line-height:1.4em;text-transform:uppercase}article.boutique h1 span{font-weight:400}article.boutique p{line-height:1.6em;font-size:14px}article.boutique p a{color:#000}article.boutique a{font-size:15px;line-height:1.4em;color:#92683b}article.press{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;width:100%;margin-bottom:70px}article.press .tb{width:28.225806451612907%}article.press .tb img{width:100%;height:auto}article.press section{width:66.93548387096774%;padding:0}article.press section h1{font-size:35px;font-weight:700;line-height:35px;margin-bottom:10px}article.press section h1 img{display:inline-block;margin-left:15px}article.press section h2{font-size:20px;font-weight:700;margin-bottom:0;line-height:1.5em}article.press section p{margin-bottom:15px;font-size:14px}article.press section a{text-decoration:underline;text-transform:uppercase;color:#000;font-size:14px}footer.main-footer{padding:30px 0 30px;position:relative;z-index:1999;overflow:hidden}footer.main-footer .bg{position:absolute;top:0;left:0;bottom:-150px;right:0;background:url('../img/bg-footer.jpg') center center;background-size:cover;pointer-events:none}footer.main-footer .wrap{position:relative}footer.main-footer .cols{width:80%;margin:0 auto 40px;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:space-around;-moz-box-pack:justify;-webkit-justify-content:distribute;-ms-flex-pack:space-around;justify-content:space-around}footer.main-footer .cols .col{width:40%}footer.main-footer .cols .col.logo{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;text-align:center}footer.main-footer .cols .col.logo img{width:auto;height:auto;display:inline}footer.main-footer .cols .col.social{width:45%}footer.main-footer .cols .col.social h3{font-size:30px;font-family:'Mastadoni';margin-bottom:20px;color:#fff}footer.main-footer .cols .col.social p{margin-bottom:20px;font-size:15px;line-height:1.3em;color:#fff}footer.main-footer .cols .col.social a{display:inline-block;padding:28px 70px;border:1px solid #fff;font-size:14px;text-transform:uppercase}footer.main-footer .cols .col.social a i{font-size:14px;margin-right:6px}footer.main-footer ul.partenaires{width:100%;text-align:center;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;margin-bottom:55px}footer.main-footer ul.partenaires li{margin:0 30px 15px}footer.main-footer ul.partenaires li.lib{width:100%;margin-bottom:60px;text-align:center;color:#fff;font-size:12px;letter-spacing:5px;text-transform:uppercase}footer.main-footer a{-webkit-opacity:.5;-moz-opacity:.5;opacity:.5;-webkit-transition:.3s all;-moz-transition:.3s all;-o-transition:.3s all;transition:.3s all;color:black}footer.main-footer a:hover{-webkit-opacity:1;-moz-opacity:1;opacity:1}footer.main-footer a.legals{width:100%;text-align:center;font-size:10px;color:black;text-transform:uppercase;letter-spacing:5px}@media only screen and (max-width:767px){.main-header .wrap{width:100% !important}.main-header .logos{background-color:#fff;height:70px}.main-header .logos a#logo{position:absolute;top:0;left:0;width:auto;height:auto;-webkit-transform:none;-moz-transform:none;-o-transform:none;-ms-transform:none;transform:none}.main-header .logos a#logo img.small{height:55px;width:auto;-webkit-opacity:1;-moz-opacity:1;opacity:1;left:0;top:7.5px;-webkit-transform:none;-moz-transform:none;-o-transform:none;-ms-transform:none;transform:none}.main-header .logos a#logo img.big{display:none}.main-header .logos .m-burger{display:block;position:absolute;height:60px;width:60px;top:5px;right:5px;background:url('../img/burger.png') center center no-repeat;cursor:pointer}.main-header .navs{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;-webkit-box-direction:reverse;-moz-box-direction:reverse;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column-reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse;display:none;background-color:#fff;padding:35px 0 20px}.main-header nav.main-nav{height:auto;position:relative;top:auto;background:0;background-color:#fff;padding:0;margin-bottom:20px}.main-header nav.main-nav ul li{width:100%;padding:0;text-align:center}.main-header nav.main-nav ul li a{line-height:50px;color:#000;font-size:15px;display:inline-block}.main-header nav.main-nav ul li a:after{display:none}.main-header nav.main-nav ul li a:hover:after{display:none}.main-header nav.main-nav ul li:nth-child(2){padding:0}.main-header nav.main-nav ul li:nth-child(3){padding:0}.main-header nav.secondary-nav{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;text-align:center}.main-header nav.secondary-nav ul{position:relative;top:auto;left:auto;right:auto;bottom:auto;margin:0;height:auto;text-align:center}.main-header nav.secondary-nav ul li{width:100%;text-align:center;color:#919192;line-height:1em}.main-header nav.secondary-nav ul li a{display:inline-block;color:#919192;font-size:12px}.main-header nav.secondary-nav ul.menu{left:auto;right:auto;margin-bottom:10px}.main-header nav.secondary-nav ul.menu li{margin:0}.main-header nav.secondary-nav ul.languages{left:auto;right:auto;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}.main-header nav.secondary-nav ul.languages li{width:auto;margin-left:5px;margin-right:5px}.main-header nav.secondary-nav ul.languages li:first-child{width:100%;margin-bottom:5px}.main-header nav.liste-produits{position:absolute;top:0;left:0;background-color:#fff;width:100vw;-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none;-webkit-transform:none;-moz-transform:none;-o-transform:none;-ms-transform:none;transform:none;display:none;z-index:3000}.main-header nav.liste-produits .wrap{padding:0 0 20px}.main-header nav.liste-produits .wrap h1.liste-title{display:block;line-height:90px;color:#000;font-size:15px;display:inline-block;position:relative;margin-bottom:50px;border-bottom:1px solid #e5e5e5;width:100%;text-align:center;text-transform:uppercase}.main-header nav.liste-produits .wrap .m-close-produit{cursor:pointer;background:url('../img/close.png') center center no-repeat;display:block;width:40px;height:40px;position:absolute;bottom:-21px;left:50%;margin-left:-20px;-webkit-opacity:.5;-moz-opacity:.5;opacity:.5}.main-header nav.liste-produits .wrap ul{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}.main-header nav.liste-produits .wrap ul li{width:65%;margin:0 auto 25px}.main-header nav.liste-produits.open{display:block;-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none}body.menuOpen .main-header{position:relative;height:auto;top:auto}body.menuOpen .main-header .wrap{min-height:100vh;background-color:#fff}body.menuOpen .main-header .logos{height:150px;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:vertical;-moz-box-orient:vertical;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;text-align:center;padding-bottom:20px;position:relative;border-bottom:1px solid #e5e5e5;z-index:2000}body.menuOpen .main-header .logos a#logo{position:relative;top:auto;left:auto;width:100%}body.menuOpen .main-header .logos a#logo img.small{display:none}body.menuOpen .main-header .logos a#logo img.big-black{display:block;margin:0 auto;width:60%;position:relative;top:auto;left:auto;-webkit-transform:none;-moz-transform:none;-o-transform:none;-ms-transform:none;transform:none}body.menuOpen .main-header .logos .m-burger{display:none}body.menuOpen .main-header .logos .m-close{cursor:pointer;background:url('../img/close.png') center center no-repeat;display:block;width:40px;height:40px;position:absolute;bottom:-21px;left:50%;margin-left:-20px;-webkit-opacity:.5;-moz-opacity:.5;opacity:.5}body.menuOpen .main-header .navs{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;z-index:1990}body.menuOpen #page-container{display:none}.scrollTrigger.post-fixed{margin-top:0}.scrollTrigger.post-fixed-short{margin-top:0}section.intro,header.intro{margin-top:70px;height:auto;padding:100px 0;overflow:hidden}section.intro.fixed,header.intro.fixed{position:relative;padding:100px 0 100px}section.intro .down,header.intro .down{display:none}section.intro .bg,header.intro .bg{bottom:-75px}section.intro.short,header.intro.short{height:33vh}section.intro.short .wrap,header.intro.short .wrap{height:33vh}header.page-intro .wrap{height:auto;width:100%}header.page-intro .wrap h1{width:80%;font-size:30px}section.image-full{padding:0 0 30px}section.image-full .wrap{width:100%}section.liste .wrap h1.liste-title{font-size:30px;line-height:1.1em;margin-bottom:25px}section.liste .wrap ul li{width:100%}section.liste .wrap ul.elx3 li{width:100%}section.liste .wrap ul.elx4 li{width:100%}section.liste-produits header.intro .wrap h1{font-size:40px;word-break:break-all;line-height:1em}section.liste-produits .liste .wrap .first-line{width:100%}section.liste-produits .liste .wrap .first-line article{width:100%}section.liste-produits .liste .wrap .second-line{width:100%}section.liste-produits .liste .wrap .second-line article{width:100%}section.liste-produits .liste .wrap .next{width:100%}section.liste-produits .liste .wrap .next article{width:100%}section.boutiques .map{height:450px;padding:0 10px 0;display:none}section.boutiques article{width:100%}section.home-intro .wrap{height:auto}section.home-intro .inner{width:100%;position:relative;top:auto;left:auto;right:auto;text-align:center;bottom:auto}section.home-intro .inner h1{text-align:center;font-size:35px}section.home-intro.show .inner{bottom:auto}section.home-awards{padding:90px 20px}section.home-awards .col{width:100%}section.home-awards .col h2{text-align:center;font-size:35px}section.home-awards .col h3{text-align:center;font-size:18px}section.home-awards .col h4{text-align:center}section.home-awards .col.col-image{width:100%;padding:60px 0}section.home-awards .col.col-image img{width:auto;max-width:60%;height:auto;display:block;margin:0 auto}section.home-awards .col:last-child{width:100%}body.home section.half-bg{padding-bottom:0}article.tax-short{width:100%}article.boutique p a{text-decoration:underline}article.press .tb{width:100%}article.press section{width:100%}footer.main-footer{padding:30px 0 30px}footer.main-footer ul.socials{padding:0 0 30px;position:relative;display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-direction:normal;-moz-box-direction:normal;-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:space-between;-moz-box-pack:justify;-webkit-justify-content:justify;-ms-flex-pack:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;-webkit-box-pack:center;-moz-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;width:100%}footer.main-footer ul.socials li{margin:0 10px}footer.main-footer .cols{width:100%}footer.main-footer .cols .col{width:100%}footer.main-footer .cols .col.logo{padding:40px 0}footer.main-footer .cols .col.social{width:100%;text-align:center}body.menuOpen footer.main-footer{display:none}}@media only screen and (min-width:767px) and (max-width:1199px){.main-header .wrap{width:98%}.main-header a#logo{width:190px}.main-header nav.main-nav ul li{padding:0}.main-header nav.main-nav ul li:nth-child(2){padding-right:130px}.main-header nav.main-nav ul li:nth-child(3){padding-left:130px}.main-header.small nav.main-nav ul li{padding:0}.main-header.small nav.main-nav ul li:nth-child(2){padding-right:130px}.main-header.small nav.main-nav ul li:nth-child(3){padding-left:130px}.main-header.small nav.secondary-nav{display:none}section.home-intro .inner h1{font-size:25px;line-height:1.1em}section.home-intro .inner img{-webkit-transform:scaleX(0.7) scaleY(0.7);-moz-transform:scaleX(0.7) scaleY(0.7);-o-transform:scaleX(0.7) scaleY(0.7);-ms-transform:scaleX(0.7) scaleY(0.7);transform:scaleX(0.7) scaleY(0.7)}}#cookieWarner{text-align:center;background-color:#2e3032;color:#ddd;font-size:12px;font-family:Arial,Helvetica,sans-serif;position:fixed;bottom:0;left:0;right:0;width:100%;padding:8px 0 6px}#cookieWarner a{color:#fff;display:inline-block;text-decoration:underline;font-weight:bold;margin:0 4px 0 4px}/*! fancyBox v2.1.5 fancyapps.com | fancyapps.com/fancybox/#license */.fancybox-wrap,.fancybox-skin,.fancybox-outer,.fancybox-inner,.fancybox-image,.fancybox-wrap iframe,.fancybox-wrap object,.fancybox-nav,.fancybox-nav span,.fancybox-tmp{padding:0;margin:0;border:0;outline:0;vertical-align:top}.fancybox-wrap{position:absolute;top:0;left:0;z-index:80020}.fancybox-skin{position:relative;background:transparent;color:#444;text-shadow:none}.fancybox-opened{z-index:80030}.fancybox-outer,.fancybox-inner{position:relative}.fancybox-inner{overflow:hidden;background-color:#fff}.fancybox-inner .page-content{padding-left:40px;padding-right:40px}.fancybox-type-iframe .fancybox-inner{-webkit-overflow-scrolling:touch}.fancybox-error{color:#444;font:14px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;padding:15px;white-space:nowrap}.fancybox-image,.fancybox-iframe{display:block;width:100%;height:100%}.fancybox-image{max-width:100%;max-height:100%}#fancybox-loading,.fancybox-prev span,.fancybox-next span{background-image:url('../img/fancybox/fancybox_sprite.png')}.fancybox-close{background-image:url('../img/fancybox/fancybox-cross.png')}#fancybox-loading{position:fixed;top:50%;left:50%;margin-top:-22px;margin-left:-22px;background-position:0 -108px;opacity:.8;cursor:pointer;z-index:80060}#fancybox-loading div{width:44px;height:44px;background:url('../img/fancybox/fancybox_loading.gif') center center no-repeat}.fancybox-close{position:absolute;top:20px;right:35px;width:52px;height:51px;cursor:pointer;z-index:80040}.fancybox-close-white{background-image:url('../img/fancybox/fancybox-cross_white.png')}.fancybox-nav{position:absolute;top:0;width:40%;height:100%;cursor:pointer;text-decoration:none;background:transparent url('../img/fancybox/blank.gif');-webkit-tap-highlight-color:rgba(0,0,0,0);z-index:80040}.fancybox-prev{left:0}.fancybox-next{right:0}.fancybox-nav span{position:absolute;top:50%;width:36px;height:34px;margin-top:-18px;cursor:pointer;z-index:80040;visibility:hidden}.fancybox-prev span{left:10px;background-position:0 -36px}.fancybox-next span{right:10px;background-position:0 -72px}.fancybox-nav:hover span{visibility:visible}.fancybox-tmp{position:absolute;top:-99999px;left:-99999px;visibility:hidden;max-width:99999px;max-height:99999px;overflow:visible !important}.fancybox-lock{overflow:hidden !important;width:auto;margin-right:0 !important}.fancybox-lock body{overflow:hidden !important}.fancybox-lock-test{overflow-y:hidden !important}.fancybox-overlay{position:absolute;top:0;left:0;overflow:hidden;display:none;z-index:80010;background:url('../img/fancybox/fancybox_overlay.png')}.fancybox-overlay-fixed{position:fixed;bottom:0;right:0}.fancybox-lock .fancybox-overlay{overflow:hidden;overflow-y:hidden}.fancybox-title{visibility:hidden;font:normal 12px Arial,Helvetica,sans-serif;position:relative;text-shadow:none;z-index:80050}.fancybox-opened .fancybox-title{visibility:visible}.fancybox-title-float-wrap{position:relative;z-index:80050;text-align:center;background-color:#000;left:0;right:0;max-width:100%}.fancybox-title-float-wrap .child{display:inline-block;padding:2px 0;background:transparent;color:#FFF;line-height:24px;white-space:nowrap;width:100%}.fancybox-title-outside-wrap{position:relative;margin-top:10px;color:#fff}.fancybox-title-inside-wrap{padding-top:10px}.fancybox-title-over-wrap{position:absolute;bottom:0;left:0;color:#fff;padding:10px;background:#000;background:rgba(0,0,0,0.8)}@media only screen and (-webkit-min-device-pixel-ratio:1.5),only screen and (min--moz-device-pixel-ratio:1.5),only screen and (min-device-pixel-ratio:1.5){#fancybox-loading,.fancybox-prev span,.fancybox-next span{background-image:url('../img/fancybox/fancybox_sprite%402x.png');background-size:44px 152px}#fancybox-loading div{background-image:url('../img/fancybox/fancybox_loading%402x.gif');background-size:24px 24px}.fancybox-close{background-image:url('../img/fancybox/fancybox-cross_2x.png');background-size:52px 51px}.fancybox-close-white{background-image:url('../img/fancybox/fancybox-cross_white_2x.png');background-size:52px 51px}}@media only screen and (min-width:767px) and (max-width:1199px){a.fancybox-prev span,a.fancybox-next span{visibility:visible !important}}
- 
-/* --- 用于创建导航栏断开线条 --- */
+/* ==========================================================================
+   1. 基础重置与动画 (Reset, Animation & Global Utils)
+   ========================================================================== */
 
-/* 1. 使用 !important 强制移除原始的背景图片线条，确保万无一失 */
-.main-header nav.main-nav {
-    background-image: none !important;
-    background-color: transparent !important;
+/* 向下滚动的箭头动画 */
+@keyframes bounce {
+    from, 5%, 17%, 25%, 35%, to { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); transform: translate3d(0, 0, 0); }
+    10%, 13% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0, -15px, 0); }
+    20% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0, -6px, 0); }
+    30% { transform: translate3d(0, -4px, 0); }
 }
 
-/* 2. 确保 ul 元素是伪元素定位的参考点 */
-.main-header nav.main-nav ul {
-    position: relative;
-}
+/* 基础 HTML 标签重置 */
+html { color: #000; background-color: #323232; }
+body { color: #000; font-family: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;  font-weight: 400; margin: 0; padding: 0; }
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
+table { border-collapse: collapse; border-spacing: 0; }
+fieldset, img { border: 0; }
+address, caption, cite, code, dfn, em, strong, th, var { font-style: normal; font-weight: normal; }
+ol, ul { list-style: none; }
+caption, th { text-align: left; }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
+input, textarea, select { font-family: inherit; font-size: inherit; font-weight: inherit; }
+a { text-decoration: none; color: #fff; }
 
-/* 3. 使用渐变背景(gradient)来创建“断开”的上划线 */
-.main-header nav.main-nav ul::before {
-    content: '';
-    display: block;
-    height: 1px; /* 线条的粗细 */
-    width: 100%;
-    position: absolute;
-    top: -1px; /* 线条与文字的距离，您可以微调 */
-    left: 0;
-
-    /* 核心：使用线性渐变创建中间的透明断层 */
-    background: linear-gradient(to right, 
-        white 0%, 
-        white 35%,       /* 左边线条的结束点 */
-        transparent 45%,  /* 中间空白的开始点 */
-        transparent 55%,  /* 中间空白的结束点 */
-        white 65%,       /* 右边线条的开始点 */
-        white 100%
-    );
-}
-
-/* 4. 用同样的方法创建下划线 */
-.main-header nav.main-nav ul::after {
-    content: '';
-    display: block;
-    height: 1px;
-    width: 100%;
-    position: absolute;
-    bottom: -1px; /* 线条与文字的距离 */
-    left: 0;
-
-    /* 使用和上面完全一样的渐变 */
-    background: linear-gradient(to right, 
-        white 0%, 
-        white 35%, 
-        transparent 45%, 
-        transparent 55%, 
-        white 65%, 
-        white 100%
-    );
-}
-
-/* 5. 在页面向下滚动，导航栏变小后，隐藏这些线条以避免样式错乱 */
-.main-header.small nav.main-nav ul::before,
-.main-header.small nav.main-nav ul::after {
-    display: none;
-}
-
-/* --- 用于限制页脚 Logo 大小的自定义代码 --- */
-
-footer.main-footer .cols .col.logo div {
-    /* 使用 max-width 和 max-height 来进行限制 */
-    max-width: 250px; /* 您可以根据需要调整这个最大宽度值 */
-    margin: 0 auto; /* 确保 Logo 在其容器内水平居中 */
-}
-
-footer.main-footer .cols .col.logo div img {
-    width: 100%; /* 让图片宽度充满其容器 (div) */
-    height: auto; /* 高度自动缩放以保持比例 */
-}
-
-
-/* ================= 用于居中显示单栏文本区块 ================= */
-
-.text-section-centered .wrap {
-    justify-content: center; /* 让 Flex 容器的内容水平居中 */
-    display: flex;
-}
-
-.text-section-centered .centered-content {
-    width: 100%;             /* 默认占满全部宽度 */
-    max-width: 720px;        /* 设置一个最大宽度，避免在宽屏上文字行过长，影响阅读 */
-    text-align: center;      /* 让容器内部的所有文字（h3, p）都居中对齐 */
-}
-
-/* --- 新增样式：修改标题颜色 --- */
-.text-section-centered .centered-content h3 {
-	font-family: 'Cormorant Garamond', serif; /* 新增：指定字体为 Cormorant Garamond */
-	font-weight: 600; /* 使用我们加载的稍粗字重 */
-    color: #92683b;          /* 设置为您模板中常用的棕色，与品牌风格保持一致 */
-	font-size: 38px;       /* 新增：加大字体大小 */
-    margin-bottom: 1.5rem;     /* 稍微加大标题和下方段落的间距 */
-}
-
-/* --- 新增样式：给第一段文字增加下外边距，形成间距 --- */
-.text-section-centered .centered-content p:first-of-type {
-    margin-bottom: 0.5rem;   /* 您可以调整这个值来控制间距大小 */
-}
-
-/* --- 新增样式：给第一段文字增加下外边距，形成间距 --- */
-.text-section-centered .centered-content p {
-	font-size: 16px;       /* 新增：加大字体大小 */
-}
-
-/* =================================================================== */
-/* =========== START: STYLES FOR DOU DOU BAKE PRODUCT SLIDER =========== */
-/* =================================================================== */
-
-/* --- From baseec2a.css --- */
-.page-width { max-width: 120rem; margin: 0 auto; padding: 0 1.5rem; }
-.page-width-desktop { padding: 0; margin: 0 auto; }
-@media screen and (min-width: 750px) {
-  .page-width { padding: 0 5rem; }
-  .page-width-desktop { padding: 0; }
-}
-@media screen and (min-width: 990px) {
-  .page-width-desktop { max-width: 120rem; padding: 0 5rem; }
-}
-.spaced-section { margin-top: 3rem; }
-.spaced-section:last-child { margin-bottom: 5rem; }
+/* 辅助类 */
+.pull-right { float: right; }
+.pull-left { float: left; }
+.center { text-align: center; }
 .hidden, .hide { display: none !important; }
 .visually-hidden { position: absolute !important; overflow: hidden; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; clip: rect(0 0 0 0); word-wrap: normal !important; }
-.center { text-align: center; }
-@media screen and (max-width: 749px) { .small-hide { display: none !important; } }
-@media screen and (min-width: 750px) and (max-width: 989px) { .medium-hide { display: none !important; } }
-@media screen and (min-width: 990px) { .large-up-hide { display: none !important; } }
-.underlined-link { text-underline-offset: 0.3rem; text-decoration-thickness: 0.1rem; transition: text-decoration-thickness ease 100ms; }
-.underlined-link:hover { text-decoration-thickness: 0.2rem; }
-.title, .title-wrapper-with-link { margin: 3rem 0 2rem; }
-.title-wrapper-with-link .title { margin: 0; }
-.title-wrapper-with-link { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin: 4rem 0 3rem; flex-wrap: wrap; }
-.title-wrapper--self-padded-tablet-down, .title-wrapper--self-padded-mobile { padding-left: 1.5rem; padding-right: 1.5rem; }
-@media screen and (min-width: 750px) { .title-wrapper--self-padded-mobile { padding-left: 0; padding-right: 0; } }
-@media screen and (min-width: 990px) {
-  .title, .title-wrapper-with-link { margin: 5rem 0 3rem; }
-  .title-wrapper-with-link { align-items: center; }
-  .title-wrapper-with-link .title { margin-bottom: 0; }
-  .title-wrapper--self-padded-tablet-down { padding-left: 0; padding-right: 0; }
-}
-.title-wrapper-with-link a { margin-top: 0; flex-shrink: 0; }
-.title-center { place-content: center; text-align: center; }
-.grid { display: flex; flex-wrap: wrap; margin-bottom: 2rem; margin-left: -1rem; padding: 0; list-style: none; }
-@media screen and (min-width: 750px) { .grid { margin-left: -3rem; } }
-.grid__item { padding-left: 1rem; padding-bottom: 1rem; width: calc(25% - 1rem * 3 / 4); max-width: 50%; flex-grow: 1; flex-shrink: 0; }
-.slider--tablet.grid--peek .grid__item.slider__slide, .grid__item.slider__slide { margin-top: 2rem; }
-@media screen and (min-width: 750px) { .grid__item { padding-left: 3rem; padding-bottom: 3rem; width: calc(25% - 3rem * 3 / 4); max-width: 50%; } }
-@media screen and (min-width: 990px) {
-  .grid--quarter-max.grid--4-col-desktop .grid__item { max-width: 25%; }
-}
-.grid--2-col .grid__item { width: calc(50% - 0.5rem / 2); }
-@media screen and (min-width: 750px) {
-  .grid--2-col .grid__item { width: calc(50% - 1rem / 2); }
-  .grid--3-col-tablet .grid__item { width: calc(33.33% - 1rem * 2 / 3); }
-}
-@media screen and (min-width: 990px) {
-  .grid--3-col-desktop .grid__item { width: calc(33.33% - 1rem * 2 / 3); }
-  .grid--4-col-desktop .grid__item { width: calc(25% - 1rem * 3 / 4); }
-}
-@media screen and (max-width: 749px) {
-  .grid--peek.slider--mobile { margin: 0; width: 100%; }
-  .grid--peek.slider--mobile .grid__item { box-sizing: content-box; margin: 0; }
-  .grid--peek .grid__item { width: calc(50% - 3.75rem / 2); }
-  .grid--peek .grid__item:first-of-type { padding-left: 1.5rem; }
-  .grid--peek .grid__item:last-of-type { padding-right: 1.5rem; }
-}
-@media screen and (min-width: 750px) and (max-width: 989px) {
-  .slider--tablet.grid--peek .grid__item { width: calc(33.33% - 4rem * 2 / 3); }
-  .slider--tablet.grid--peek .grid__item:first-of-type { padding-left: 1.5rem; }
-  .slider--tablet.grid--peek .grid__item:last-of-type { padding-right: 1.5rem; }
-}
-@media screen and (max-width: 989px) {
-  .slider--tablet.grid--peek { margin: 0; width: 100%; }
-  .slider--tablet.grid--peek .grid__item { box-sizing: content-box; margin: 0; }
-}
-.media { display: block; background-color: rgba(var(--color-foreground), 0.1); position: relative; overflow: hidden; }
-.media--transparent { background-color: transparent; }
-.media > *:not(.zoom, .deferred-media__poster-button) { display: block; max-width: 100%; position: absolute; top: 0; left: 0; height: 100%; width: 100%; }
-.media > img { object-fit: cover; object-position: center center; transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-.media--square { padding-bottom: 100%; }
-.media.media--hover-effect > img + img { opacity: 0; }
-.media.media--hover-effect:hover > img + img { opacity: 1; }
-.button { font-size: 1.5rem; letter-spacing: 0.1rem; line-height: 1.2; }
-.full-unstyled-link { text-decoration: none; color: currentColor; display: block; }
-.caption { font-size: 1rem; letter-spacing: 0.07rem; line-height: 1.7; }
-@media screen and (min-width: 750px) { .caption { font-size: 1.2rem; } }
-.icon-caret { position: absolute; height: 0.6rem; right: 1.5rem; top: calc(50% - 0.2rem); }
 
-/* --- From component-sliderec2a.css --- */
-slider-component { position: relative; display: block; }
-.slider__slide { scroll-snap-align: start; flex-shrink: 0; }
-@media screen and (max-width: 749px) {
-  .slider.slider--mobile { position: relative; flex-wrap: inherit; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-left: 1rem; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; }
-  .slider.slider--mobile .slider__slide { margin-bottom: 0; padding-bottom: 0; }
-}
-@media screen and (max-width: 989px) {
-  .slider.slider--tablet { position: relative; flex-wrap: inherit; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-left: 1rem; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; }
-  .slider.slider--tablet .slider__slide { margin-bottom: 0; padding-bottom: 0; }
-}
-.slider { scrollbar-color: rgb(var(--color-foreground)) rgba(var(--color-foreground), 0.04); -ms-overflow-style: none; scrollbar-width: none; }
-.slider::-webkit-scrollbar { height: 0.4rem; width: 0.4rem; display: none; }
-.slider-counter { margin: 0 1.2rem; }
-.slider-buttons { display: flex; align-items: center; justify-content: center; margin-top: 1rem; }
-@media screen and (min-width: 990px) { .slider-buttons { display: none; } }
-@media screen and (min-width: 750px) { .slider--mobile + .slider-buttons { display: none; } }
-.slider-button { color: rgba(var(--color-foreground), 0.75); background: transparent; border: none; cursor: pointer; width: 44px; height: 44px; }
-.slider-button:not([disabled]):hover { color: rgb(var(--color-foreground)); }
-.slider-button .icon { height: 0.6rem; }
-.slider-button[disabled] { cursor: not-allowed; opacity: 0.5; }
-.slider-button--next .icon { transform: rotate(-90deg); }
-.slider-button--prev .icon { transform: rotate(90deg); }
+/* Font Awesome 核心 (精简版) */
+.fa { display: inline-block; font: normal normal normal 30px/1 FontAwesome; font-size: inherit; text-rendering: auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.fa-instagram:before { content: "\f16d"; }
 
-/* --- From component-product-gridec2a.css --- */
-.product-grid .grid__item { padding-bottom: 2rem; }
-@media screen and (min-width: 750px) { .product-grid .grid__item { padding-bottom: 5rem; } }
+/* ==========================================================================
+   2. 全局布局与栅格系统 (Global Layout & Grid)
+   ========================================================================== */
+section, article header, article footer { position: relative; background-repeat: no-repeat; background-position: center center; background-size: cover; background-color: #fbf9f4; padding: 50px 0 50px; }
+section.psmall { padding: 25px 0 25px; }
+section.pbig { padding: 75px 0 75px; }
 
-/* --- Custom styles for card, price, etc., based on DoudouBake (Polaroid Style V7) --- */
-.product-card-wrapper {
-    /* 1. 模拟拍立得相纸的白色背景和阴影 */
-    background-color: #fdfdfd; /* 使用一个非常浅的灰白色，比纯白更有质感 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid #eee;
+/* 页面主容器 - 确保内容覆盖在 Hero 背景之上 */
+#page-container { position: relative; z-index: 1000; background-color: #fbf9f4; }
+
+/* 栅格 (.wrap) */
+.wrap { max-width: 1400px; width: 90%; margin: 0 auto; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; }
+.wrap.with-inner { max-width: 1280px; }
+.wrap .col { width: 46.25%; box-sizing: border-box; }
+.wrap .col.vcenter { display: flex; flex-direction: column; justify-content: center; }
+.wrap .col.maxi { width: 53.75%; }
+.wrap .col.col-image img { width: 100%; height: auto; }
+
+/* 响应式调整 (平板与手机) */
+@media only screen and (max-width: 769px) {
+    .wrap .col { width: 100%; }
+    .wrap .col.maxi { width: 100%; }
+    .wrap .col.col-image { width: 100%; padding: 50px 0 0; }
+    section.pbig { padding: 50px 0 30px; }
+}
+
+/* 滚动触发锚点 */
+.scrollTrigger.post-fixed { margin-top: 100vh; }
+.scrollTrigger.post-fixed-short { margin-top: 590px; }
+@media only screen and (max-width: 769px) {
+    .scrollTrigger.post-fixed { margin-top: 0; }
+}
+
+/* ==========================================================================
+   3. 页眉与导航 (Header & Navigation)
+   ========================================================================== */
+.main-header { position: fixed; top: 0; width: 100vw; height: 156px; z-index: 2000; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%); transition: background 0.3s;}
+.main-header .wrap { max-width: 1350px; height: 156px; position: relative; z-index: 10; display: block; }
+
+/* --- 修复：在桌面端强制隐藏汉堡菜单图标 --- */
+.main-header .logos .m-burger, .main-header .logos .m-close { display: none !important; }
+
+/* --- Logo 样式 --- */
+.main-header a#logo { position: absolute; left: 50%; top: 0; height: 156px; width: 245px; transform: translateX(-50%); text-align: center; transition: height 0s linear .1s, width 0s linear .1s; z-index: 200; }
+.main-header a#logo img { position: absolute; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%); width: 100%; height: auto; opacity: 1; transition: opacity .1s linear .15s; }
+.main-header a#logo img.small { display: none; }
+.main-header a#logo img.big-black { display: none; }
+
+/* --- 桌面端菜单 (Desktop Menu) --- */
+.main-header nav.main-nav { width: 100%; background: none !important; background-color: transparent !important; position: absolute; top: 45px; transition: top .3s ease-in; z-index: 100; }
+.main-header nav.main-nav ul { width: 100%; display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; position: relative; }
+
+/* 菜单项样式 */
+.main-header nav.main-nav ul li { display: inline-block; padding: 0 50px; transition: .3s padding; }
+.main-header nav.main-nav ul li a { width: 100px; display: block; text-align: center; line-height: 65px; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; position: relative; transition: color .1s linear; color: #fff; }
+
+/* 菜单左右留空给 Logo */
+.main-header nav.main-nav ul li:nth-child(2) { padding-right: 190px; }
+.main-header nav.main-nav ul li:nth-child(3) { padding-left: 190px; }
+
+/* 桌面端：导航栏中间断开的线条 (渐变实现) */
+.main-header nav.main-nav ul::before,
+.main-header nav.main-nav ul::after {
+    content: ''; display: block; height: 1px; width: 100%; position: absolute; left: 0;
+    background: linear-gradient(to right, white 0%, white 35%, transparent 45%, transparent 55%, white 65%, white 100%);
+}
+.main-header nav.main-nav ul::before { top: -1px; }
+.main-header nav.main-nav ul::after { bottom: -1px; }
+
+/* --- 滚动后的紧凑导航栏 (Sticky Header) --- */
+@media only screen and (min-width: 1200px), only screen and (min-width: 769px) and (max-width: 1199px) {
+    .main-header.small { background: none !important;}
+    .main-header.small a#logo { height: 65px; width: 102px; transition-delay: 0s; transition-duration: 0s; }
+    .main-header.small a#logo img.small { display: block; }
+    .main-header.small a#logo img.big { opacity: 0; transition-duration: .15s; }
+    .main-header.small nav.main-nav { top: 0; }
+    .main-header.small nav.main-nav ul li { padding: 0 35px; }
+    .main-header.small nav.main-nav ul li:nth-child(2) { padding-right: 100px; }
+    .main-header.small nav.main-nav ul li:nth-child(3) { padding-left: 100px; }
+    .main-header.small nav.main-nav ul li a { color: #242425; transition-delay: .1s; }
+    .main-header.small nav.main-nav ul::before,
+    .main-header.small nav.main-nav ul::after { display: none; /* 滚动后隐藏断开线 */ }
+    .main-header.small:after { top: 0; height: 65px; }
+    .main-header:after { position: absolute; height: 0; background-color: #fbf9f4; transition: height .3s linear 0s; top: -1px; left: 0; right: 0; content: ''; z-index: 1; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+}
+
+/* --- 移动端导航栏 (Mobile Header & Menu) --- */
+@media only screen and (max-width: 769px) {
+    .main-header .wrap { width: 100% !important; }
+    .main-header .logos { background-color: #fbf9f4; height: 70px; }
     
-    /* 2. 这是核心：用 padding 模拟拍立得的白边 */
-    /* 上、左、右的边距较小 (15px)，底部的边距最大 */
-    padding: 15px 15px 20px 15px;
+    /* 移动端 Logo 居中 */
+    .main-header .logos a#logo { position: absolute; left: 50%; transform: translateX(-50%); top: 7.5px; height: 55px; width: auto; }
+    .main-header .logos a#logo img.small { display: block !important; position: static; height: 100%; width: auto; opacity: 1 !important; transform: none; }
+    .main-header .logos a#logo img.big, .main-header .logos a#logo img.big-black { display: none !important; }
+
+    /* 汉堡菜单按钮 (纯 CSS 绘制) - 仅在移动端显示 */
+    .main-header .logos .m-burger { display: block !important; position: absolute; height: 60px; width: 60px; top: 5px; left: 5px; right: auto; background: none !important; cursor: pointer; border: none; padding: 0; z-index: 2001; }
+    .burger-icon, .burger-icon span { display: inline-block; transition: all .4s ease-in-out; box-sizing: border-box; }
+    .burger-icon { position: relative; width: 26px; height: 20px; }
+    .burger-icon span { position: absolute; left: 0; width: 100%; height: 3px; background-color: #333; border-radius: 2px; }
+    .burger-icon span:nth-of-type(1) { top: 0; }
+    .burger-icon span:nth-of-type(2) { top: 50%; transform: translateY(-50%); }
+    .burger-icon span:nth-of-type(3) { bottom: 0; }
     
-    /* 3. 其他样式 */
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    text-decoration: none;
-    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    /* 隐藏旧关闭按钮 */
+    .main-header .logos .m-close { display: none !important; }
 
-    /* 移除旧的圆角和溢出隐藏 */
-    border-radius: 0; 
-    overflow: visible; /* 改为 visible 以便阴影能完全显示 */
-}
-
-/*
- *  合并悬停 (:hover) 和JS主动选中 (.is-highlighted) 的样式
- */
-.product-card-wrapper:hover,
-.product-card-wrapper.is-highlighted {
-    transform: translateY(-8px) rotate(1.5deg);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* 图片容器不需要额外的 padding 或 margin */
-.card--product {
-    margin: 0;
-    border: 1px solid #ddd; /* 给图片加一个浅色边框，更有照片的感觉 */
-}
-
-/* 图片本身不需要额外的样式，因为它会被容器限制 */
-.media > img {
-    object-fit: cover;
-    object-position: center;
-    width: 100%;
-    height: 100%;
-}
-
-/* 
- * 4. 关键一步：重新设计文字区域
- */
-.card-information { 
-    text-align: left; /* 文字改为左对齐 */
-    padding: 20px 5px 0 5px; /* 在图片下方增加一些空间，左右留出一点边距 */
-}
-
-.card-information__text { 
-    /* 5. 模拟手写字体效果 */
-    font-family: 'Kalam', cursive; /* 引入一个手写风格的字体 */
-    font-size: 16px; 
-    color: #555;
-    font-weight: normal; /* 手写体不需要粗体 */
-    display: block; /* 确保它占满一行 */
-    line-height: 1.2;
-}
-
-.price { 
-    font-family: 'Kalam', cursive; /* 价格也使用手写字体 */
-    font-size: 14px;
-    color: #888;
-    text-align: left; /* 确保价格也左对齐 */
-    margin-top: 5px;
-}
-
-/* =================================================================== */
-/* ======== FIX V8: Original "Artisan Stamp" Button Design ========= */
-/* =================================================================== */
-
-/* 修复旧的 "View All" 链接样式 (保留) */
-.title-wrapper-with-link a { 
-    color: #8e6747; 
-    text-decoration: underline; 
-}
-.title-wrapper-with-link .title { 
-    font-family:'Mastadoni'; 
-    font-size:35px; 
-    margin-bottom: 0; 
-}
-
-/* 
- * 1. “匠人印章”按钮的基础样式
- */
-.button {
-    /* 字体和文字样式 */
-    font-family: 'Cormorant Garamond', serif; /* 使用新引入的优雅字体 */
-    font-weight: 600;
-    font-size: 16px;
-    text-transform: uppercase; /* 大写字母更像印章 */
-    letter-spacing: 1.5px; /* 增加字母间距 */
-    color: #3b5998 !important; 
-
-    /* 形状和背景 */
-    background-color: #fff !important; /* “纸”的颜色 */
-    border: 2px solid #3b5998; /* 印章的轮廓 */
-    border-radius: 2px; /* 非常轻微的圆角，模拟印章的自然感 */
-    padding: 12px 35px;
-
-    /* 独特的块状阴影 */
-    box-shadow: 3px 3px 0px #dfe3ee; /* 阴影颜色是主题棕色的浅色版 */
+    /* 移动端菜单面板 (全屏滑入) */
+    .main-header .navs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fbf9f4; display: flex; flex-direction: column; justify-content: center; align-items: center; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); padding: 0; z-index: 2000; }
     
-    /* 交互动画 */
-    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    /* 移动端菜单内的样式 */
+    .main-header nav.main-nav { position: relative; top: auto; background: 0; padding: 0; margin: 0; width: 80%; }
+    .main-header nav.main-nav ul li { width: 100%; padding: 0; text-align: center; border-bottom: 1px solid #eee; display: block; }
+    .main-header nav.main-nav ul li:first-child { border-top: 1px solid #eee; }
+    .main-header nav.main-nav ul li:nth-child(2), .main-header nav.main-nav ul li:nth-child(3) { padding: 0; }
+    .main-header nav.main-nav ul li a { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #555 !important; line-height: 1.5; padding: 20px 0; width: 100%; display: block; text-decoration: none; }
+    /* 移除移动端不需要的装饰线 */
+    .main-header nav.main-nav ul::before, .main-header nav.main-nav ul::after { display: none; }
     
-    /* 移除旧的伪元素效果 */
-    text-decoration: none;
-    position: relative;
-    overflow: visible; /* 确保阴影可见 */
-}
-.button:before {
-    display: none; /* 禁用之前的填充动画 */
+    /* 移动端菜单悬停下划线动画 */
+    .main-header nav.main-nav ul li a:after { content: ''; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 1px; width: 0%; background-color: #92683b; transition: width 0.3s ease; }
+    .main-header nav.main-nav ul li a:hover:after { width: 50%; }
+
+    /* 移动端菜单面板中的 Logo */
+    .menu-panel-logo { display: block; margin-bottom: 50px; }
+    .menu-panel-logo img { width: 150px; height: auto; }
+
+    /* --- 移动端菜单打开状态 (Menu Open State) --- */
+    body.menuOpen .main-header .navs { transform: translateX(0); } /* 滑入 */
+    body.menuOpen .main-header .logos .m-burger { position: fixed; } /* 固定汉堡按钮 */
+    body.menuOpen .burger-icon span:nth-of-type(1) { transform: translateY(8px) rotate(-45deg); } /* 汉堡变叉叉 */
+    body.menuOpen .burger-icon span:nth-of-type(2) { opacity: 0; }
+    body.menuOpen .burger-icon span:nth-of-type(3) { transform: translateY(-9px) rotate(45deg); }
+    body.menuOpen .main-header .logos { border: none !important; background-color: transparent !important; height: auto !important; }
+    body.menuOpen .main-header .logos a#logo { display: none !important; } /* 隐藏顶部 Logo 防止遮挡 */
+    body.menuOpen #page-container, body.menuOpen footer.main-footer { display: none; } /* 隐藏页面内容 */
 }
 
-/* 
- * 2. “按下”的悬停效果
- */
-.button:hover {
-    color: #2a4887 !important; /* 按下时颜色加深 */
+/* --- 优化修复：针对平板/窄屏 (769px - 1199px) --- */
+@media only screen and (min-width: 769px) and (max-width: 1199px) {
     
-    /* 关键动画：按钮向右下方移动，同时阴影变小，产生“被按下”的错觉 */
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0px #dfe3ee;
-}
-
-/* 
- * 3. 按钮与产品网格的间距
- */
-#easystore-section-bread-and-pastries .center.small-hide.medium-hide {
-    margin-top: 5rem; /* 保持或微调间距 */
-}
-
-
-/* =================================================================== */
-/* ============= FIX: Page Content Overlapping Hero BG =============== */
-/* =================================================================== */
-
-#page-container {
-  /* 
-   *  给 #page-container 添加 position: relative; 
-   *  是为了让 z-index 属性能够生效。
-   */
-  position: relative;
-  
-  /* 
-   *  设置一个较高的 z-index (例如 1000)，
-   *  确保它显示在英雄区域背景图 (z-index: 1) 的上方，
-   *  但低于您的主导航栏 (z-index: 2000)。
-   */
-  z-index: 1000;
-  
-  /* 
-   *  由于您的 .intro 部分是 position: fixed，
-   *  它不再占据文档流空间。我们需要给后面的内容
-   *  一个 100vh 的上边距，把它“推”下去，
-   *  避免它一开始就被英雄区域完全覆盖。
-   *  您的代码中已经有 .post-fixed 类在做这件事了，
-   *  但为了更稳妥，我们在这里也强调一下背景色。
-   */
-  background-color: #fff; /* 确保内容区域有白色背景 */
-}
-
-/* =================================================================== */
-/* == FIX V4: Responsive Grid for Desktop, Slider for Mobile/Tablet == */
-/* =================================================================== */
-
-/* 
- * 1. 基础设置：为整个区域和列表设置样式
- */
-#easystore-section-bread-and-pastries {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 0; /* 移除容器的 padding，交由滑块或网格控制 */
-    padding-right: 0;
-}
-
-#easystore-section-bread-and-pastries .grid {
-    padding: 0; /* 重置内边距 */
-}
-
-#easystore-section-bread-and-pastries .grid__item {
-    box-sizing: border-box;
-    padding-bottom: 1rem; /* 统一设置底部的间距 */
-}
-
-/* 
- * 2. 移动端和平板端 (< 990px) 的滑块样式
- *    这是默认行为，继承自您主题的 .slider 和 .grid--peek 样式
- */
-@media screen and (max-width: 989px) {
-    #easystore-section-bread-and-pastries .slider {
-        display: flex; /* 确保是 flex 布局以进行滑动 */
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        margin: 0;
-        padding-bottom: 1.5rem; /* 为滚动条留出空间 */
+    /* 1. Logo 调整 */
+    .main-header a#logo {
+        width: 140px !important; /* 容器设为固定宽度 */
     }
-    #easystore-section-bread-and-pastries .grid__item {
-        flex-shrink: 0; /* 防止滑块项被压缩 */
-        width: 60%;     /* 每个滑块项占据屏幕的60%，可以调整这个值 */
-        max-width: 250px; /* 限制每个滑块项的最大宽度，避免在平板上太大 */
-        padding-left: 15px;
-    }
-    #easystore-section-bread-and-pastries .grid__item:last-child {
-        padding-right: 15px; /* 最后一个滑块项的右边距 */
-    }
-    /* 在移动/平板端显示滑块按钮 */
-    #easystore-section-bread-and-pastries .slider-buttons {
-        display: flex;
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-}
-
-/* 
- * 3. 桌面端 (> 990px) 的网格样式
- *    这是关键！我们在这里覆盖滑块的行为，将其变成网格。
- */
-@media screen and (min-width: 990px) {
-    #easystore-section-bread-and-pastries .grid {
-        display: flex;
-        flex-wrap: wrap;       /* 允许换行，这是形成网格的关键 */
-        overflow-x: hidden;    /* 禁用水平滚动 */
-        margin: 0 -15px;       /* 网格间距魔法 */
-    }
-    #easystore-section-bread-and-pastries .grid__item {
-        padding: 15px;         /* 为每个卡片提供均匀的四周间距 */
-        width: 25% !important; /* 一行显示4个，您可以改成 33.333% (一行3个) */
-        max-width: 25% !important;
-    }
-    /* 在桌面端隐藏滑块按钮 */
-    #easystore-section-bread-and-pastries .slider-buttons {
-        display: none !important;
-    }
-}
-
-/* =================================================================== */
-/* ====== FIX V6: Add Visual Divider and Enhance Showcase Title ====== */
-/* =================================================================== */
-
-/* 1. 全宽幅图片分隔区块的样式 */
-.full-width-image-divider {
-    height: 250px; /* 图片的高度，您可以根据喜好调整 */
-    background-size: cover; /* 确保图片填满整个区域 */
-    background-position: center; /* 图片居中显示 */
-    background-attachment: fixed; /* 制造视差滚动效果，非常高级！ */
-    position: relative;
-    z-index: 1; /* 确保它在白色内容区域的下面 */
-}
-
-/* 2. 美化“欧包展示”的标题容器 */
-.showcase-title-wrapper {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.showcase-title-wrapper h2 {
-    font-family: 'Mastadoni', sans-serif; /* 使用您主题的特色字体 */
-    font-size: 35px; /* 字体大小与“烘焙哲学”标题一致 */
-    color: #333;
-    margin-bottom: 1.5rem; /* 标题与副标题的间距 */
-}
-
-.showcase-title-wrapper p {
-    font-size: 16px;
-    color: #777;
-    max-width: 600px; /* 限制副标题的宽度，避免过长 */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* 3. 调整白色背景区域的上边距，让它与新标题区域融合 */
-.product-showcase-section {
-    padding-top: 0; /* 移除顶部 padding，因为标题区已经有了 */
-}
-
-/* =================================================================== */
-/* ========= FIX V10: Add Padding to Grid for Shadow Space ========= */
-/* =================================================================== */
-
-/* 
- * 1. 核心修复：直接为产品网格容器 (<ul>) 增加底部内边距。
- *    这就为最后一排卡片的阴影创造了必需的空间。
- */
-#easystore-section-bread-and-pastries .grid {
-    padding-bottom: 50px !important; /* 15px 通常足够容纳阴影 */
-}
-
-/* 
- * 2. 优化间距：调整整个白色区域的底部留白，
- *    确保“全部产品”按钮与产品区有合适的距离。
- */
-.product-showcase-section {
-    padding-bottom: 1rem; /* 保持一个舒适的底部外边距 */
-}
-
-/* 
- * 3. 按钮间距：确保按钮与网格的距离不会太大。
- */
-#easystore-section-bread-and-pastries .center.small-hide.medium-hide {
-    margin-top: 3rem; /* 您可以微调这个值，比如 2rem, 3rem, 4rem */
-}
-
-/* =================================================================== */
-/* == FIX V11.2: Force Dark Color on Footer Icons with !important == */
-/* =================================================================== */
-
-/* 为新的图标列表容器设置样式 */
-.logo-socials {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* =================================================================== */
-/* ===== FIX V14: New Mobile Menu Icon (CSS-based) & Reposition ====== */
-/* =================================================================== */
-
-@media screen and (max-width: 767px) {
-
-    /* 
-     * 1. 定位和重置按钮样式
-     */
-    .main-header .logos .m-burger {
-        background: none !important;
-        right: auto;
-        left: 5px;
-        display: block;
-        position: absolute;
-        height: 60px;
-        width: 60px;
-        top: 5px;
-        cursor: pointer;
-        border: none;
-        padding: 0;
+    .main-header a#logo img {
+        /* 稍微缩小图片，腾出空间 */
+        transform: translateX(-50%) translateY(-50%) scale(0.75) !important;
     }
 
-    /* 
-     * 2. 创建三条横线 (这是核心)
-     */
-    .burger-icon, .burger-icon span {
-        display: inline-block;
-        transition: all .4s ease-in-out;
-        box-sizing: border-box;
-    }
-    .burger-icon {
-        position: relative;
-        width: 26px;
-        height: 20px;
-    }
-    .burger-icon span {
-        position: absolute;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background-color: #333;
-        border-radius: 2px;
-    }
-    .burger-icon span:nth-of-type(1) {
-        top: 0;
-    }
-    .burger-icon span:nth-of-type(2) {
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    .burger-icon span:nth-of-type(3) {
-        bottom: 0;
+    /* 2. 菜单项间距 (关键调整) */
+    .main-header nav.main-nav ul li {
+        padding: 0 15px !important; /* 左右各 15px，足够分辨，又很紧凑 */
     }
 
-    /* 
-     * 3. (可选但推荐) 添加一个漂亮的“关闭”动画
-     */
-    body.menuOpen .burger-icon span:nth-of-type(1) {
-        transform: translateY(8px) rotate(-45deg);
-    }
-    body.menuOpen .burger-icon span:nth-of-type(2) {
-        opacity: 0;
-    }
-    body.menuOpen .burger-icon span:nth-of-type(3) {
-        transform: translateY(-9px) rotate(45deg);
-    }
-
-} /* <-- 确保这里有闭合的括号 */
-
-/* =================================================================== */
-/* =========== FIX V15: Center Logo on Mobile Header ============== */
-/* =================================================================== */
-
-@media screen and (max-width: 767px) {
-
-    /* 
-     * 1. 强制将 logo 的容器 (a#logo) 定位到屏幕中央。
-     *    我们使用 left: 50% 和 transform: translateX(-50%) 的经典组合来实现水平居中。
-     */
-    .main-header .logos a#logo {
-        left: 50%;
-        transform: translateX(-50%);
-        top: 7.5px;      /* 垂直方向的微调，使其与汉堡菜单对齐 */
-        height: 55px;    /* 设置一个固定的高度 */
-        width: auto;     /* 宽度自动 */
-    }
-
-    /* 
-     * 2. 确保移动端的小 logo (img.small) 是可见的，
-     *    并且正确地显示在它的容器内部。
-     */
-    .main-header .logos a#logo img.small {
-        display: block !important; /* 使用 !important 强制显示 */
-        position: static;          /* 移除可能继承的绝对定位，让它在<a>内自然排列 */
-        height: 100%;              /* 高度充满父容器 (55px) */
-        width: auto;
-        opacity: 1 !important;
-        transform: none;           /* 重置任何可能存在的 transform */
-    }
-    
-    /* 
-     * 3. 再次确认桌面端的大 logo 在移动端是隐藏的。
-     */
-    .main-header .logos a#logo img.big,
-    .main-header .logos a#logo img.big-black {
-        display: none !important;
-    }
-}
-
-/* =================================================================== */
-/* == FIX V16.1: Make Mobile Close Button Fixed (Non-Scrolling) == */
-/* =================================================================== */
-
-@media screen and (max-width: 767px) {
-
-    /* 
-     * 当菜单打开时 (body.menuOpen)，
-     * 将我们的汉堡/X 按钮的行为从“跟随内容滚动”改为“固定在屏幕上”。
-     */
-    body.menuOpen .main-header .logos .m-burger {
-        display: block !important;
-        position: fixed; /* 这是解决问题的关键！ */
+    /* 3. 字体设置 (核心诉求) */
+    .main-header nav.main-nav ul li a {
+        /* 🔒 锁定字体大小，不再随屏幕变小 */
+        font-size: 13px !important; 
         
-        /* 重新声明它的位置，现在是相对于浏览器窗口 */
-        top: 5px;
-        left: 5px;
-
-        /* 确保它在最顶层 */
-        z-index: 2001; 
+        /* 稍微减小字间距，防止文字过长 */
+        letter-spacing: 1px !important; 
+        
+        width: auto !important;
+        white-space: nowrap; /* 强制文字不换行，防止掉下来 */
     }
 
-    /* 
-     * 保持隐藏我们不再使用的旧关闭按钮。
-     */
-    .main-header .logos .m-close {
-        display: none !important;
+    /* 4. 中间 Logo 的避让空间 */
+    .main-header nav.main-nav ul li:nth-child(2) {
+        padding-right: 90px !important; 
+    }
+    .main-header nav.main-nav ul li:nth-child(3) {
+        padding-left: 90px !important;
     }
 }
 
-/* =================================================================== */
-/* =========== FIX V17: Beautify Mobile Menu Panel ============== */
-/* =================================================================== */
+/* 桌面端隐藏移动菜单专用的 Logo */
+.menu-panel-logo { display: none; }
+@media screen and (max-width: 769px) { body.menuOpen .menu-panel-logo { display: block; } }
 
-@media screen and (max-width: 767px) {
+/* ==========================================================================
+   4. 首屏 Hero 区域 (Intro/Hero Section)
+   ========================================================================== */
+section.intro, header.intro { height: 100vh; width: 100vw; position: relative; color: #fff; background-color: transparent; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 0; }
+section.intro.fixed, header.intro.fixed { position: fixed; top: 0; left: 0; right: 0; }
 
-    /* 
-     * 1. 美化菜单面板本身，并添加滑入动画
-     */
-    .main-header .navs {
-        /* 将其变为一个全屏的、固定的覆盖层 */
-        position: fixed;
-        top: 0;
+/* 动画元素 */
+section.intro .wrap, header.intro .wrap { opacity: 1; transition: opacity .1s; position: relative; z-index: 50; }
+section.intro .bg, header.intro .bg { position: absolute; cursor: pointer; z-index: 1; left: 0; bottom: 0; right: 0; top: 0; background-position: center center; background-size: cover; }
+section.intro .down, header.intro .down { position: absolute; bottom: 60px; left: 50%; margin-left: -29px; animation: bounce 7.0s ease infinite; z-index: 1500; transform-origin: center bottom; cursor: pointer; }
+
+/* 首页特定的 Hero 文字动画 */
+section.home-intro .wrap { position: relative; height: 100vh; z-index: 1000; }
+section.home-intro .inner { width: 50%; position: absolute; bottom: 18vh; right: 0; opacity: 0; transition: 0s all 0s ease-out; }
+section.home-intro.show .inner { transition: 2s all .5s ease-out; bottom: 21vh; opacity: 1; }
+section.home-intro .inner h1 { font-size: 40px; font-family: 'Noto Serif SC', sans-serif; width: 95%; line-height: 1.2em; margin: 30px 0 40px; }
+
+@media only screen and (max-width: 769px) {
+    section.intro, header.intro { margin-top: 70px; height: auto; padding: 100px 0; overflow: hidden; }
+    section.intro.fixed, header.intro.fixed { position: relative; padding: 100px 0 100px; }
+    section.intro .down, header.intro .down { display: none; }
+    section.home-intro .wrap { height: auto; display: flex; flex-direction: column; justify-content: center; }
+    section.home-intro .inner { width: 100%; position: relative; top: auto; left: auto; right: auto; text-align: center; bottom: auto; }
+    section.home-intro.show .inner { bottom: auto; }
+    section.home-intro .inner h1 { text-align: center; font-size: 35px; }
+    /* 🟢 核心修复：强制背景图填满且不动 */
+    section.intro .bg, header.intro .bg {
+        position: absolute;
+        top: 0; 
         left: 0;
         width: 100%;
         height: 100%;
         
-        /* 设置一个略带暖意的白色背景 */
-        background-color: #fdfdfd;
-        
-        /* 使用 Flexbox 将内容（Logo + 导航）垂直居中 */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        
-        /* 动画效果：默认情况下，菜单在屏幕左侧外 */
-        transform: translateX(-100%);
-        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        
-        padding: 0;
-        z-index: 2000; /* 确保它在页面内容之上 */
+        /* 关键：禁止 transform 位移，覆盖掉 JS 可能产生的残留样式 */
+        transform: none !important; 
+        background-position: center center !important;
+        background-size: cover !important;
+    }
+}
+@media only screen and (min-width: 769px) and (max-width: 1199px) {
+    section.home-intro .inner h1 { font-size: 25px; line-height: 1.1em; }
+}
+
+/* ==========================================================================
+   5. 文本内容区块 (Text & Content Sections)
+   ========================================================================== */
+/* 烘焙哲学区块 */
+.text-section-centered .wrap { justify-content: center; display: flex; }
+.text-section-centered .centered-content { width: 100%; max-width: 720px; text-align: center; }
+.text-section-centered .centered-content h3 { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #92683b; font-size: 38px; margin-bottom: 1.5rem; }
+.text-section-centered .centered-content p { font-size: 16px; margin-bottom: 20px; color: #000; }
+.text-section-centered .centered-content p:first-of-type { margin-bottom: 0.5rem; }
+
+/* ==========================================================================
+   6. 视差图片分隔符 (Parallax Divider)
+   ========================================================================== */
+.full-width-image-divider {
+    height: 50vh;
+    width: 100%;
+    background-attachment: fixed; 
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 10px 20px rgba(0,0,0,0.3), inset 0 -10px 20px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+    margin: 0;
+}
+
+@media only screen and (max-width: 769px) {
+    .full-width-image-divider {
+        background-attachment: scroll;
+        height: 350px;
+        background-position: center center;
+    }
+}
+
+/* ==========================================================================
+   7. 产品展示 (Products: Slider & Grid)
+   ========================================================================== */
+/* 产品展示区容器 */
+.product-showcase-section { padding-top: 0; padding-bottom: 5rem; }
+.page-width { max-width: 120rem; margin: 0 auto; padding: 0 1.5rem; }
+.page-width-desktop { padding: 0; margin: 0 auto; }
+@media screen and (min-width: 750px) { .page-width { padding: 0 5rem; } .page-width-desktop { padding: 0; } }
+@media screen and (min-width: 990px) { .page-width-desktop { max-width: 120rem; padding: 0 5rem; } }
+
+/* 产品标题 */
+.showcase-title-wrapper { text-align: center; margin-top: 30px; }
+.showcase-title-wrapper h2 { font-family: 'Playfair Display', 'Noto Serif SC', serif; font-size: 35px; color: #333; margin-bottom: 1.5rem; }
+.showcase-title-wrapper p { font-size: 16px; color: #777; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+/* 滑块/网格组件 (slider-component) */
+slider-component { position: relative; display: block; }
+.slider__slide { scroll-snap-align: start; flex-shrink: 0; }
+.slider { scrollbar-color: rgb(var(--color-foreground)) rgba(var(--color-foreground), 0.04); -ms-overflow-style: none; scrollbar-width: none; }
+.slider::-webkit-scrollbar { display: none; }
+.slider-counter { margin: 0 1.2rem; }
+
+/* 通用网格设置 */
+#easystore-section-bread-and-pastries { max-width: 1200px; margin-left: auto; margin-right: auto; }
+#easystore-section-bread-and-pastries .grid { padding: 0 0 50px 0 !important; list-style: none; margin-left: -1rem; display: flex; flex-wrap: wrap; }
+#easystore-section-bread-and-pastries .grid__item { box-sizing: border-box; padding-bottom: 1rem; padding-left: 1rem; }
+
+/* --- 桌面端 (> 990px): 网格布局 --- */
+@media screen and (min-width: 990px) {
+    #easystore-section-bread-and-pastries .grid { display: flex; flex-wrap: wrap; overflow-x: hidden; margin: 0 -15px; }
+    #easystore-section-bread-and-pastries .grid__item { padding: 25px; width: 25% !important; max-width: 25% !important; }
+    #easystore-section-bread-and-pastries .slider-buttons { display: none !important; }
+}
+
+/* --- 移动/平板端 (< 990px): 滑块布局 (修复不能滑动的问题) --- */
+@media screen and (max-width: 989px) {
+    #easystore-section-bread-and-pastries .slider { 
+        display: flex !important; 
+        flex-wrap: nowrap !important;
+        overflow-x: auto; 
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory; 
+        -webkit-overflow-scrolling: touch; 
+        margin: 0; 
+        padding-bottom: 1.5rem; 
+        width: 100%;
+        margin-left: 0;
     }
 
-    /* 当菜单打开时 (body.menuOpen)，将其滑入屏幕 */
-    body.menuOpen .main-header .navs {
-        transform: translateX(0);
+    #easystore-section-bread-and-pastries .grid__item { 
+        flex: 0 0 auto;
+        width: 65%;
+        max-width: 280px; 
+        padding-left: 15px; 
+        scroll-snap-align: center;
+    }
+
+    #easystore-section-bread-and-pastries .grid__item:last-child { 
+        padding-right: 15px; 
+        margin-right: 15px;
     }
     
-    /* 
-     * 2. 菜单内部 Logo 的样式
-     */
-    .menu-panel-logo {
-        display: block;
-        margin-bottom: 50px; /* Logo 与导航项之间的距离 */
+    #easystore-section-bread-and-pastries .slider-buttons { 
+        display: flex; 
+        justify-content: center; 
+        margin-top: 1.5rem; 
     }
-    .menu-panel-logo img {
-        width: 150px; /* Logo 的大小 */
-        height: auto;
+    .slider-button { 
+        display: inline-flex !important; 
+        justify-content: center; 
+        align-items: center; 
+        width: 44px; 
+        height: 44px; 
+        padding: 0; 
+        background: transparent; 
+        border: none; 
+        cursor: pointer; 
     }
-
-    /* 
-     * 3. 美化导航链接
-     */
-    .main-header nav.main-nav {
-        margin: 0;
-        width: 80%; /* 限制导航区域的宽度 */
+    .slider-button .icon-caret { 
+        position: static !important; 
+        height: 12px; 
+        width: auto; 
+        color: #333; 
+        transition: transform 0.2s ease; 
     }
-
-    .main-header nav.main-nav ul li {
-        width: 100%;
-        text-align: center;
-        /* 为每个菜单项添加分隔线 */
-        border-bottom: 1px solid #eee;
-    }
-    .main-header nav.main-nav ul li:first-child {
-        border-top: 1px solid #eee; /* 第一个菜单项加上顶部分隔线 */
-    }
-
-    .main-header nav.main-nav ul li a {
-        /* 字体样式 */
-        font-family: 'Cormorant Garamond', serif; /* 使用优雅的衬线字体 */
-        font-size: 22px; /* 增大字体 */
-        text-transform: uppercase; /* 大写 */
-        letter-spacing: 2px; /* 字母间距 */
-        color: #555 !important; /* 更柔和的黑色 */
-        
-        /* 布局和间距 */
-        display: block; /* 让整个区域都可点击 */
-        padding: 20px 0;
-        width: 100%;
-        line-height: 1.5;
-
-        /* 为悬停动画做准备 */
-        position: relative;
-        text-decoration: none;
-    }
-
-    /* 
-     * 4. 添加优雅的下划线悬停动画
-     */
-    .main-header nav.main-nav ul li a:after {
-        content: '';
-        position: absolute;
-        bottom: 10px; /* 下划线与文字的距离 */
-        left: 50%;
-        transform: translateX(-50%);
-        height: 1px;
-        width: 0%; /* 初始宽度为0 */
-        background-color: #92683b; /* 使用您的主题棕色 */
-        transition: width 0.3s ease;
-    }
-    .main-header nav.main-nav ul li a:hover:after {
-        width: 50%; /* 悬停时，下划线展开到50%宽度 */
-    }
+    .slider-button--prev .icon-caret { transform: rotate(90deg) !important; }
+    .slider-button--next .icon-caret { transform: rotate(-90deg) !important; }
+    .slider-button[disabled] { cursor: not-allowed; opacity: 0.5; }
 }
 
-/* =================================================================== */
-/* ==== FIX V18: Hide Invisible Header Logo in Open Mobile Menu ==== */
-/* =================================================================== */
+/* 产品卡片样式 (Polaroid Style) */
+.product-card-wrapper { background-color: #fdfdfd; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border: 1px solid #eee; padding: 15px 15px 20px 15px; display: flex; flex-direction: column; height: 100%; text-decoration: none; transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; border-radius: 0; overflow: visible; }
+.product-card-wrapper:hover { transform: translateY(-8px) rotate(1.5deg); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); }
+.card--product { margin: 0; border: 1px solid #ddd; }
+.media { display: block; background-color: rgba(0,0,0, 0.1); position: relative; overflow: hidden; }
+.media--square { padding-bottom: 100%; }
+.media > img { display: block; max-width: 100%; position: absolute; top: 0; left: 0; height: 100%; width: 100%; object-fit: cover; object-position: center; transition: opacity 0.4s; }
+.media.media--hover-effect > img + img { opacity: 0; }
+.media.media--hover-effect:hover > img + img { opacity: 1; }
 
-@media screen and (max-width: 767px) {
+/* 卡片文字 */
+.card-information { text-align: left; padding: 20px 5px 0 5px; }
+.card-information__text { font-family: 'Noto Serif SC', sans-serif, sans-serif; font-size: 18px; color: #333; font-weight: 700; display: block; line-height: 1.2; }
+.price { font-family: 'Kalam', cursive; font-weight: bold; font-size: 18px; color: #92683b; text-align: left; margin-top: 5px; }
 
-    /*
-     * 问题：原始主题的 CSS 会在菜单打开时，将主导航栏的 a#logo 
-     *      拉伸至100%宽度，形成一个看不见的、可点击的区域，
-     *      覆盖在菜单顶部。
-     * 
-     * 解决方案：当菜单打开时 (body.menuOpen)，
-     *          用 display: none !important 彻底隐藏这个碍事的 logo 链接。
-     */
-    body.menuOpen .main-header .logos a#logo {
-        display: none !important;
-    }
-
+/* 底部按钮 (Artisan Stamp Button) */
+#easystore-section-bread-and-pastries .center.small-hide.medium-hide { margin-top: 3rem; text-align: center; }
+.button {
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1.5px; color: #3b5998 !important;
+    background-color: #fff !important; border: 2px solid #3b5998; border-radius: 2px; padding: 12px 35px;
+    box-shadow: 3px 3px 0px #dfe3ee; transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    text-decoration: none; display: inline-block;
 }
-/* =================================================================== */
-/* ======== FIX V19: Remove Stray Line from Mobile Menu ======== */
-/* =================================================================== */
+.button:hover { color: #2a4887 !important; transform: translate(2px, 2px); box-shadow: 1px 1px 0px #dfe3ee; }
 
-@media screen and (max-width: 767px) {
+/* ==========================================================================
+   8. 页脚 (Footer)
+   ========================================================================== */
+footer.main-footer { padding: 30px 0 30px; position: relative; z-index: 1999; overflow: hidden; }
+footer.main-footer .bg { position: absolute; top: 0; left: 0; bottom: -150px; right: 0; background: url('../img/bg-footer.jpg') center center; background-size: cover; pointer-events: none; }
+footer.main-footer .wrap { position: relative; }
+footer.main-footer .cols { width: 80%; margin: 0 auto 40px; display: flex; flex-direction: row; justify-content: space-around; flex-wrap: wrap; }
+footer.main-footer .cols .col { width: 40%; }
+footer.main-footer .cols .col.logo { display: flex; flex-direction: column; justify-content: center; text-align: center; }
 
-    /*
-     *  问题：旧主题的 CSS 在菜单打开时，会给 .logos 容器
-     *       添加一个底边框，这条线在新设计中是多余的。
-     *
-     *  解决方案：在菜单打开时 (body.menuOpen)，
-     *          用 border: none !important 强制移除这个边框。
-     */
-    body.menuOpen .main-header .logos {
-        border: none !important;
-        /* 我们也可以顺便移除它可能存在的背景色和高度限制，让布局更干净 */
-        background-color: transparent !important;
-        height: auto !important;
-    }
+/* 限制页脚 Logo 大小 */
+footer.main-footer .cols .col.logo div { max-width: 250px; margin: 0 auto; }
+footer.main-footer .cols .col.logo div img { width: 100%; height: auto; display: inline; }
 
-}
+/* 社交图标 */
+.logo-socials { list-style: none; padding: 0; margin: 0; text-align: center; margin-top: 20px; }
+.logo-socials li { display: inline-block; }
+.logo-socials li a { color: black; opacity: 0.5; transition: 0.3s opacity; }
+.logo-socials li a:hover { opacity: 1; }
 
-/* =================================================================== */
-/* ======== FIX V20: Optimize Mobile Footer Spacing & Icon Size ======== */
-/* =================================================================== */
+/* 版权文字 */
+footer.main-footer a.legals { width: 100%; text-align: center; font-size: 10px; color: black; text-transform: uppercase; letter-spacing: 5px; display: block; opacity: 0.5; transition: 0.3s; }
+footer.main-footer a.legals:hover { opacity: 1; }
 
-@media screen and (max-width: 767px) {
-
-    /* 
-     * 1. 减小 Logo 容器的上下内边距，这是减少空间的关键。
-     */
-    footer.main-footer .cols .col.logo {
-        padding-top: 20px;    /* 将顶部 padding 从 40px 减少到 20px */
-        padding-bottom: 10px; /* 将底部 padding 从 40px 大幅减少到 10px */
-    }
-
-    /* 
-     * 2. 减小 Logo 和“保持联系”区域下方的外边距。
-     */
-    footer.main-footer .cols {
-        margin-bottom: 20px; /* 将这个间距大幅减小 */
-    }
+@media only screen and (max-width: 769px) {
+    footer.main-footer .cols { width: 100%; margin-bottom: 20px; }
+    footer.main-footer .cols .col { width: 100%; }
+    footer.main-footer .cols .col.logo { padding-top: 20px; padding-bottom: 10px; }
+    body.menuOpen footer.main-footer { display: none; }
 }
 
-/* =================================================================== */
-/* ======== FIX V21: Correct Mobile Slider Arrow Position ======== */
-/* =================================================================== */
+/* ==========================================================================
+   9. 其他工具 (Utilities)
+   ========================================================================== */
+#cookieWarner { text-align: center; background-color: #2e3032; color: #ddd; font-size: 12px; font-family: Arial, Helvetica, sans-serif; position: fixed; bottom: 0; left: 0; right: 0; width: 100%; padding: 8px 0 6px; z-index: 9999; }
+#cookieWarner a { color: #fff; display: inline-block; text-decoration: underline; font-weight: bold; margin: 0 4px 0 4px; }
 
-/* 
- * 仅在滑块激活的屏幕尺寸 (< 990px) 下应用这些规则
- */
-@media screen and (max-width: 989px) {
+/* ==========================================================================
+   10. 单页切换与新菜单样式 (SPA Logic & Menu Design)
+   ========================================================================== */
 
-    /* 
-     * 1. 重置按钮，确保它是一个能让内容居中的容器
-     */
-    .slider-button {
-        display: inline-flex !important; /* 强制为 flex 布局 */
-        justify-content: center;   /* 水平居中 */
-        align-items: center;     /* 垂直居中 */
-        width: 44px;
-        height: 44px;
-        padding: 0;                /* 移除所有内边距 */
-    }
-
-    /* 
-     * 2. 重置 SVG 图标本身的样式
-     */
-    .slider-button .icon-caret {
-        position: static !important; /* 移除任何可能存在的绝对定位 */
-        height: 12px;                /* 设置一个合适的高度 */
-        width: auto;
-        color: #333;                /* 设置一个清晰的颜色 */
-        transition: transform 0.2s ease;
-    }
-
-    /* 
-     * 3. 使用最简单的旋转来控制方向，移除所有复杂的 transform
-     */
-    .slider-button--prev .icon-caret {
-        transform: rotate(90deg) !important;
-    }
-
-    .slider-button--next .icon-caret {
-        transform: rotate(-90deg) !important;
-    }
-
-    /* 
-     * 4. 优化悬停效果
-     */
-    .slider-button:not([disabled]):hover .icon-caret {
-        transform: scale(1.2) rotate(90deg) !important; /* for prev button */
-    }
-
-    .slider-button--next:not([disabled]):hover .icon-caret {
-        transform: scale(1.2) rotate(-90deg) !important; /* for next button */
-    }
+/* --- 视图切换逻辑 --- */
+.page-view {
+    display: none; /* 默认隐藏所有页面 */
+    opacity: 0;
 }
 
-/* =================================================================== */
-/* ====== FIX V22: Hide Mobile-Only Elements on Desktop ======== */
-/* =================================================================== */
+.page-view.active-view {
+    display: block; /* 只有加了 active-view 的才显示 */
+    animation: fadeIn 0.8s forwards; /* 触发淡入动画 */
+}
 
-/* 
- * 默认情况下 (桌面端)，隐藏我们为移动菜单添加的 Logo。
- */
-.menu-panel-logo {
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* --- 新菜单页面设计 --- */
+.menu-category { width: 100%; margin-bottom: 40px; }
+
+.menu-title {
+    font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    font-size: 32px;
+    color: #92683b;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.menu-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.menu-item {
+    width: 48%; /* 一行两个 */
+    margin-bottom: 30px;
+}
+
+.menu-img {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.menu-info {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.menu-info h4 {
+    font-family: 'Noto Serif SC', sans-serif, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+}
+
+.menu-info .dots {
+    flex-grow: 1;
+    border-bottom: 1px dotted #ccc;
+    margin: 0 10px;
+}
+
+.menu-info .price {
+    font-family: 'Kalam', cursive;
+    font-weight: bold;
+    color: #92683b;
+    font-size: 18px;
+}
+
+.menu-item .desc {
+    font-size: 14px;
+    color: #777;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 移动端菜单调整 */
+@media only screen and (max-width: 769px) {
+    .menu-item { width: 100%; } /* 手机上一行一个 */
+}
+
+/* ==========================================================================
+   11. 粘性横向滚动 (Sticky Horizontal Scroll)
+   ========================================================================== */
+
+/* 1. 高度支撑容器：创造滚动的“时间” */
+.horizontal-scroll-wrapper {
+    height: 400vh; /* 保持足够长的滚动距离 */
+    position: relative;
+    background-color: #fbf9f4; 
+}
+
+/* 2. 粘性视窗：在滚动期间“卡”在屏幕上 */
+.savoria-sticky-viewport {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    overflow: hidden; /* 隐藏溢出部分 */
+    display: flex; /* 使用 Flexbox 布局 */
+    flex-direction: column; /* 垂直排列子元素 */
+    justify-content: flex-start; /* 垂直靠上 */
+    align-items: center; /* 水平居中 */
+    padding-top: 100px;  /* 给顶部增加内边距，把标题往下推一点点，避开导航栏 */
+}
+
+/* 标题样式 */
+.savoria-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 30px; /* 标题下方的留白 */
+    flex-shrink: 0; /* 防止标题被压缩 */
+    position: relative;
+    z-index: 2;
+}
+.savoria-header h2 {
+    font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    font-size: 50px;
+    color: #92683b;
+    margin-bottom: 10px;
+}
+.savoria-header p {
+    font-family: 'Noto Serif SC', sans-serif, sans-serif;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* 轨道 */
+.savoria-track {
+    display: flex;
+    gap: 30px; 
+    padding-left: 5vw; /* 第一张照片的左边距，保持 5vw 不变，避免太靠右 */
+    width: max-content;
+    will-change: transform;
+    align-items: center; /* 确保所有卡片在轨道内垂直对齐 */
+}
+
+/* 🔴 电脑端：隐藏手机专用的克隆卡片，解决“两组卡片”的问题 */
+.mobile-clones {
     display: none;
 }
 
-/* 
- * 只在移动端屏幕 (< 767px) 并且菜单打开时，才显示它。
- */
-@media screen and (max-width: 767px) {
-    body.menuOpen .menu-panel-logo {
+/* 单个卡片 */
+.savoria-card {
+    flex: 0 0 auto;
+    width: 365px;   
+    height: 486px;  
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    transition: transform 0.5s ease;
+}
+
+/* 上下错落布局 (JS会覆盖这里，但作为默认值保留) */
+.savoria-card.up { transform: translateY(-30px); }
+.savoria-card.down { transform: translateY(30px); }
+
+/* 图片容器 */
+.savoria-card .img-holder {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(1);
+    transition: transform 0.8s ease, filter 0.5s ease;
+}
+
+/* 悬停交互 */
+.savoria-card:hover .img-holder {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
+.savoria-card:hover { z-index: 10; }
+
+/* 文字遮罩 */
+.card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+.card-overlay span {
+    color: #fff;
+    font-family: 'Noto Serif SC', sans-serif, sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
+}
+.savoria-card:hover .card-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- 移动端专属优化：无限自动滚动 (Infinite Marquee) --- */
+@media only screen and (max-width: 769px) {
+    
+    .horizontal-scroll-wrapper { 
+        height: auto !important; 
+        background-color: #fff;
+    }
+    
+    .savoria-sticky-viewport {
+        position: relative !important;
+        height: auto !important;
+        top: auto !important;
+        padding: 60px 0;
         display: block;
     }
+
+    .savoria-header { margin-bottom: 30px; }
+
+    .savoria-track {
+        display: flex;
+        gap: 20px;
+        width: max-content;
+        padding-left: 0 !important;
+        padding-right: 20px;
+        animation: marqueeScroll 30s linear infinite;
+    }
+
+    .mobile-clones {
+        display: flex;
+        gap: 20px;
+    }
+
+    @keyframes marqueeScroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    .savoria-card {
+        width: 220px !important; 
+        height: 320px !important;
+        flex-shrink: 0;
+        margin: 0;
+        transform: none !important; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .savoria-card .img-holder {
+        filter: brightness(1);
+        transform: none;
+    }
+    
+    .card-overlay {
+        opacity: 1;
+        transform: translateY(0);
+        padding: 15px;
+        background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    }
 }
-/* =================================================================== */
-/* =========== FIX V23: Adjust Vertical Spacing =========== */
-/* =================================================================== */
 
-
-/* 
- * 2. 为“全部产品”按钮的容器增加上边距，
- *    将其与上方的产品网格分开。
- */
-#easystore-section-bread-and-pastries .center.small-hide.medium-hide {
-    margin-top: 3rem; /* 之前是3rem，我们把它加大一点以增加空间 */
+/* --- 优化：粘性滚动区域与日记部分无缝衔接 --- */
+.savoria-sticky-viewport {
+    background-color: #fbf9f4;
 }
 
-/* 
- * 3. 为整个产品展示的白色背景区域增加底部内边距，
- *    确保按钮下方有足够的空间，不会紧贴页脚。
- */
-.product-showcase-section {
-    padding-bottom: 5rem; /* 之前的值可能太小，我们统一设置为 5rem */
+#ambiance-section #home-diary {
+    margin-top: 10vh;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    width: 100%;
+}
+
+#ambiance-section #home-diary.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================
+   移动端修复：强制显示日记摘录
+   ========================================================== */
+@media only screen and (max-width: 769px) {
+  #home-diary {
+    opacity: 1 !important;
+    transform: none !important;
+    margin-top: 40px; /* 在图片滚动区下方增加一些间距 */
+    padding-bottom: 20px; /* 增加底部内边距，让按钮不至于太靠下 */
+  }
+}
+
+
+/* ==========================================================================
+   12. 动画与转场效果 (Animations & Transitions)
+   ========================================================================== */
+
+/* --- 温柔版吐司转场 --- */
+#toast-transition {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+#toast-transition .expander {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #dbb380;
+    transform: scale(0);
+    z-index: 1;
+}
+
+#toast-transition .icon-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    z-index: 2;
+    transform: scale(0);
+}
+
+#toast-transition svg {
+    width: 100%; height: 100%;
+    fill: #dbb380;
+}
+
+/* 新增：为吐司面包增加深褐色烤边 */
+#toast-transition svg .body {
+    stroke: #5a3a22; /* ① 设置烤边颜色 (与五官同色) */
+    stroke-width: 5;  /* ② 设置烤边的厚度 */
+    stroke-linejoin: round; /* ③ 让边角更圆润，像真实面包 */
+}
+
+#toast-transition.pop-in {
+    visibility: visible;
+}
+#toast-transition.pop-in .icon-container {
+    transform: scale(1);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+#toast-transition.expanding .expander {
+    transform: scale(50);
+    transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+}
+#toast-transition.expanding .icon-container {
+    transform: scale(1.1);
+    transition: transform 0.5s ease;
+}
+#toast-transition.fading-out {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* --- 背景图进入时的缩放动画 (Ken Burns Effect) --- */
+.intro .bg {
+    overflow: hidden;
+}
+
+.intro .bg-inner {
+    width: 100%;
+    height: 100%;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transform: scale(1);
+    will-change: transform; 
+}
+
+@keyframes zoomInEffect {
+    from { transform: scale(1.15); }
+    to { transform: scale(1); }
+}
+
+.bg-inner.play-zoom {
+    animation: zoomInEffect 2.0s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
