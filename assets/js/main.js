@@ -1,7 +1,6 @@
 /* ================================================================= */
-/*             WnkLaxController & WnkMediaLoader (Helper Libs)        */
+/* 1. 核心 helper 库 (视差滚动与图片加载) - 保持原样，仅压缩空白 */
 /* ================================================================= */
-// (保留这部分库代码不变，这是视差滚动的基础)
 function WnkLaxController(){this.elements=[];this.enabled=!1;this.requestID=null;this.init()}
 WnkLaxController.prototype={init:function(){},addElement:function(el,parent,opts){var element=new WnkLaxElement(el,parent,opts);this.elements.push(element)},removeElement:function(el){for(var i=0;i<this.elements.length;i++){if(this.elements[i].el.get(0)==el.get(0)){this.elements[i].destroy();this.elements.splice(this.elements[i],1)}}},removeAll:function(){this.stop();for(var i=0;i<this.elements.length;i++){this.elements[i].destroy()}
 this.elements=null},onFrame:function(){for(var i=0;i<this.elements.length;i++){this.elements[i].onFrame()}
@@ -18,226 +17,355 @@ return pos[1]}}
 function WnkMediaLoader(imgs,parent){this.$imgs=imgs;this.count=0;this.parent=parent;this.allLoaded=!1;this.eventName='wnk.mediasLoaded';this.init()}
 WnkMediaLoader.prototype={init:function(){if(this.$imgs.length<=0){$(this.parent).trigger(this.eventName)}},load:function(){this.$imgs.each($.proxy(this.initMedia,this))},initMedia:function(i,media){var $media=$(media);if($media.prop('tagName')==='IMG'){$media.one("load.WnkMediaLoader",$.proxy(this.onMediaLoaded,this));if(media.complete)$media.load()}else if($media.prop('tagName')==='VIDEO'){$media.one("loadeddata.WnkMediaLoader",$.proxy(this.onMediaLoaded,this));media.load()}else{console.log('UNKNOWN MEDIA => '+$media.prop('tagName'));this.count=-1;this.onMediaLoaded()}},onMediaLoaded:function(e){this.count++;if(this.count==this.$imgs.length){$(this.parent).trigger(this.eventName)}},destroy:function(){this.$imgs.unbind('load.WnkMediaLoader').unbind('loadeddata.WnkMediaLoader')}};
 
-
 /* ================================================================= */
-/*                           主逻辑类                                 */
+/* 2. 麦日记主程序 (MaiRijiApp) */
 /* ================================================================= */
 
 function MaiRijiApp(){
+    // 实例化视差控制器
     this.wax = new WnkLaxController();
 }
 
 MaiRijiApp.prototype = {
     
-    // 1. 入口函数
+    // --- 启动入口 ---
     preload: function(){
         this.init();
     },
     
-    // 2. 初始化
+    // --- 初始化 ---
     init: function(){
-        var $this = this;
-        
-        // 触发首页背景 Ken Burns 动画
+		var $this = this;
+		
+		// 生成产品卡片
+		this.renderProducts();
+		
+        // 触发首页背景 Ken Burns 放大动画
         $('.home-intro .bg-inner').addClass('play-zoom');
-        
-        // 绑定所有事件
+        // 绑定所有交互事件
         this.bindEvents();
+    },
+	
+	// 自动生成面包卡片
+    renderProducts: function() {
+        // --- 1. 这里是菜单配置区 (以后加面包改这里就行) ---
+        var products = [
+            { name: "乡村酵母欧包", price: "15.00", img: "1" },
+            { name: "葡萄核桃欧包", price: "16.00", img: "2" },
+            { name: "巧克力核桃欧包", price: "16.00", img: "3" },
+            { name: "柠檬蓝莓欧包", price: "17.00", img: "4" },
+            { name: "火龙果欧包", price: "16.00", img: "5" },
+            { name: "抹茶蔓越莓欧包", price: "16.00", img: "6" },
+            { name: "蜂蜜金瓜欧包", price: "17.00", img: "7" }
+        ];
+
+        // --- 2. 生成 HTML 的逻辑 ---
+        var html = '';
         
-        // 文字淡入
-        setTimeout(function(){
-            $('.home-intro, .page-intro').addClass('show');
-        }, 100);
+        // 遍历上面的数组
+        $.each(products, function(index, item) {
+            // 拼接 HTML 字符串 (使用 ES6 模板字符串 ``)
+            html += `
+            <li class="grid__item slider__slide">
+                <div class="product-card-wrapper card-wrapper" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+                    <div class="stack-container">
+                        <div class="polaroid card-bottom">
+                            <div class="photo-area" style="background-color: #f4f4f4;"></div>
+                        </div>
+
+                        <div class="polaroid card-middle-hover">
+                            <div class="photo-area" style="background-image: url('assets/img/your-bread-${item.img}-hover.jpg');"></div>
+                        </div>
+
+                        <div class="polaroid card-front">
+                            <div class="photo-area" style="background-image: url('assets/img/your-bread-${item.img}.jpg');"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-information" style="padding-top: 10px; text-align: center;">
+                        <div class="card-information__wrapper">
+                            <span class="card-information__text">${item.name}</span>
+                            <div class="price"><span class="price-item">RM ${item.price}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            `;
+        });
+
+        // --- 3. 把生成的 HTML 塞进页面 ---
+        $('#product-list').html(html);
     },
     
-    // 3. 事件绑定中心
+    // --- 事件绑定中心 ---
     bindEvents: function(){
         var $this = this;
 
-        // --- A. 导航栏滚动监听 (Waypoints) ---
-        var $triggerScroll = $('.scrollTrigger');
-        if($triggerScroll.length > 0){
-            $triggerScroll.waypoint({
-                handler: function(dir){
-                    if(dir == 'down'){ $('.main-header').addClass('small'); }
-                    else { $('.main-header').removeClass('small'); }
-                },
-                offset: $('.main-header').height() + 15
-            });
+        // A. 启动导航栏滚动监听 (Sticky Header)
+        this.initStickyNav();
 
-            // 图片加载完后启动视差 (仅限桌面端)
-            if(!this.isMobile()){
-                var loader = new WnkMediaLoader($('img'), this);
-                $(this).one(loader.eventName, $.proxy(this.onLoad, this));
-                loader.load();
-            }
+        // B. 图片加载完后启动视差 (仅限桌面端，优化性能)
+        if(!this.isMobile()){
+            var loader = new WnkMediaLoader($('img'), this);
+            $(this).one(loader.eventName, $.proxy(this.onLoad, this));
+            loader.load();
         }
 
-        // --- B. 移动端汉堡菜单 ---
+        // C. 移动端汉堡菜单切换
         $('.m-burger').on('click', function(){
             $('body').toggleClass('menuOpen');
         });
 
-        // --- C. 向下箭头平滑滚动 ---
+        // D. 导航栏链接点击 (SPA 页面切换)
+        $('.nav-link').on('click', function(e){
+            e.preventDefault();
+            // 如果点击的是当前页面，不做任何事
+            var targetId = $(this).data('target');
+            if($('#' + targetId).hasClass('active-view')) return;
+            
+            $this.handlePageTransition($(this));
+        });
+
+        // E. 首页“向下滚动”箭头
         $(document).on('click', 'a.down', function(e) {
             e.preventDefault();
-            var $target = $('#home-start');
+            var targetId = $(this).attr('href');
+            var $target = $(targetId);
             if ($target.length > 0) {
+                // 减去 60px 是为了避开导航栏遮挡
                 $('html, body').animate({ scrollTop: $target.offset().top - 60 }, 800);
             }
         });
 
-        // --- D. SPA 页面切换 (Toast 转场) ---
-        $('.nav-link').on('click', function(e) {
-            e.preventDefault();
-            $this.handlePageTransition($(this));
+        // F. 全局滚动监听 (用于横向滚动特效)
+        $(window).on('scroll', function(){
+            var scrollTop = $(window).scrollTop();
+            $this.handleHorizontalScroll(scrollTop);
+        });
+        
+        // G. 窗口大小改变时，重置视差计算
+        $(window).on('resize', function(){
+             if($this.wax && $this.wax.elements){
+                for(var i=0; i<$this.wax.elements.length; i++){
+                    $this.wax.elements[i].onResize();
+                }
+            }
+            // 重新计算导航栏触发点
+            Waypoint.refreshAll();
         });
 
-        // --- E. 全局滚动监听 (Savoria 效果 + Hero 视差) ---
-        $(window).on('scroll', function() {
-            var scrollTop = window.pageYOffset;
+        // H. 麦穗按钮点击特效 (新标签页打开)
+        $('.wheat-btn').on('click', function(e) {
+            var $btn = $(this);
+            var targetUrl = $btn.attr('data-link'); 
             
-            // 1. Hero 区域透明度变化 (仅桌面)
-            if(!$this.isMobile() && scrollTop < $(window).height()){
-                var percent = scrollTop / ($(window).height() / 2.5);
-                $('.home-intro .wrap, .page-intro .wrap').css({ opacity: 1 - percent });
-            }
+            if (!$btn.hasClass('clicked')) {
+                $btn.addClass('clicked'); // 播放动画
+                
+                setTimeout(function() {
+                    window.open(targetUrl, '_blank'); 
+                }, 800); // 延迟 800ms
 
-            // 2. 处理横向滚动逻辑
-            $this.handleHorizontalScroll(scrollTop);
+                setTimeout(function() {
+                    $btn.removeClass('clicked');
+                }, 1500); // 动画结束后重置
+            }
         });
     },
 
-    // 辅助：处理 Savoria 横向滚动逻辑
+    // --- 核心逻辑：智能导航栏 (Sticky Nav) ---
+    initStickyNav: function() {
+        // 清理旧的触发器，防止叠加
+        Waypoint.destroyAll();
+        
+        // 默认重置为大导航栏
+        $('.main-header').removeClass('small');
+        $('.home-intro .inner').removeClass('scroll-hide');
+
+        // 寻找当前激活页面的触发点 (scrollTrigger)
+        var $activeTrigger = $('.page-view.active-view .scrollTrigger');
+        
+        if($activeTrigger.length > 0){
+            $activeTrigger.waypoint({
+                handler: function(dir){
+                    if(dir == 'down'){ 
+                        // 向下滚动：变小导航栏，隐藏 Hero 文字
+                        $('.main-header').addClass('small');
+                        $('.home-intro .inner').addClass('scroll-hide');
+                    }
+                    else { 
+                        // 向上回滚：恢复大导航栏，显示 Hero 文字
+                        $('.main-header').removeClass('small');
+                        $('.home-intro .inner').removeClass('scroll-hide');
+                    }
+                },
+                // 触发位置：元素顶部碰到导航栏底部时
+                offset: $('.main-header').height() + 15
+            });
+        }
+        // 强制刷新 Waypoint 计算
+        Waypoint.refreshAll();
+    },
+
+    // --- 核心逻辑：Savoria 横向滚动特效 ---
     handleHorizontalScroll: function(scrollTop) {
-        if (this.isMobile()) return; // 手机端使用 CSS 动画，跳过 JS 计算
+        // 移动端禁用此特效
+        if (this.isMobile()) return;
 
         var $scrollWrapper = $('.horizontal-scroll-wrapper');
-        if ($scrollWrapper.length === 0) return;
+        // 如果当前页面没有横向滚动区，直接退出
+        if ($scrollWrapper.length === 0 || $scrollWrapper.is(':hidden')) return;
 
         var winHeight = $(window).height();
         var wrapperTop = $scrollWrapper.offset().top;
         var wrapperHeight = $scrollWrapper.height();
-        var effectiveHeight = wrapperHeight - winHeight; // 可滚动的总距离
-        var scrollDist = scrollTop - wrapperTop;
+        var effectiveHeight = wrapperHeight - winHeight; // 可滚动的有效距离
+        var scrollDist = scrollTop - wrapperTop; // 当前已滚动的距离
 
         var $track = $('.savoria-track');
         var $cards = $('.savoria-card');
         var $contentWrap = $('.savoria-sticky-viewport > .wrap');
         var $diary = $('#home-diary');
 
-        // 计算逻辑
+        // 处于滚动区间内
         if (scrollDist >= 0 && scrollDist <= effectiveHeight) {
             var progress = scrollDist / effectiveHeight;
-            var splitPoint = 0.75; // 75% 滚动用于横移，25% 用于上浮
+            var splitPoint = 0.75; // 前 75% 滚动图片，后 25% 显示日记
 
-            // 变量计算
             var trackWidth = $track.outerWidth();
             var viewportWidth = $(window).width();
+            
+            // 计算最大横向位移
             var maxTranslateX = trackWidth - viewportWidth + (viewportWidth * 0.3);
             var maxTranslateY = Math.max(0, $contentWrap.outerHeight() - winHeight);
 
             if (progress <= splitPoint) {
-                // 阶段 1: 横向移动 + 上下浮动
+                // 阶段一：横向滚动卡片
                 var hProg = progress / splitPoint;
                 $track.css('transform', 'translateX(' + (-maxTranslateX * hProg) + 'px)');
                 
-                // 卡片正弦波浮动
+                // 上下浮动动画
                 $cards.each(function(i) {
                     var isOdd = i % 2 !== 0;
                     var val = Math.sin(hProg * Math.PI * 2 + (isOdd ? Math.PI : 0)) * 30;
                     $(this).css('transform', 'translateY(' + val + 'px)');
                 });
 
-                // 重置阶段 2 状态
+                // 隐藏日记
                 $diary.removeClass('is-visible');
                 $contentWrap.css('transform', 'translateY(0px)');
 
             } else {
-                // 阶段 2: 锁定横向，内容上浮
+                // 阶段二：显示日记
                 var vProg = (progress - splitPoint) / (1 - splitPoint);
+                $track.css('transform', 'translateX(' + (-maxTranslateX) + 'px)'); // 锁定图片位置
+                $diary.addClass('is-visible'); // 显示日记
                 
-                $track.css('transform', 'translateX(' + (-maxTranslateX) + 'px)');
-                $diary.addClass('is-visible');
+                // 内容轻微上移，腾出空间
                 $contentWrap.css('transform', 'translateY(' + (-maxTranslateY * vProg) + 'px)');
             }
         } else if (scrollDist < 0) {
-            // 复位 (在区域上方)
+            // 回到顶部之前：重置
             $track.css('transform', 'translateX(0px)');
             $cards.css('transform', 'translateY(0px)');
             $diary.removeClass('is-visible');
         }
     },
 
-    // 辅助：处理 SPA 转场
+    // --- 核心逻辑：SPA 页面切换转场 ---
     handlePageTransition: function($link) {
+        var self = this;
         var targetId = $link.data('target');
+        
+        // 目标页面不存在，直接退出
         if (!targetId || $('#' + targetId).length === 0) return;
-        if ($('#' + targetId).hasClass('active-view')) return;
 
         var $toast = $('#toast-transition');
         
-        // 1. 准备
+        // 1. 重置动画状态
         $toast.removeClass('pop-in expanding fading-out').css('opacity', '');
         void $toast[0].offsetWidth; // 强制重绘
         
-        // 2. 蹦出
+        // 2. 蹦出图标 (Pop In)
         $toast.addClass('pop-in');
         
-        // 3. 膨胀并切换
+        // 3. 开始转场流程
         setTimeout(function() {
+            // 膨胀填满屏幕
             $toast.addClass('expanding');
             
             setTimeout(function() {
-                // 切换视图 DOM
+                // --- 幕后操作开始 ---
+                
+                // A. 切换视图 DOM
                 $('.page-view').removeClass('active-view');
                 $('#' + targetId).addClass('active-view');
+                
+                // B. 滚回顶部
                 window.scrollTo(0, 0);
                 
-                // 关闭菜单
+                // C. 修复 Banner 透明度 (防止之前的滚动逻辑残留)
+                $('.home-intro .wrap, .page-intro .wrap').css('opacity', '');
+                
+                // D. 关闭移动端菜单
                 if($('body').hasClass('menuOpen')) $('body').removeClass('menuOpen');
 
-                // 重置 Hero 动画
+                // E. 重置 Hero 背景动画 (Zoom Effect)
                 var $bg = (targetId === 'view-home') ? $('.home-intro .bg-inner') : $('#' + targetId + ' .bg-inner');
                 $bg.removeClass('play-zoom');
-                void $bg[0].offsetWidth;
+                void $bg[0].offsetWidth; // 强制重绘
                 $bg.addClass('play-zoom');
+
+                // F. 重新初始化 Sticky 导航监听
+                self.initStickyNav();
+
+                // G. 视差稳定器 (Safe Stabilizer) - 关键修复
+                // 连续 60 帧强制刷新，防止 DOM 切换导致的布局抖动
+                var frames = 60; 
+                var stabilize = function() {
+                    if(self.wax && self.wax.elements){
+                        for(var i=0; i<self.wax.elements.length; i++){
+                            self.wax.elements[i].onResize(); // 重新测量位置
+                            self.wax.elements[i].onFrame();  // 立即重绘
+                        }
+                    }
+                    Waypoint.refreshAll(); // 刷新导航栏触发点
+                    
+                    frames--;
+                    if(frames > 0) {
+                        requestAnimationFrame(stabilize);
+                    }
+                };
+                stabilize();
                 
+                // --- 幕后操作结束 ---
+
                 // 4. 淡出遮罩
                 $toast.addClass('fading-out');
                 
-                // 清理类名
+                // 5. 清理动画类名，为下次做准备
                 setTimeout(function(){ 
                     $toast.removeClass('pop-in expanding fading-out'); 
                 }, 400);
 
-            }, 500);
-        }, 600);
+            }, 500); // 配合 CSS transition 0.5s
+        }, 600); // 等待图标蹦出
     },
 
-    // 辅助：视差滚动启动 (图片加载后)
+    // --- 视差滚动启动器 ---
     onLoad: function(){
         if(this.isMobile()) return;
 
-        // 为背景和文字添加视差效果
-        this.wax.addElement($('.page-intro .bg, .home-intro .bg, header.intro .bg'), null, {deltaY: 1.2, mode: 'translate'});
-        this.wax.addElement($('.main-footer .bg'), null, {deltaY: 0.6, mode: 'translate'});
-        
-        $('.page-intro, .home-intro, header.intro').each(function(){
-            if(!$(this).hasClass('short')){
-                // 此处 $this 指向当前遍历的元素，需使用 outer scope 的 this (即 app 实例)
-                // 但由于上面使用了 bind/proxy 或者是为了简化，这里可以直接用 global instance 或者传参
-                // 简单起见，假设 wax 已经在 scope 中可用
-            }
+        // 仅对 Header 区域启用视差 (Footer 已排除)
+        this.wax.addElement($('.page-intro .bg, .home-intro .bg, header.intro .bg'), null, {
+            deltaY: 1.2, 
+            mode: 'translate'
         });
         
-        // 注意：由于上面是在 each 循环里，this指向变了。
-        // 最好的办法是在 onLoad 开头 var _app = this; 然后用 _app.wax
-        // 这里为了代码简洁，保留原有逻辑结构，但在实际合并时要注意作用域
         this.wax.start();
     },
 
-    // 工具：检测是否移动端
+    // --- 工具：设备检测 ---
     isMobile: function() {
         return window.innerWidth <= 769;
     }
