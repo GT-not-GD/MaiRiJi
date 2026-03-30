@@ -499,3 +499,111 @@ footer.main-footer a.legals:hover { opacity: 1; }
 
 .wheat-btn.clicked .icon-3 { animation: leaf-fall-left 1.1s ease-in forwards !important; }
 @keyframes leaf-fall-left { 0% { top: -8px; opacity: 1; transform: rotate(-15deg); } 100% { top: 100px; left: -60px; opacity: 0; transform: rotate(-120deg); } }
+
+/* ==========================================================================
+   14. 自定义动态鼠标 (Custom Animated Cursor)
+   ========================================================================== */
+@media only screen and (min-width: 769px) {
+    /* 🌟 修改：强制隐藏网页上所有元素的默认鼠标指针 🌟 */
+    body, html, 
+    a, button, 
+    input[type="submit"], .btn,
+    .ken-burns, /* 针对你页面上的特定元素 */
+    * /* 兜底：隐藏所有元素的鼠标 */ {
+        cursor: none !important;
+    }
+    
+    /* 自定义鼠标的容器 */
+    #custom-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 36px;  /* 鼠标大小，你可以根据实际感觉调整 */
+        height: 36px;
+        pointer-events: none; /* 绝对不能删：让点击事件穿透图片 */
+        z-index: 2147483647 !important;
+        display: none; /* 初始隐藏，等 JS 拿到坐标后再显示，防止在角落闪烁 */
+    }
+
+    #custom-cursor img {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+/* ========================================================
+   🔥 [全新] 掉落的冰块特效 (Dropping Ice Cubes) 🔥
+========================================================= */
+
+/* 定义冰块掉落和消失的动画 */
+@keyframes iceCubeFallAndFade {
+    0% {
+        opacity: 0;
+        /* 刚产生时，轻微缩小，轻微向上偏移（模拟“掉出”），零旋转 */
+        transform: translate(-50%, -50%) scale(0.6) translateY(-5px) rotate(0deg); 
+    }
+    5% {
+        opacity: 1; /* 迅速变亮 */
+    }
+    10% {
+        /* 开始掉落 */
+        transform: translate(-50%, -50%) scale(1) translateY(0) rotate(0deg);
+    }
+    100% {
+        /* 最终状态：大幅掉落，旋转，完全消失，轻微缩小 */
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) translateY(200px) rotate(120deg); 
+    }
+}
+
+/* 冰块的主体容器 */
+.cursor-ice-cube {
+    position: fixed;
+    pointer-events: none; /* 穿透，防止干扰 */
+    
+    /* 层级：稍微比鼠标主体（2147483647）低一点，防止盖住主体 */
+    z-index: 2147483646; 
+    
+    /* 冰块的大小 (约10px) */
+    width: 10px;
+    height: 10px;
+    
+    /* ❌ 我们不在这里设置颜色和形状，让伪元素来处理 ❌ */
+    
+    /* 应用动画：1s内线性消失（可以根据需要微调时间）*/
+    animation: iceCubeFallAndFade 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* 🔥 核心核心：冰块的具体形状 (模仿复杂的晶体、透明和辉光) 🔥 */
+.cursor-ice-cube::before,
+.cursor-ice-cube::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 2px; /* 稍微圆角 */
+}
+
+/* ✅ 冰块1：一个半透明的青色发光晶体，增加辉光和折射 */
+.cursor-ice-cube::before {
+    width: 10px;
+    height: 10px;
+    /* 匹配图标颜色 (青色 / Cyan)，赋予半透明质感 */
+    background: rgba(0, 255, 255, 0.5); 
+    
+    /* 精细阴影：模拟光折射和发光 */
+    box-shadow: 
+        inset 0 0 5px rgba(255, 255, 255, 0.8), /* 内部白光，增加透明度 */
+        0 0 10px rgba(0, 255, 255, 0.7),       /* 外部青色辉光 */
+        0 0 20px rgba(0, 255, 255, 0.5);       /* 更柔和的外辉光 */
+}
+
+/* ✅ 冰块2：一个更小、白色的中心，增加亮度和深度 */
+.cursor-ice-cube::after {
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.9); /* 白芯，增加亮度 */
+    opacity: 0.8;
+}
+}

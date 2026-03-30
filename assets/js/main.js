@@ -44,6 +44,9 @@ MaiRijiApp.prototype = {
         $('.home-intro .bg-inner').addClass('play-zoom');
         // 绑定所有交互事件
         this.bindEvents();
+
+        // 🌟 新增：启动鼠标动画
+        this.initCustomCursor();
     },
 	
 	// 自动生成面包卡片
@@ -368,5 +371,218 @@ MaiRijiApp.prototype = {
     // --- 工具：设备检测 ---
     isMobile: function() {
         return window.innerWidth <= 769;
-    }
+    },
+
+    // ==========================================
+    // 修改：终极版自定义鼠标 (普通/悬停/普通点击/悬停点击)
+    // ==========================================
+    initCustomCursor: function() {
+        // 如果是手机端，直接退出
+        if (this.isMobile()) return;
+
+        var $cursor = $('#custom-cursor');
+        var $cursorImg = $('#cursor-img');
+
+        // 🔥 终极修复：直接用 JS 注入最高权重的内联样式，专治 CSS 缓存和图层不服
+        $cursor.css({
+            'position': 'fixed',
+            'z-index': '2147483647',
+            'pointer-events': 'none',
+            'transform': 'translateZ(9999px)', /* 在 3D 空间里强行拉到最贴近屏幕的位置 */
+            'margin': '0',
+            'padding': '0'
+        });
+        
+        // 🔥 强制把鼠标元素移动到 <body> 的绝对末尾，利用 DOM 顺位碾压其他元素
+        // 🔥 之前修复 Bug 时的 Append 代码，保持原样 🔥
+        $('body').append($cursor);
+
+        // ========================================================
+        // 🔥 [全新] 掉落冰块逻辑 (降低密度，改变运动模式) 🔥
+        // ========================================================
+        
+        var isThrottled = false; // 用于控制冰块生成频率（性能节流）
+
+        // 核心参数：控制冰块生成的密度（数值越高，掉落越稀疏，视觉越不密集。推荐 200-400ms）
+        var spawnInterval = 300; 
+
+        // 监听鼠标移动（使用偏移量补偿）
+        $(document).on('mousemove', function(e) {
+            // 1. [保持原样] 更新自定义鼠标主体位置 (使用 JS 补偿 -5px)
+            $cursor.css({ 
+                'left': (e.clientX - 5) + 'px', 
+                'top': (e.clientY - 5) + 'px' 
+            });
+            if ($cursor.css('display') === 'none') { $cursor.show(); }
+
+            // 2. [全新] 生成掉落的冰块粒子
+            if (!isThrottled) {
+                isThrottled = true;
+
+                // 创建一个冰块 DOM
+                var $iceCube = $('<div>');
+                $iceCube.addClass('cursor-ice-cube');
+
+                // 2a. 设置冰块初始位置在鼠标正中心 (无需 -5 偏移)
+                $iceCube.css({
+                    'left': e.clientX + 'px',
+                    'top': e.clientY + 'px'
+                });
+
+                // 2b. 将冰块添加到 <body>
+                $('body').append($iceCube);
+
+                // 2c. [性能关键] 1秒后（动画结束时）自动从 DOM 中移除冰块
+                setTimeout(function() {
+                    $iceCube.remove();
+                }, 1000); // 必须与 CSS 动画时间一致 (1s)
+
+                // 2d. 设置一个定时器，在 spawnInterval 时间后，允许重新生成冰块
+                setTimeout(function() {
+                    isThrottled = false;
+                }, spawnInterval);
+            }
+        });
+
+        // ==============================
+        // 1. 准备图片帧组 (请务必填写你实际的文件路径)
+        // ==============================
+        
+        // [A] 普通循环动画 (3帧)
+        var defaultFrames = [
+            'assets/img/cursor1.png',
+            'assets/img/cursor2.png',
+            'assets/img/cursor3.png'
+        ];
+
+        // [B] 悬停循环动画 (3帧)
+        var pointerFrames = [
+            'assets/img/pointer1.png', 
+            'assets/img/pointer2.png',
+            'assets/img/pointer3.png'
+        ];
+
+        // [C] 🌟 普通点击动画 (仅播放一次，建议帧数少一点，如2-3帧，速度快一点)
+        var normalClickFrames = [
+            'assets/img/click1.png',
+            'assets/img/click2.png',
+            'assets/img/click3.png',
+        ];
+
+        // [D] 🌟 悬停后点击动画 (仅播放一次，建议帧数少一点，如2-3帧，速度快一点)
+        var pointerClickFrames = [
+            'assets/img/ptrClick1.png', 
+            'assets/img/ptrClick2.png', 
+            'assets/img/ptrClick3.png'
+        ];
+
+
+        // ==============================
+        // 2. 状态控制变量
+        // ==============================
+        var interactiveSelectors = 'a, button, input[type="submit"], .btn';
+        
+        var isHovering = false;           // 是否悬停在按钮上
+        var isClickAnimating = false;     // 是否正在播放点击动画（单次）
+        
+        var currentLoopFrames = defaultFrames; // 当前循环使用的帧组
+        var currentFrameIndex = 0;
+        var animationTimer = null;         // 用于控制单次动画播放
+
+
+        // ==============================
+        // 3. 核心逻辑：播放单次动画的函数
+        // ==============================
+        function playClickAnimation(framesToPlay, onCompleteFrames) {
+            // 如果已经在播放点击动画，则忽略新的点击，防止冲突
+            if (isClickAnimating) return;
+
+            isClickAnimating = true;
+            currentFrameIndex = 0;
+            
+            // 立即显示第一帧，让反馈最快
+            $cursorImg.attr('src', framesToPlay[0]);
+
+            // 计算单次动画总时长（比如每帧 80ms，比循环动画快一些）
+            var frameDuration = 100; 
+            var totalDuration = framesToPlay.length * frameDuration;
+
+            // 播放剩余帧的逻辑
+            var playNextFrame = function(index) {
+                if (index < framesToPlay.length) {
+                    $cursorImg.attr('src', framesToPlay[index]);
+                    // 递归调用，播放下一帧
+                    animationTimer = setTimeout(function() {
+                        playNextFrame(index + 1);
+                    }, frameDuration);
+                } else {
+                    // 动画播放完毕
+                    isClickAnimating = false;
+                    currentLoopFrames = onCompleteFrames; // 切回应有的循环帧组
+                    currentFrameIndex = -1; // 重置循环索引，让它立刻播放循环的第一帧
+                }
+            };
+
+            // 启动单次动画（从第二帧开始，因为第一帧已经手动渲染了）
+            animationTimer = setTimeout(function() {
+                playNextFrame(1);
+            }, frameDuration);
+        }
+
+
+        // ==============================
+        // 4. 事件监听：悬停 (Hover)
+        // ==============================
+        $(document).on('mouseenter', interactiveSelectors, function() {
+            isHovering = true;
+            // 如果没有播放点击动画，则立刻切到悬停循环
+            if (!isClickAnimating) {
+                currentLoopFrames = pointerFrames;
+                currentFrameIndex = -1; // 强制立刻更新
+                updateLoopImage();
+            }
+        });
+
+        $(document).on('mouseleave', interactiveSelectors, function() {
+            isHovering = false;
+            // 如果没有播放点击动画，则立刻切回普通循环
+            if (!isClickAnimating) {
+                currentLoopFrames = defaultFrames;
+                currentFrameIndex = -1; // 强制立刻更新
+                updateLoopImage();
+            }
+        });
+
+
+        // ==============================
+        // 5. 🌟 事件监听：点击 (Click - mousedown 响应最快)
+        // ==============================
+        $(document).on('mousedown', function() {
+            // 清除可能正在播放的单次动画定时器，防止重叠
+            clearTimeout(animationTimer);
+            isClickAnimating = false; 
+
+            if (isHovering) {
+                // 场景 D: 悬停后点击
+                playClickAnimation(pointerClickFrames, pointerFrames);
+            } else {
+                // 场景 C: 普通点击
+                playClickAnimation(normalClickFrames, defaultFrames);
+            }
+        });
+
+
+        // ==============================
+        // 6. 循环动画定时器
+        // ==============================
+        function updateLoopImage() {
+            // 如果正在播放单次点击动画，则暂停循环更新
+            if (isClickAnimating) return;
+
+            currentFrameIndex = (currentFrameIndex + 1) % currentLoopFrames.length;
+            $cursorImg.attr('src', currentLoopFrames[currentFrameIndex]);
+        }
+
+        setInterval(updateLoopImage, 200); // 循环动画速度
+    },
 };
