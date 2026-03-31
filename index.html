@@ -383,25 +383,22 @@
 <script type='text/javascript' src='assets/js/main.js'></script>
 <!-- 启动网站 -->
 <script type="text/javascript">
-    // 3. 当网页终极加载完成（此时极小的 tiny 图已秒传完毕）
-        $(window).load(function () {
-            clearInterval(progressTimer); 
-            updateUI(100); 
+    $(window).load(function () {
+        // 删除了 clearInterval(progressTimer) 和 updateUI(100)
 
-            setTimeout(function(){
-                $('#global-loader').addClass('fade-out');
-                
-                var app = new MaiRijiApp();
-                app.preload();
+        setTimeout(function(){
+            $('#global-loader').addClass('fade-out');
+            
+            var app = new MaiRijiApp();
+            app.preload();
 
-                // 👇 核心触发点：在进入网页后，延迟 1 秒开始悄悄下载高清图 👇
-                setTimeout(function() {
-                    app.loadHighResImages();
-                }, 1000); 
+            // 👇 核心触发点：在进入网页后，延迟 1 秒开始悄悄下载高清图 👇
+            setTimeout(function() {
+                app.loadHighResImages();
+            }, 1000); 
 
-            }, 500); 
-        });
+        }, 500); 
+    });
 </script>
-
 </body>
 </html>
