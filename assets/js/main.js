@@ -67,21 +67,26 @@ MaiRijiApp.prototype = {
         
         // 遍历上面的数组
         $.each(products, function(index, item) {
-            // 拼接 HTML 字符串 (使用 ES6 模板字符串 ``)
             html += `
             <li class="grid__item slider__slide">
                 <div class="product-card-wrapper card-wrapper" style="background: transparent; border: none; box-shadow: none; padding: 0;">
                     <div class="stack-container">
                         <div class="polaroid card-bottom">
-                            <div class="photo-area" style="background-color: #f4f4f4;"></div>
+                            <div class="photo-area" style="background-color: #fbf9f4;"></div>
                         </div>
 
                         <div class="polaroid card-middle-hover">
-                            <div class="photo-area" style="background-image: url('assets/img/your-bread-${item.img}-hover.jpg');"></div>
+                            <div class="photo-area progressive-bg blur-effect" 
+                                 style="background-image: url('assets/img/your-bread-${item.img}-hover-tiny.webp');"
+                                 data-highres="assets/img/your-bread-${item.img}-hover.jpg">
+                            </div>
                         </div>
 
                         <div class="polaroid card-front">
-                            <div class="photo-area" style="background-image: url('assets/img/your-bread-${item.img}.jpg');"></div>
+                            <div class="photo-area progressive-bg blur-effect" 
+                                 style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');"
+                                 data-highres="assets/img/your-bread-${item.img}.jpg">
+                            </div>
                         </div>
                     </div>
                     
@@ -556,6 +561,31 @@ MaiRijiApp.prototype = {
                 setTimeout(function() {
                     isThrottled = false;
                 }, spawnInterval);
+            }
+        });
+    },
+    // ==========================================
+    // 🔥 渐进式图片加载引擎 (Blur-up)
+    // ==========================================
+    loadHighResImages: function() {
+        $('.progressive-bg').each(function() {
+            var $el = $(this);
+            var highResUrl = $el.data('highres');
+
+            if (highResUrl) {
+                // 创建一个存在于内存中的“虚拟图片”对象
+                var img = new Image();
+                
+                // 当这张内存里的高清图下载完毕时...
+                img.onload = function() {
+                    // 1. 替换背景图为高清图
+                    $el.css('background-image', "url('" + highResUrl + "')");
+                    // 2. 移除模糊滤镜，触发 CSS 渐变动画
+                    $el.removeClass('blur-effect');
+                };
+                
+                // 给虚拟图片赋予 URL，浏览器开始在后台悄悄下载
+                img.src = highResUrl;
             }
         });
     }

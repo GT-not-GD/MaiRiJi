@@ -607,3 +607,20 @@ footer.main-footer a.legals:hover { opacity: 1; }
     opacity: 0.8;
 }
 }
+/* ========================================================
+   🔥 [新增] 渐进式加载 (模糊对焦) 动画 🔥
+========================================================= */
+.progressive-bg {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* 核心：设置滤镜(模糊)的渐变时间为 0.8 秒 */
+    transition: filter 0.8s ease-out, transform 0.8s ease-out; 
+}
+
+/* 初始状态：显示低画质微缩图，并加上高斯模糊 */
+.progressive-bg.blur-effect {
+    filter: blur(10px); 
+    /* 放大 1.05 倍是为了防止模糊边缘漏出白边 */
+    transform: scale(1.05); 
+}

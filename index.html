@@ -192,7 +192,7 @@
 
 						<!-- 卡片 3 (上浮) -->
 						<div class="savoria-card up">
-							<div class="img-holder" style="background-image: url('assets/img/your-bread-3.jpg');"></div>
+							<div class="img-holder" style="background-image: url('assets/img/your-bread-3.webp');"></div>
 							<div class="card-overlay"><span>Fresh / 新鲜</span></div>
 						</div>
 
@@ -231,7 +231,7 @@
 
 							<!-- 卡片 3 (上浮) -->
 							<div class="savoria-card up">
-								<div class="img-holder" style="background-image: url('assets/img/your-bread-3.jpg');"></div>
+								<div class="img-holder" style="background-image: url('assets/img/your-bread-3.webp');"></div>
 								<div class="card-overlay"><span>Fresh / 新鲜</span></div>
 							</div>
 
@@ -383,25 +383,24 @@
 <script type='text/javascript' src='assets/js/main.js'></script>
 <!-- 启动网站 -->
 <script type="text/javascript">
-    $(window).load(function () {
-        // 1. 设置一个最小展示时间 (比如 1500毫秒 = 1.5秒)
-        // 这样即使网速很快，用户也能看到完整的欧包动画，不会一闪而过
-        setTimeout(function(){
-            
-            // 2. 隐藏加载页
-            $('#global-loader').addClass('fade-out');
-            
-            // 3. 启动网站核心逻辑
-            var app = new MaiRijiApp();
-            app.preload();
+    // 3. 当网页终极加载完成（此时极小的 tiny 图已秒传完毕）
+        $(window).load(function () {
+            clearInterval(progressTimer); 
+            updateUI(100); 
 
-            // 4. (可选) 稍微延迟一点触发首页文字动画，让它在加载页消失后出现
             setTimeout(function(){
-                // 如果需要手动触发某些入场动画可以写在这里
-            }, 500);
+                $('#global-loader').addClass('fade-out');
+                
+                var app = new MaiRijiApp();
+                app.preload();
 
-        }, 1500); 
-    })
+                // 👇 核心触发点：在进入网页后，延迟 1 秒开始悄悄下载高清图 👇
+                setTimeout(function() {
+                    app.loadHighResImages();
+                }, 1000); 
+
+            }, 500); 
+        });
 </script>
 
 </body>
