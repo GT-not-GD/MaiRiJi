@@ -40,6 +40,9 @@ MaiRijiApp.prototype = {
 		// 生成产品卡片
 		this.renderProducts();
 		
+        // 👇 新增：全站扫描并强制预加载所有 tiny 图 👇
+        this.forceLoadTinyImages();
+
         // 触发首页背景 Ken Burns 放大动画
         $('.home-intro .bg-inner').addClass('play-zoom');
         // 绑定所有交互事件
@@ -49,6 +52,20 @@ MaiRijiApp.prototype = {
         this.initCustomCursor();
     },
 	
+    // 🌟 新增的黑科技：全局 tiny 图提取与强制加载
+    forceLoadTinyImages: function() {
+        $('.progressive-bg').each(function() {
+            // 读取内联 style 里的 background-image URL
+            var bgStr = $(this)[0].style.backgroundImage;
+            if (bgStr && bgStr !== 'none') {
+                // 用正则把 url('...') 里面的干净链接提取出来
+                var url = bgStr.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '');
+                // 强制浏览器后台下载这张 tiny 图
+                new Image().src = url; 
+            }
+        });
+    },
+
 	// 自动生成面包卡片
     renderProducts: function() {
         // --- 1. 这里是菜单配置区 (以后加面包改这里就行) ---
