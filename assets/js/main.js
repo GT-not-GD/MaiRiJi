@@ -40,6 +40,9 @@ MaiRijiApp.prototype = {
 		// 生成产品卡片
 		this.renderProducts();
 		
+        // 2. 👇 新增：生成 Savoria 横向滚动卡片
+        this.renderSavoriaCards();
+
         // 👇 新增：全站扫描并强制预加载所有 tiny 图 👇
         this.forceLoadTinyImages();
 
@@ -52,6 +55,43 @@ MaiRijiApp.prototype = {
         this.initCustomCursor();
     },
 	
+    // 👇 新增这个函数：自动生成 Savoria 卡片 👇
+    renderSavoriaCards: function() {
+        // 1. 配置数据 (想加减卡片，改这里就行)
+        var cardsData = [
+            { img: "1", dir: "up",   label: "Signature / 招牌" },
+            { img: "2", dir: "down", label: "" },
+            { img: "3", dir: "up",   label: "Fresh / 新鲜" },
+            { img: "4", dir: "down", label: "" },
+            { img: "5", dir: "up",   label: "Sweet / 甜点" },
+            { img: "6", dir: "down", label: "" },
+            { img: "7", dir: "up",   label: "" }
+        ];
+
+        var html = '';
+        
+        // 2. 循环拼接 HTML
+        $.each(cardsData, function(index, item) {
+            // 如果有 label 文本，就生成黑色遮罩层；如果没有，就留空
+            var overlayHtml = item.label ? `<div class="card-overlay"><span>${item.label}</span></div>` : '';
+            
+            html += `
+            <div class="savoria-card ${item.dir}">
+                <div class="img-holder progressive-bg blur-effect" 
+                     style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');" 
+                     data-highres="assets/img/your-bread-${item.img}.jpg"></div>
+                ${overlayHtml}
+            </div>
+            `;
+        });
+
+        // 3. 把生成的代码塞进 HTML 的“坑位”里
+        // prepend 是塞在最前面（不覆盖后面的 mobile-clones 容器）
+        $('#savoria-track-container').prepend(html);
+        // html 是填满 mobile-clones 容器
+        $('#savoria-mobile-clones').html(html);
+    },
+
     // 🌟 新增的黑科技：全局 tiny 图提取与强制加载
     forceLoadTinyImages: function() {
         $('.progressive-bg').each(function() {
