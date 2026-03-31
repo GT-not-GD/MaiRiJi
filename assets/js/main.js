@@ -62,11 +62,14 @@ MaiRijiApp.prototype = {
             { name: "蜂蜜金瓜欧包", price: "17.00", img: "7" }
         ];
 
-        // --- 2. 生成 HTML 的逻辑 ---
         var html = '';
         
         // 遍历上面的数组
         $.each(products, function(index, item) {
+            var tinyUrlNormal = 'assets/img/your-bread-' + item.img + '-tiny.webp';
+            var tinyUrlHover = 'assets/img/your-bread-' + item.img + '-hover-tiny.webp';
+            new Image().src = tinyUrlNormal; 
+            new Image().src = tinyUrlHover;
             html += `
             <li class="grid__item slider__slide">
                 <div class="product-card-wrapper card-wrapper" style="background: transparent; border: none; box-shadow: none; padding: 0;">

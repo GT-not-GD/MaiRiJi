@@ -383,19 +383,24 @@
 <script type='text/javascript' src='assets/js/main.js'></script>
 <!-- 启动网站 -->
 <script type="text/javascript">
-    $(window).load(function () {
-        // 删除了 clearInterval(progressTimer) 和 updateUI(100)
+    var app;
+    
+    // 1. DOM 一解析完，立刻生成卡片结构，并触发 tiny 图的后台下载
+    $(document).ready(function() {
+        app = new MaiRijiApp();
+        app.preload();
+    });
 
+    // 2. 当网页上所有大资源（比如首页那张超大的背景图）加载完毕时
+    $(window).load(function () {
         setTimeout(function(){
+            // 关掉 Loading 动画
             $('#global-loader').addClass('fade-out');
             
-            var app = new MaiRijiApp();
-            app.preload();
-
-            // 👇 核心触发点：在进入网页后，延迟 1 秒开始悄悄下载高清图 👇
+            // 3. 延迟 1.5 秒后（确保 tiny 图已经全下完了），再开始悄悄下载高清图
             setTimeout(function() {
                 app.loadHighResImages();
-            }, 1000); 
+            }, 1500); 
 
         }, 500); 
     });
