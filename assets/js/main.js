@@ -79,7 +79,7 @@ MaiRijiApp.prototype = {
             <div class="savoria-card ${item.dir}">
                 <div class="img-holder progressive-bg blur-effect" 
                      style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');" 
-                     data-highres="assets/img/your-bread-${item.img}.jpg"></div>
+                     data-highres="assets/img/your-bread-${item.img}.webp"></div>
                 ${overlayHtml}
             </div>
             `;
@@ -138,14 +138,14 @@ MaiRijiApp.prototype = {
                         <div class="polaroid card-middle-hover">
                             <div class="photo-area progressive-bg blur-effect" 
                                  style="background-image: url('assets/img/your-bread-${item.img}-hover-tiny.webp');"
-                                 data-highres="assets/img/your-bread-${item.img}-hover.jpg">
+                                 data-highres="assets/img/your-bread-${item.img}-hover.webp">
                             </div>
                         </div>
 
                         <div class="polaroid card-front">
                             <div class="photo-area progressive-bg blur-effect" 
                                  style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');"
-                                 data-highres="assets/img/your-bread-${item.img}.jpg">
+                                 data-highres="assets/img/your-bread-${item.img}.webp">
                             </div>
                         </div>
                     </div>
