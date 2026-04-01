@@ -110,7 +110,7 @@ MaiRijiApp.prototype = {
     renderProducts: function() {
         // --- 1. 这里是菜单配置区 (以后加面包改这里就行) ---
         var products = [
-            { name: "乡村酵母欧包", price: "15.00", img: "1" },
+            { name: "乡村酵母欧包", price: "14.00", img: "1" },
             { name: "葡萄核桃欧包", price: "16.00", img: "2" },
             { name: "巧克力核桃欧包", price: "16.00", img: "3" },
             { name: "柠檬蓝莓欧包", price: "17.00", img: "4" },
