@@ -371,27 +371,21 @@ footer.main-footer a.legals:hover { opacity: 1; }
 .photo-area { width: 100%; aspect-ratio: 1 / 1; background-color: #eee; background-position: center; background-size: cover; border: 1px solid #eee; }
 
 /* 层级 */
-.card-front { z-index: 3; position: relative; transition: transform 0.5s ease, filter 0.5s ease; }
-.card-middle-hover { z-index: 2; transform: rotate(-3deg) translateY(-1%); animation: putCardBack 0.6s ease-in-out forwards; pointer-events: none; }
-.card-bottom { z-index: 1; transform: rotate(3deg) translateY(1%); transition: transform 0.5s ease; pointer-events: none; }
+.card-front { z-index: 3; position: relative; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; transform-origin: center center; }
+.card-middle-hover { z-index: 2; transform: rotate(-2deg) translateY(4px) scale(0.97); opacity: 0; transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; pointer-events: none; }
+.card-bottom { z-index: 1; transform: rotate(3deg) translateY(1%); transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; pointer-events: none; }
 
 /* 交互 */
-.stack-container:hover .card-middle-hover { animation: pullCardOut 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
-.stack-container:hover .card-front { transform: scale(0.95); filter: brightness(0.95); }
-.stack-container:hover .card-bottom { transform: rotate(5deg) translateY(3%) scale(0.95); }
-
-@keyframes pullCardOut {
-  0% { transform: rotate(-3deg) translateY(-1%); z-index: 2; }
-  45% { transform: translateX(-110%) rotate(-15deg) scale(1.1); z-index: 2; }
-  46% { z-index: 10; }
-  100% { transform: translateX(0) rotate(0deg) scale(1.05); z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+.stack-container:hover .card-middle-hover {
+  opacity: 1;
+  transform: rotate(-2deg) translateY(-4px) scale(1);
 }
-
-@keyframes putCardBack {
-  0% { transform: translateX(0) rotate(0deg) scale(1.05); z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-  50% { transform: translateX(-115%) rotate(-15deg) scale(1.1); z-index: 10; }
-  51% { z-index: 2; }
-  100% { transform: rotate(-3deg) translateY(-1%); z-index: 2; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+.stack-container:hover .card-front {
+  transform: translateY(2px) scale(0.96);
+  filter: brightness(0.96);
+}
+.stack-container:hover .card-bottom {
+  transform: rotate(4deg) translateY(6px) scale(0.94);
 }
 
 /* ==========================================================================

@@ -435,27 +435,35 @@ MaiRijiApp.prototype = {
 
     // --- 工具：设备检测 ---
     isMobile: function() {
-        return window.innerWidth <= 769;
+        var isSmallScreen = window.innerWidth <= 769;
+        var isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+        return isSmallScreen || isTouchDevice;
     },
 
     initCustomCursor: function() {
-        // 如果是手机端，直接退出
-        if (this.isMobile()) return;
+        // 如果是手机端/触控设备，直接退出并移除残留元素
+        if (this.isMobile()) {
+            $('#custom-cursor').remove();
+            return;
+        }
 
         var $cursor = $('#custom-cursor');
+        if ($cursor.length === 0) {
+            $cursor = $('<div id="custom-cursor"></div>');
+            $('body').append($cursor);
+        }
         
         // 1. 强制样式 (解决层级被遮挡问题)
         $cursor.css({
             'position': 'fixed',
             'z-index': '2147483647',
             'pointer-events': 'none',
-            'transform': 'translateZ(9999px)',
+            'transform': 'translateZ(2147483647px)',
             'margin': '0',
             'padding': '0',
             'width': '36px',
             'height': '36px'
         });
-        $('body').append($cursor);
 
         // 2. 准备所有帧的路径
         var defaultFrames = [
@@ -589,12 +597,6 @@ MaiRijiApp.prototype = {
 
         setInterval(updateLoopImage, 200);
 
-        // ==========================================================
-        // 冰块掉落拖尾逻辑
-        // ==========================================================
-        var isThrottled = false;
-        var spawnInterval = 300; 
-
         $(document).on('mousemove', function(e) {
             // 更新自定义鼠标位置
             $cursor.css({ 
@@ -602,26 +604,6 @@ MaiRijiApp.prototype = {
                 'top': (e.clientY - 5) + 'px' 
             });
             if ($cursor.css('display') === 'none') { $cursor.show(); }
-
-            // 生成掉落的冰块
-            if (!isThrottled) {
-                isThrottled = true;
-                var $iceCube = $('<div>');
-                $iceCube.addClass('cursor-ice-cube');
-                $iceCube.css({
-                    'left': e.clientX + 'px',
-                    'top': e.clientY + 'px'
-                });
-                $('body').append($iceCube);
-                
-                setTimeout(function() {
-                    $iceCube.remove();
-                }, 1000); 
-
-                setTimeout(function() {
-                    isThrottled = false;
-                }, spawnInterval);
-            }
         });
     },
     // ==========================================
