@@ -40,8 +40,8 @@ MaiRijiApp.prototype = {
 		// 生成产品卡片
 		this.renderProducts();
 		
-        // 2. 👇 新增：生成 Savoria 横向滚动卡片
-        this.renderSavoriaCards();
+        // 2. 👇 新增：生成 Savoria 横向滚动卡片（默认从 bread 随机抽取）
+        this.renderSavoriaCards('bread');
 
         // 👇 新增：全站扫描并强制预加载所有 tiny 图 👇
         this.forceLoadTinyImages();
@@ -55,41 +55,60 @@ MaiRijiApp.prototype = {
         this.initCustomCursor();
     },
 	
+    getCurrentLanguage: function() {
+        return $('html').attr('lang') === 'en' ? 'en' : 'zh';
+    },
+
     // 👇 新增这个函数：自动生成 Savoria 卡片 👇
-    renderSavoriaCards: function() {
-        // 1. 配置数据 (想加减卡片，改这里就行)
-        var cardsData = [
-            { img: "1", dir: "up",   label: "Signature / 招牌" },
-            { img: "2", dir: "down", label: "" },
-            { img: "3", dir: "up",   label: "Fresh / 新鲜" },
-            { img: "4", dir: "down", label: "" },
-            { img: "5", dir: "up",   label: "Sweet / 甜点" },
-            { img: "6", dir: "down", label: "" },
-            { img: "7", dir: "up",   label: "" }
-        ];
+    renderSavoriaCards: function(folder) {
+        folder = folder || 'bread';
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
+        var photoBuckets = {
+            bread: ['1','2','3','4','5','6','7'],
+            cake: ['1','2','3','4','5','6','7']
+        };
+
+        var availablePhotos = photoBuckets[folder] || photoBuckets.bread;
+        var selectedPhotos = this.shuffleArray(availablePhotos.slice()).slice(0, 7);
 
         var html = '';
-        
-        // 2. 循环拼接 HTML
-        $.each(cardsData, function(index, item) {
-            // 如果有 label 文本，就生成黑色遮罩层；如果没有，就留空
-            var overlayHtml = item.label ? `<div class="card-overlay"><span>${item.label}</span></div>` : '';
-            
+
+        $.each(selectedPhotos, function(index, photoName) {
+            var dirClass = index % 2 === 0 ? 'up' : 'down';
+            var displayLabels = isEnglish
+                ? ['Signature', '', 'Fresh', '', 'Sweet', '', '']
+                : ['Signature / 招牌', '', 'Fresh / 新鲜', '', 'Sweet / 甜点', '', ''];
+            var displayLabel = displayLabels[index] || '';
+            var tinyUrl = 'assets/img/' + folder + '/' + photoName + '-tiny.webp';
+            var highResUrl = 'assets/img/' + folder + '/' + photoName + '.webp';
+
+            // 预加载 tiny 版本，避免首次显示延迟
+            new Image().src = tinyUrl;
+
+            var overlayHtml = displayLabel ? `<div class="card-overlay"><span>${displayLabel}</span></div>` : '';
             html += `
-            <div class="savoria-card ${item.dir}">
+            <div class="savoria-card ${dirClass}">
                 <div class="img-holder progressive-bg blur-effect" 
-                     style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');" 
-                     data-highres="assets/img/your-bread-${item.img}.webp"></div>
+                     style="background-image: url('${tinyUrl}');" 
+                     data-highres="${highResUrl}"></div>
                 ${overlayHtml}
             </div>
             `;
         });
 
-        // 3. 把生成的代码塞进 HTML 的“坑位”里
-        // prepend 是塞在最前面（不覆盖后面的 mobile-clones 容器）
         $('#savoria-track-container').prepend(html);
-        // html 是填满 mobile-clones 容器
         $('#savoria-mobile-clones').html(html);
+    },
+
+    shuffleArray: function(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
     },
 
     // 🌟 新增的黑科技：全局 tiny 图提取与强制加载
@@ -108,8 +127,17 @@ MaiRijiApp.prototype = {
 
 	// 自动生成面包卡片
     renderProducts: function() {
-        // --- 1. 这里是菜单配置区 (以后加面包改这里就行) ---
-        var products = [
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
+        var breadProducts = isEnglish ? [
+            { name: "Country Sourdough", price: "14.00", img: "1" },
+            { name: "Grape Walnut Sourdough", price: "16.00", img: "2" },
+            { name: "Chocolate Walnut Sourdough", price: "16.00", img: "3" },
+            { name: "Lemon Blueberry Sourdough", price: "17.00", img: "4" },
+            { name: "Dragon Fruit Sourdough", price: "16.00", img: "5" },
+            { name: "Matcha Cranberry Sourdough", price: "16.00", img: "6" },
+            { name: "Honey Pumpkin Sourdough", price: "17.00", img: "7" }
+        ] : [
             { name: "乡村酵母欧包", price: "14.00", img: "1" },
             { name: "葡萄核桃欧包", price: "16.00", img: "2" },
             { name: "巧克力核桃欧包", price: "16.00", img: "3" },
@@ -119,33 +147,48 @@ MaiRijiApp.prototype = {
             { name: "蜂蜜金瓜欧包", price: "17.00", img: "7" }
         ];
 
+        var cakeProducts = isEnglish ? [
+            { name: "Creamy Strawberry Cake", price: "24.00", img: "1" },
+            { name: "Vanilla Cheesecake", price: "26.00", img: "2" }
+        ] : [
+            { name: "奶油草莓蛋糕", price: "24.00", img: "1" },
+            { name: "香草芝士蛋糕", price: "26.00", img: "2" }
+        ];
+
+        this.renderProductGroup('bread', breadProducts, isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包');
+        this.renderProductGroup('cake', cakeProducts, isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕');
+    },
+
+    renderProductGroup: function(type, products, title) {
         var html = '';
-        
-        // 遍历上面的数组
+        var folder = type === 'cake' ? 'cake' : 'bread';
+        var titleText = title;
+
         $.each(products, function(index, item) {
-            var tinyUrlNormal = 'assets/img/your-bread-' + item.img + '-tiny.webp';
-            var tinyUrlHover = 'assets/img/your-bread-' + item.img + '-hover-tiny.webp';
-            new Image().src = tinyUrlNormal; 
+            var tinyUrlNormal = 'assets/img/' + folder + '/' + item.img + '-tiny.webp';
+            var tinyUrlHover = 'assets/img/' + folder + '/' + item.img + '-hover-tiny.webp';
+            new Image().src = tinyUrlNormal;
             new Image().src = tinyUrlHover;
+
             html += `
             <li class="grid__item slider__slide">
                 <div class="product-card-wrapper card-wrapper" style="background: transparent; border: none; box-shadow: none; padding: 0;">
                     <div class="stack-container">
                         <div class="polaroid card-bottom">
-                            <div class="photo-area" style="background-color: #fbf9f4;"></div>
+                            <div class="photo-area" style="background-color: ${type === 'cake' ? '#fdf7ef' : '#fbf9f4'};"></div>
                         </div>
 
                         <div class="polaroid card-middle-hover">
                             <div class="photo-area progressive-bg blur-effect" 
-                                 style="background-image: url('assets/img/your-bread-${item.img}-hover-tiny.webp');"
-                                 data-highres="assets/img/your-bread-${item.img}-hover.webp">
+                                 style="background-image: url('assets/img/${folder}/${item.img}-hover-tiny.webp');"
+                                 data-highres="assets/img/${folder}/${item.img}-hover.webp">
                             </div>
                         </div>
 
                         <div class="polaroid card-front">
                             <div class="photo-area progressive-bg blur-effect" 
-                                 style="background-image: url('assets/img/your-bread-${item.img}-tiny.webp');"
-                                 data-highres="assets/img/your-bread-${item.img}.webp">
+                                 style="background-image: url('assets/img/${folder}/${item.img}-tiny.webp');"
+                                 data-highres="assets/img/${folder}/${item.img}.webp">
                             </div>
                         </div>
                     </div>
@@ -161,8 +204,66 @@ MaiRijiApp.prototype = {
             `;
         });
 
-        // --- 3. 把生成的 HTML 塞进页面 ---
-        $('#product-list').html(html);
+        if (type === 'bread') {
+            $('#product-list').html(html);
+        } else {
+            $('#cake-product-list').html(html);
+        }
+
+        // Only set the global menu title when rendering the bread group
+        if (type === 'bread') {
+            $('.menu-title').text(titleText);
+        }
+    },
+
+    switchMenuView: function(view, animate) {
+        var self = this;
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
+        var doSwitch = function() {
+            $('.menu-switcher-btn').removeClass('active');
+            $('.menu-switcher-btn[data-view="' + view + '"]').addClass('active');
+
+            $('.menu-view').removeClass('active');
+            $('.menu-view[data-view-panel="' + view + '"]').addClass('active');
+
+            $('.menu-hero-panel').removeClass('active');
+            $('.menu-hero-panel[data-hero-view="' + view + '"]').addClass('active');
+
+            $('.menu-intro-panel').removeClass('active');
+            $('.menu-intro-panel[data-intro-view="' + view + '"]').addClass('active');
+
+            $('.menu-banner-panel').removeClass('active');
+            $('.menu-banner-panel[data-banner-view="' + view + '"]').addClass('active');
+
+            $('.menu-title').text(view === 'cake' ? (isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕') : (isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包'));
+
+            // Refresh sticky nav in case layout changed
+            try { self.initStickyNav(); } catch(e){}
+        };
+
+        // If animation not requested, do immediate switch
+        if (!animate) {
+            doSwitch();
+            return;
+        }
+
+        var $toast = $('#toast-transition');
+        $toast.removeClass('pop-in expanding fading-out').css('opacity', '');
+        void $toast[0].offsetWidth;
+        $toast.addClass('pop-in');
+
+        // Shorter timing for menu switch
+        setTimeout(function() {
+            $toast.addClass('expanding');
+
+            setTimeout(function() {
+                doSwitch();
+
+                $toast.addClass('fading-out');
+                setTimeout(function() { $toast.removeClass('pop-in expanding fading-out'); }, 400);
+            }, 500);
+        }, 250);
     },
     
     // --- 事件绑定中心 ---
@@ -238,6 +339,12 @@ MaiRijiApp.prototype = {
                     $btn.removeClass('clicked');
                 }, 1500); // 动画结束后重置
             }
+        });
+
+        // I. 菜单分类切换：Bread / Cake (带转场动画)
+        $('.menu-switcher-btn').on('click', function() {
+            var target = $(this).data('view');
+            $this.switchMenuView(target, true);
         });
     },
 
@@ -451,18 +558,25 @@ MaiRijiApp.prototype = {
         if ($cursor.length === 0) {
             $cursor = $('<div id="custom-cursor"></div>');
             $('body').append($cursor);
+        } else {
+            $cursor.detach();
+            $('body').append($cursor);
         }
         
         // 1. 强制样式 (解决层级被遮挡问题)
         $cursor.css({
             'position': 'fixed',
+            'top': '0',
+            'left': '0',
             'z-index': '2147483647',
             'pointer-events': 'none',
-            'transform': 'translateZ(2147483647px)',
+            'transform': 'translate3d(0, 0, 0)',
+            'isolation': 'isolate',
             'margin': '0',
             'padding': '0',
             'width': '36px',
-            'height': '36px'
+            'height': '36px',
+            'will-change': 'transform, left, top'
         });
 
         // 2. 准备所有帧的路径

@@ -24,13 +24,7 @@ input, textarea, select { font-family: inherit; font-size: inherit; font-weight:
 a { text-decoration: none; color: #fff; }
 
 /* 辅助类 */
-.center { text-align: center; }
 .hidden, .hide { display: none !important; }
-.visually-hidden { position: absolute !important; overflow: hidden; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; clip: rect(0 0 0 0); word-wrap: normal !important; }
-
-/* Font Awesome 核心 (精简版) */
-.fa { display: inline-block; font: normal normal normal 30px/1 FontAwesome; font-size: inherit; text-rendering: auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.fa-instagram:before { content: "\f16d"; }
 
 /* ==========================================================================
    2. 全局布局 (Global Layout)
@@ -92,7 +86,21 @@ section.pbig { padding: 75px 0 75px; }
 
 /* 滚动后的紧凑导航栏 (Sticky Header) */
 @media only screen and (min-width: 1200px), only screen and (min-width: 769px) and (max-width: 1199px) {
-    .main-header.small { background: none !important;}
+    /* 1. 为 header 及其 wrap 增加高度平滑动画 */
+    .main-header, 
+    .main-header .wrap {
+        transition: height 0.3s ease, background 0.3s;
+    }
+
+    /* 2. 缩小状态下，同步将 header 和 wrap 的高度设为 65px */
+    .main-header.small { 
+        height: 65px; 
+        background: none !important;
+    }
+    .main-header.small .wrap { 
+        height: 65px; 
+    }
+
     .main-header.small a#logo { height: 65px; width: 102px; transition-delay: 0s; transition-duration: 0s; }
     .main-header.small a#logo img.small { display: block; }
     .main-header.small a#logo img.big { opacity: 0; transition-duration: .15s; }
@@ -241,8 +249,6 @@ section.home-intro .button { box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
 @media screen and (min-width: 990px) { .page-width-desktop { max-width: 120rem; padding: 0 5rem; } }
 
 /* 标题 */
-.showcase-title-wrapper { text-align: center; margin-top: 30px; }
-.showcase-title-wrapper h2 { font-family: 'Playfair Display', 'Noto Serif SC', serif; font-size: 35px; color: #333; margin-bottom: 1.5rem; }
 .menu-title { font-family: 'Playfair Display', 'Noto Serif SC', serif; font-size: 32px; color: #92683b; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 30px; text-align: center; }
 
 /* 滑块组件 */
@@ -250,36 +256,42 @@ slider-component { position: relative; display: block; }
 .slider__slide { scroll-snap-align: start; flex-shrink: 0; }
 .slider { scrollbar-color: rgb(var(--color-foreground)) rgba(var(--color-foreground), 0.04); -ms-overflow-style: none; scrollbar-width: none; }
 .slider::-webkit-scrollbar { display: none; }
-.slider-counter { margin: 0 1.2rem; }
 
 /* 容器修正 */
-#easystore-section-bread-and-pastries { max-width: 1200px; margin-left: auto; margin-right: auto; }
-#easystore-section-bread-and-pastries .grid { padding: 0 0 50px 0 !important; list-style: none; margin-left: -1rem; display: flex; flex-wrap: wrap; }
-#easystore-section-bread-and-pastries .grid__item { box-sizing: border-box; padding-bottom: 1rem; padding-left: 1rem; }
+#bakery-menu-container { max-width: 1200px; margin-left: auto; margin-right: auto; }
+#bakery-menu-container .grid { padding: 0 0 50px 0 !important; list-style: none; margin-left: -1rem; display: flex; flex-wrap: wrap; }
+#bakery-menu-container .grid__item { box-sizing: border-box; padding-bottom: 1rem; padding-left: 1rem; }
 
 /* 桌面端布局 */
 @media screen and (min-width: 990px) {
-    #easystore-section-bread-and-pastries .grid { display: flex; flex-wrap: wrap; overflow-x: hidden; margin: 0 -15px; }
-    #easystore-section-bread-and-pastries .grid__item { padding: 25px; width: 25% !important; max-width: 25% !important; }
+    #bakery-menu-container .grid { display: flex; flex-wrap: wrap; overflow-x: hidden; margin: 0 -15px; }
+    #bakery-menu-container .grid__item { padding: 25px; width: 25% !important; max-width: 25% !important; }
 }
 
 /* 移动端滑块布局 */
 @media screen and (max-width: 989px) {
-    #easystore-section-bread-and-pastries .slider { 
+    #bakery-menu-container .slider { 
         display: flex !important; flex-wrap: nowrap !important;
         overflow-x: auto; overflow-y: hidden;
         scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; 
         margin: 0; padding-bottom: 1.5rem; width: 100%; margin-left: 0;
     }
-    #easystore-section-bread-and-pastries .grid__item { flex: 0 0 auto; width: 65%; max-width: 280px; padding-left: 15px; scroll-snap-align: center; }
-    #easystore-section-bread-and-pastries .grid__item:last-child { padding-right: 15px; margin-right: 15px; }
+    #bakery-menu-container .grid__item { flex: 0 0 auto; width: 65%; max-width: 280px; padding-left: 15px; scroll-snap-align: center; }
+    #bakery-menu-container .grid__item:last-child { padding-right: 15px; margin-right: 15px; }
 }
 
 /* 优化后的卡片容器 (透明无干扰) */
-.product-card-wrapper { background: transparent; border: none; box-shadow: none; padding: 0; display: flex; flex-direction: column; height: 100%; text-decoration: none; overflow: visible; }
+.product-card-wrapper { background: transparent; border: none; box-shadow: none; padding: 0; display: flex; flex-direction: column; height: 100%; text-decoration: none; overflow: visible; position: relative; }
 .card-information { text-align: center; padding: 20px 5px 0 5px; }
 .card-information__text { font-family: 'Noto Serif SC', sans-serif; font-size: 18px; color: #333; font-weight: 700; display: block; line-height: 1.2; }
-.price { font-family: 'Kalam', cursive; font-weight: bold; font-size: 18px; color: #92683b; text-align: center; margin-top: 5px; }
+.price { font-family: Kalam, cursive; font-weight: 700; font-size: 18px; color: #92683b; text-align: center; margin-top: 5px; }
+.menu-switcher { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.menu-switcher-btn { border: 1px solid #d8c8b7; background: transparent; color: #7a5a3a; padding: 10px 22px; border-radius: 999px; font-family: 'Noto Serif SC', sans-serif; font-size: 15px; cursor: pointer; transition: all 0.25s ease; }
+.menu-switcher-btn.active { background: #8b5e3c; color: #fff; border-color: #8b5e3c; box-shadow: 0 8px 20px rgba(139,94,60,0.18); }
+.menu-view { display: none; }
+.menu-view.active { display: block; }
+.menu-hero-panel, .menu-intro-panel, .menu-banner-panel { display: none; }
+.menu-hero-panel.active, .menu-intro-panel.active, .menu-banner-panel.active { display: block; }
 
 /* ==========================================================================
    8. 页脚 (Footer)
@@ -373,6 +385,120 @@ footer.main-footer a.legals:hover { opacity: 1; }
 /* 层级 */
 .card-front { z-index: 3; position: relative; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; transform-origin: center center; }
 .card-middle-hover { z-index: 2; transform: rotate(-2deg) translateY(4px) scale(0.97); opacity: 0; transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; pointer-events: none; }
+
+/* ========================================================================== */
+/*  Floating controls (右下角固定，向左展开 + 向上滑动替换动画)                */
+/* ========================================================================== */
+
+.floating-controls { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    position: fixed; 
+    right: 28px; 
+    bottom: 28px; 
+    align-items: flex-end; /* 钉死右侧边缘，展开时只向左延伸 */
+    z-index: 99999; 
+}
+
+/* 按钮主体基础样式 */
+.floating-button { 
+    width: 50px; 
+    height: 50px; 
+    border-radius: 25px; 
+    background-color: rgb(20,20,20); 
+    border: none; 
+    cursor: pointer; 
+    overflow: hidden; /* 隐藏超出范围的滑动文字 */
+    position: relative; 
+    color: white; 
+    box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253); 
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; 
+}
+
+/* 默认文本图标 (EN, 中文) 样式 */
+.floating-button .textIcon { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform 0.3s ease, opacity 0.3s ease; 
+}
+
+/* SVG 箭头图标单独设置大小与居中 */
+.floating-button .svgIcon { 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px; /* 👈 箭头大小可以在这里修改（比如 14px 更小，18px 稍大） */
+    height: 16px;
+    transform: translate(-50%, -50%); 
+    transition: transform 0.3s ease, opacity 0.3s ease; 
+}
+
+.floating-button .svgIcon path { fill: white; }
+
+/* 鼠标悬停：按钮向左变宽 */
+.floating-button:hover { 
+    width: 140px; 
+    background-color: rgb(181, 160, 255); 
+}
+
+/* 悬停时：原本的 EN/中文 向上滑动并消失 */
+.floating-button:hover .textIcon { 
+    transform: translateY(-100%); 
+    opacity: 0; 
+}
+
+/* 悬停时：原本的 SVG 箭头向上滑动并消失 */
+.floating-button:hover .svgIcon { 
+    transform: translate(-50%, -200%); 
+    opacity: 0; 
+}
+
+/* 展开后的提示文字 (data-label)：初始藏在下方 */
+.floating-button::before { 
+    content: attr(data-label); 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white; 
+    font-size: 13px; 
+    font-weight: 600;
+    white-space: nowrap; 
+    
+    /* 初始在下方，透明 */
+    transform: translateY(100%); 
+    opacity: 0; 
+    transition: transform 0.3s ease, opacity 0.3s ease; 
+}
+
+/* 悬停时：data-label 从下方向上滑入 */
+.floating-button:hover::before { 
+    transform: translateY(0); 
+    opacity: 1; 
+}
+
+/* 颜色区分 */
+.floating-button.lang-button { background-color: rgb(38, 38, 38); }
+.floating-button.lang-button:hover { background-color: rgb(181, 160, 255); }
+
+/* 响应式 */
+@media only screen and (max-width: 769px) {
+    .floating-controls { right: 16px; bottom: 16px; gap: 8px; }
+    .floating-button { width: 46px; height: 46px; }
+}
 .card-bottom { z-index: 1; transform: rotate(3deg) translateY(1%); transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; pointer-events: none; }
 
 /* 交互 */
@@ -524,83 +650,8 @@ footer.main-footer a.legals:hover { opacity: 1; }
         height: 100%;
         display: block;
     }
-
-/* ========================================================
-   🔥 [全新] 掉落的冰块特效 (Dropping Ice Cubes) 🔥
-========================================================= */
-
-/* 定义冰块掉落和消失的动画 */
-@keyframes iceCubeFallAndFade {
-    0% {
-        opacity: 0;
-        /* 刚产生时，轻微缩小，轻微向上偏移（模拟“掉出”），零旋转 */
-        transform: translate(-50%, -50%) scale(0.6) translateY(-5px) rotate(0deg); 
-    }
-    5% {
-        opacity: 1; /* 迅速变亮 */
-    }
-    10% {
-        /* 开始掉落 */
-        transform: translate(-50%, -50%) scale(1) translateY(0) rotate(0deg);
-    }
-    100% {
-        /* 最终状态：大幅掉落，旋转，完全消失，轻微缩小 */
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8) translateY(200px) rotate(120deg); 
-    }
 }
 
-/* 冰块的主体容器 */
-.cursor-ice-cube {
-    position: fixed;
-    pointer-events: none; /* 穿透，防止干扰 */
-    
-    /* 层级：稍微比鼠标主体（2147483647）低一点，防止盖住主体 */
-    z-index: 2147483646; 
-    
-    /* 冰块的大小 (约10px) */
-    width: 10px;
-    height: 10px;
-    
-    /* ❌ 我们不在这里设置颜色和形状，让伪元素来处理 ❌ */
-    
-    /* 应用动画：1s内线性消失（可以根据需要微调时间）*/
-    animation: iceCubeFallAndFade 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-/* 🔥 核心核心：冰块的具体形状 (模仿复杂的晶体、透明和辉光) 🔥 */
-.cursor-ice-cube::before,
-.cursor-ice-cube::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 2px; /* 稍微圆角 */
-}
-
-/* ✅ 冰块1：一个半透明的青色发光晶体，增加辉光和折射 */
-.cursor-ice-cube::before {
-    width: 10px;
-    height: 10px;
-    /* 匹配图标颜色 (青色 / Cyan)，赋予半透明质感 */
-    background: rgba(0, 255, 255, 0.5); 
-    
-    /* 精细阴影：模拟光折射和发光 */
-    box-shadow: 
-        inset 0 0 5px rgba(255, 255, 255, 0.8), /* 内部白光，增加透明度 */
-        0 0 10px rgba(0, 255, 255, 0.7),       /* 外部青色辉光 */
-        0 0 20px rgba(0, 255, 255, 0.5);       /* 更柔和的外辉光 */
-}
-
-/* ✅ 冰块2：一个更小、白色的中心，增加亮度和深度 */
-.cursor-ice-cube::after {
-    width: 4px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.9); /* 白芯，增加亮度 */
-    opacity: 0.8;
-}
-}
 /* ========================================================
    🔥 [新增] 渐进式加载 (模糊对焦) 动画 🔥
 ========================================================= */
@@ -617,4 +668,100 @@ footer.main-footer a.legals:hover { opacity: 1; }
     filter: blur(10px); 
     /* 放大 1.05 倍是为了防止模糊边缘漏出白边 */
     transform: scale(1.05); 
+}
+
+/* 页脚 Instagram 按钮外容器 */
+.logo-socials {
+    display: inline-flex;
+    margin-top: 15px;
+    position: relative;
+}
+
+/* 按钮主体 (由 button 改为 a 标签) */
+.btn-instagram {
+    position: relative;
+    width: 3em;
+    height: 3em;
+    outline: none;
+    border: none;
+    border-radius: 50%;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none; /* 清除链接下划线 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.4s ease, transform 0.3s ease;
+}
+
+/* Instagram 经典粉紫配色 */
+.btn-instagram .instagram {
+    fill: #cc39a4;
+    transition: fill 0.4s ease;
+}
+
+/* 悬停卡片 (Tooltip) 初始状态 */
+.btn-instagram .tooltiptext {
+    visibility: hidden;
+    opacity: 0;
+    width: 6.5em;
+    height: 8em;
+    background-color: whitesmoke;
+    color: black;
+    text-align: center;
+    border-radius: 12px;
+    padding: 1em 0.5em;
+    box-sizing: border-box;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    
+    /* 居中定位在按钮上方 */
+    position: absolute;
+    left: 50%;
+    top: -8.5em;
+    transform: translateX(-50%);
+    z-index: 99;
+    
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none; /* 防止挡住鼠标操作 */
+}
+
+/* 卡片内的头像框 */
+.btn-instagram .tooltiptext .card {
+    width: 4em;
+    height: 4em;
+    background-color: white;
+    border-radius: 8px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 卡片内的用户名 */
+.btn-instagram .tooltiptext .username {
+    font-size: 0.65em;
+    margin-top: 0.8em;
+    font-weight: bold;
+    color: #333;
+    word-break: break-all;
+}
+
+/* ================= 悬停 (Hover) 触发动画 ================= */
+
+/* 1. 按钮变成 Instagram 粉色背景 */
+.btn-instagram:hover {
+    background-color: #cc39a4;
+}
+
+/* 2. 图标变白色 */
+.btn-instagram:hover .instagram {
+    fill: white;
+}
+
+/* 3. 卡片从下方往上滑出 */
+.btn-instagram:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-0.8em);
 }
