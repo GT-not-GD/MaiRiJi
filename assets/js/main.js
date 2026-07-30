@@ -205,44 +205,53 @@ WnkMediaLoader.prototype = {
 	{
 		if (this.$imgs.length <= 0)
 		{
-			$(this.parent).trigger(this.eventName)
+			$(this.parent).trigger(this.eventName);
 		}
 	},
 	load: function ()
 	{
-		this.$imgs.each($.proxy(this.initMedia, this))
+		this.$imgs.each($.proxy(this.initMedia, this));
 	},
 	initMedia: function (i, media)
 	{
 		var $media = $(media);
+		var self = this;
+
 		if ($media.prop('tagName') === 'IMG')
 		{
-			$media.one("load.WnkMediaLoader", $.proxy(this.onMediaLoaded, this));
-			if (media.complete) $media.trigger('load')
+			// 🌟 使用 .on('load error') 替代已废弃的 .load()，同时监听 404 加载失败容错
+			$media.one("load.WnkMediaLoader error.WnkMediaLoader", function() {
+				self.onMediaLoaded();
+			});
+
+			if (media.complete) {
+				$media.trigger('load');
+			}
 		}
 		else if ($media.prop('tagName') === 'VIDEO')
 		{
-			$media.one("loadeddata.WnkMediaLoader", $.proxy(this.onMediaLoaded, this));
-			media.load()
+			$media.one("loadeddata.WnkMediaLoader error.WnkMediaLoader", function() {
+				self.onMediaLoaded();
+			});
+			media.load();
 		}
 		else
 		{
-			console.log('UNKNOWN MEDIA => ' + $media.prop('tagName'));
 			this.count = -1;
-			this.onMediaLoaded()
+			this.onMediaLoaded();
 		}
 	},
 	onMediaLoaded: function (e)
 	{
 		this.count++;
-		if (this.count == this.$imgs.length)
+		if (this.count >= this.$imgs.length)
 		{
-			$(this.parent).trigger(this.eventName)
+			$(this.parent).trigger(this.eventName);
 		}
 	},
 	destroy: function ()
 	{
-		this.$imgs.off('load.WnkMediaLoader').off('loadeddata.WnkMediaLoader')
+		this.$imgs.off('load.WnkMediaLoader error.WnkMediaLoader').off('loadeddata.WnkMediaLoader');
 	}
 };
 
