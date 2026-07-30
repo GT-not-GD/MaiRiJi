@@ -1272,3 +1272,42 @@ body.no-scroll .main-header {
     border-radius: 6px;
     border-left: 3px solid #8b5e3c;
 }
+
+/* ==========================================================================
+   💥 修复手机端浏览器地址栏遮挡底部结算按钮的 Bug
+   ========================================================================== */
+
+/* 1. 将购物车抽屉高度改为动态视口 dvh */
+#cart-drawer-panel {
+    height: 100vh;  /* 旧版本降级兼容 */
+    height: 100dvh !important; /* 核心：随着手机地址栏显隐，实时自动缩放高度 */
+}
+
+/* 2. 保证头部不被压缩 */
+.cart-drawer-header {
+    flex-shrink: 0 !important;
+}
+
+/* 3. 中间商品区域自动伸缩滚动 */
+.cart-drawer-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+}
+
+/* 4. 锁定底部结算栏不被挤压，并适配全面屏手机底部手势条 */
+.cart-drawer-footer {
+    flex-shrink: 0 !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+}
+
+/* 5. 顺便修复产品详情页与弹窗在手机端的 dvh 高度 */
+#product-detail-panel {
+    height: 100vh;
+    height: 100dvh !important;
+}
+
+.checkout-modal {
+    max-height: 90vh;
+    max-height: 90dvh !important;
+    overflow-y: auto;
+}
