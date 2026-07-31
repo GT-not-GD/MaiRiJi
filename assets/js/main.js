@@ -263,6 +263,19 @@ function MaiRijiApp()
 {
 	// 实例化视差控制器
 	this.wax = new WnkLaxController();
+
+	// 🌟 【新增】集中管理全局配置与本地存储 Key
+	this.config = {
+		waNumber: "601115277643",
+		storageKeys: {
+			cart: 'mairiji_cart',
+			custName: 'mairiji_cust_name',
+			custAddress: 'mairiji_cust_address'
+		}
+	};
+
+	// 🌟 【新增】定义鼠标动画定时器句柄，防止多重定时器泄露
+	this.cursorTimer = null;
 }
 
 MaiRijiApp.prototype = {
@@ -278,24 +291,40 @@ MaiRijiApp.prototype = {
 	{
 		var $this = this;
 
+		// 🌟 【新增】DOM 常用元素缓存池（避免重复频繁搜索 DOM 树）
+		this.$els = {
+			body: $('body'),
+			// 产品详情页元素
+			detailPanel: $('#product-detail-panel'),
+			detailTitle: $('#detail-title'),
+			detailPrice: $('#detail-price'),
+			detailText: $('#detail-text'),
+			detailHeroImg: $('#detail-hero-img'),
+			detailGallery: $('#detail-gallery'),
+			detailOrderBtn: $('#detail-order-btn'),
+			detailIngredients: $('#detail-ingredients'),
+			detailAllergens: $('#detail-allergens'),
+			detailStorage: $('#detail-storage'),
+			detailReheatTitle: $('#detail-reheat-title'),
+			detailReheat: $('#detail-reheat'),
+			// 购物车抽屉元素
+			cartDrawer: $('#cart-drawer-panel'),
+			cartBackdrop: $('#cart-backdrop'),
+			cartList: $('#cart-items-list'),
+			cartTotalPrice: $('#cart-total-price'),
+			cartBadge: $('#cart-count-badge')
+		};
+
 		// 生成产品卡片
 		this.renderProducts();
-
-		// 2. 👇 新增：生成 Savoria 横向滚动卡片（默认从 bread 随机抽取）
 		this.renderSavoriaCards('bread');
-
-		// 👇 新增：全站扫描并强制预加载所有 tiny 图 👇
 		this.forceLoadTinyImages();
 
-		// 触发首页背景 Ken Burns 放大动画
+		// 触发动画与绑定事件
 		$('.home-intro .bg-inner').addClass('play-zoom');
-		// 绑定所有交互事件
 		this.bindEvents();
-
-		// 🌟 新增：启动鼠标动画
 		this.initCustomCursor();
 
-		// 初始化购物车数据
 		this.cart = this.loadCart();
 		this.updateCartUI();
 	},
@@ -887,20 +916,19 @@ MaiRijiApp.prototype = {
 		// L. 封装打开与关闭购物车的函数
 		$this.openCart = function ()
 		{
-			$('#cart-drawer-panel').addClass('open');
-			$('#cart-backdrop').addClass('show');
-			$('body').addClass('no-scroll'); // 触发导航栏向上隐藏
+			$this.$els.cartDrawer.addClass('open');
+			$this.$els.cartBackdrop.addClass('show');
+			$this.$els.body.addClass('no-scroll');
 		};
 
 		$this.closeCart = function ()
 		{
-			$('#cart-drawer-panel').removeClass('open');
-			$('#cart-backdrop').removeClass('show');
+			$this.$els.cartDrawer.removeClass('open');
+			$this.$els.cartBackdrop.removeClass('show');
 
-			// 💡 只有当“产品详情页”也没有打开时，才恢复导航栏与页面滚动！
-			if (!$('#product-detail-panel').hasClass('open'))
+			if (!$this.$els.detailPanel.hasClass('open'))
 			{
-				$('body').removeClass('no-scroll');
+				$this.$els.body.removeClass('no-scroll');
 			}
 		};
 
@@ -1069,8 +1097,9 @@ MaiRijiApp.prototype = {
 			var $btn = $(this);
 			var $content = $btn.next('.accordion-content');
 			
-			$btn.toggleClass('active');
-			$content.stop().slideToggle(250); // 平滑展开或折叠
+			var isExpanded = $btn.toggleClass('active').hasClass('active');
+			$btn.attr('aria-expanded', isExpanded); // 🌟 实时同步展开/收起状态
+			$content.stop().slideToggle(250);
 		});
 	},
 
@@ -1078,143 +1107,87 @@ MaiRijiApp.prototype = {
 	{
 		var self = this;
 		var isEnglish = this.getCurrentLanguage() === 'en';
+		var els = this.$els; // 使用缓存池
 
-		// 查找产品数据
 		var products = type === 'cake' ? this.cakeProducts : this.breadProducts;
 		var item = products.filter(function (p) { return p.id === id; })[0];
 		if (!item) return;
 
 		var folder = type === 'cake' ? 'cake' : 'bread';
 
-		// 1. 填入基础文字信息
-		$('#detail-title').text(item.name);
-		$('#detail-price').text('RM ' + item.price);
-		$('#detail-text').html(item.desc);
+		// 1. 使用缓存快速填入基础信息
+		els.detailTitle.text(item.name);
+		els.detailPrice.text('RM ' + item.price);
+		els.detailText.html(item.desc);
 
-		// 🌟 2. 每次打开时，重置所有折叠项为隐藏状态
-		$('.accordion-header').removeClass('active');
-		$('.accordion-content').hide();
+		// 2. 重置折叠手风琴状态
+		els.detailPanel.find('.accordion-header').removeClass('active');
+		els.detailPanel.find('.accordion-content').hide();
 
-		// 🌟 3. 填充【成分表】
-		var ingredientsText = item.ingredients || (
-			type === 'cake' ?
-			(isEnglish ? "Fresh cream, mascarpone, cream cheese, caramel biscuit, eggs, sugar, butter." : "新鲜奶油、马斯卡彭乳酪、奶油芝士、焦糖饼干底、鸡蛋、幼细砂糖、黄油。") :
-			(isEnglish ? "High-protein wheat flour, water, natural wild yeast sourdough starter, pink salt." : "日本高筋小麦粉、德国裸麦粉、水、酸种酵母、玫瑰盐。")
-		);
-		$('#detail-ingredients').text(ingredientsText);
+		// 3. 填入成分与过敏原
+		els.detailIngredients.text(item.ingredients || '-');
+		els.detailAllergens.text(item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。"));
 
-		// 🌟 动态填入【过敏原提示】
-		var allergensText = item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。");
-		$('#detail-allergens').text(allergensText);
-
-		// 🌟 4. 填充【保存建议】与【加热/食用建议】
+		// 4. 根据产品类别填充保存与建议
 		if (type === 'cake') {
-			// 蛋糕类提示
-			$('#detail-storage').text(
-				isEnglish ?
+			els.detailStorage.text(isEnglish ?
 				"Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture." :
-				"需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。"
-			);
-			$('#detail-reheat-title').text(isEnglish ? "Serving Suggestion" : "食用建议");
-			$('#detail-reheat').text(
-				isEnglish ?
+				"需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。");
+			els.detailReheatTitle.text(isEnglish ? "Serving Suggestion" : "食用建议");
+			els.detailReheat.text(isEnglish ?
 				"Take out from fridge and let it rest at room temperature for 10-15 minutes before serving for a softer, silkier texture." :
-				"冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。"
-			);
+				"冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。");
 		} else {
-			// 酸种欧包类提示
-			$('#detail-storage').text(
-				isEnglish ?
+			els.detailStorage.text(isEnglish ?
 				"• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread)." :
-				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流失与淀粉老化）。"
-			);
-			$('#detail-reheat-title').text(isEnglish ? "Reheating Suggestions" : "加热复酥建议");
-			$('#detail-reheat').text(
-				isEnglish ?
+				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流失与淀粉老化）。");
+			els.detailReheatTitle.text(isEnglish ? "Reheating Suggestions" : "加热复酥建议");
+			els.detailReheat.text(isEnglish ?
 				"1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy." :
-				"1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。"
-			);
+				"1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。");
 		}
 
-		// 2. 替换顶部大图
+		// 5. 替换大图与图集
 		var heroUrl = 'assets/img/' + folder + '/' + item.img + '.webp';
-		$('#detail-hero-img').css('background-image', "url('" + heroUrl + "')");
+		els.detailHeroImg.css('background-image', "url('" + heroUrl + "')");
 
-		// 3. 动态生成图集
 		var galleryHtml = '';
-		if (item.gallery && item.gallery.length > 0)
-		{
-			$.each(item.gallery, function (i, imgName)
-			{
+		if (item.gallery && item.gallery.length > 0) {
+			$.each(item.gallery, function (i, imgName) {
 				galleryHtml += '<img src="assets/img/' + folder + '/' + imgName + '.webp" alt="' + item.name + '">';
 			});
 		}
-		$('#detail-gallery').html(galleryHtml);
+		els.detailGallery.html(galleryHtml);
 
-		// 4. 智能判断：已上线允许加购，未上线引导 WhatsApp 咨询上市时间
-		var $orderBtn = $('#detail-order-btn');
-
-		if (item.status === 'coming_soon')
-		{
-			// 💡 未上线产品：禁止加购，切换为预售/上市咨询按钮
+		// 6. 按钮状态切换（保持现有逻辑，改用缓存选择器）
+		var $orderBtn = els.detailOrderBtn;
+		if (item.status === 'coming_soon') {
 			var inqText = isEnglish ?
 				"Hello MaiRiji! I saw " + item.name + " on your website and am super interested. When will it be available?" :
 				"你好，麦日记！我在网站看到了【" + item.name + "】，非常感兴趣！请问大约什么时候会上市上架呢？";
-			var inqUrl = "https://wa.me/601115277643?text=" + encodeURIComponent(inqText);
+			var inqUrl = "https://wa.me/" + this.config.waNumber + "?text=" + encodeURIComponent(inqText);
 
-			$orderBtn
-				.removeClass('button')
-				.addClass('wheat-btn')
-				.attr('data-link', inqUrl)
-				.html(`
-                    <span class="btn-text-wrapper">
-                        <span class="btn-txt default">${isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间'}</span>
-                        <span class="btn-txt hover">WhatsApp Us!</span>
-                    </span>
-                `)
-				.off('click')
-				.on('click', function (e)
-				{
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					// 直接跳 WhatsApp 咨询
-					var newWin = window.open(inqUrl, '_blank');
-					if (!newWin || newWin.closed || typeof newWin.closed == 'undefined')
-					{
-						window.location.href = inqUrl;
-					}
+			$orderBtn.removeClass('button').addClass('wheat-btn').attr('data-link', inqUrl)
+				.html('<span class="btn-text-wrapper"><span class="btn-txt default">' + (isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间') + '</span><span class="btn-txt hover">WhatsApp Us!</span></span>')
+				.off('click').on('click', function (e) {
+					e.preventDefault(); e.stopImmediatePropagation();
+					window.open(inqUrl, '_blank');
 				});
-		}
-		else
-		{
-			// 💡 已上线产品：正常允许“加进购物篮”
-			$orderBtn
-				.removeClass('wheat-btn')
-				.addClass('button')
-				.removeAttr('data-link')
-				.html(`
-                    <span style="display: inline-flex; align-items: center; gap: 8px;">
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                        ${isEnglish ? 'Add to Basket' : '加进购物篮'}
-                    </span>
-                `)
-				.off('click')
-				.on('click', function (e)
-				{
-					e.preventDefault();
-					e.stopImmediatePropagation();
+		} else {
+			$orderBtn.removeClass('wheat-btn').addClass('button').removeAttr('data-link')
+				.html('<span style="display: inline-flex; align-items: center; gap: 8px;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' + (isEnglish ? 'Add to Basket' : '加进购物篮') + '</span>')
+				.off('click').on('click', function (e) {
+					e.preventDefault(); e.stopImmediatePropagation();
 					self.addToCart(item, type, 1);
-					$('#product-detail-panel').removeClass('open');
+					els.detailPanel.removeClass('open');
 					self.openCart();
 				});
 		}
 
-		// 5. 弹出面板并锁住底层滚动
-		$('#product-detail-panel').addClass('open');
-		$('body').addClass('no-scroll');
-
-		// 滚动回详情页顶部
-		$('.detail-scroll-area').scrollTop(0);
+		// 7. 弹出面板
+		els.detailPanel.addClass('open');
+		els.body.addClass('no-scroll');
+		els.detailPanel.find('.detail-scroll-area').scrollTop(0);
 	},
 
 	// --- 核心逻辑：智能导航栏 (Sticky Nav) ---
@@ -1626,28 +1599,49 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 循环动画定时器
+		// 循环动画定时器函数
 		function updateLoopImage()
 		{
 			if (isClickAnimating) return;
 			currentFrameIndex = (currentFrameIndex + 1) % currentLoopFrames.length;
-			// 🌟 使用全新的 setCursorImage 切换图片
 			setCursorImage(currentLoopFrames[currentFrameIndex]);
 		}
 
-		setInterval(updateLoopImage, 200);
+		// 🌟 启动统一定时器（先清理旧定时器，防止重复叠加）
+		var startCursorTimer = function() {
+			if (self.cursorTimer) clearInterval(self.cursorTimer);
+			self.cursorTimer = setInterval(updateLoopImage, 200);
+		};
 
-		$(document).on('mousemove', function (e)
+		var stopCursorTimer = function() {
+			if (self.cursorTimer) {
+				clearInterval(self.cursorTimer);
+				self.cursorTimer = null;
+			}
+		};
+
+		// 初始启动
+		startCursorTimer();
+
+		// 鼠标跟随
+		$(document).on('mousemove.customCursor', function (e)
 		{
-			// 更新自定义鼠标位置
-			$cursor.css(
-			{
+			$cursor.css({
 				'left': (e.clientX - 5) + 'px',
 				'top': (e.clientY - 5) + 'px'
 			});
-			if ($cursor.css('display') === 'none')
-			{
-				$cursor.show();
+			if ($cursor.css('display') === 'none') $cursor.show();
+		});
+
+		// 🌟 离开/回到窗口时的防泄露监听（使用 .off 命名空间防重复绑定）
+		$(document).off('.cursorWindow').on({
+			'mouseleave.cursorWindow': function () {
+				$cursor.hide();
+				stopCursorTimer(); // 离开页面立即停止定时器，节省 CPU
+			},
+			'mouseenter.cursorWindow': function () {
+				if ($cursor.css('display') === 'none') $cursor.show();
+				startCursorTimer(); // 回到页面重新启动
 			}
 		});
 
@@ -1702,27 +1696,25 @@ MaiRijiApp.prototype = {
 	// ==========================================
 	// 🛒 购物车核心功能逻辑（支持中英双语无缝切换）
 	// ==========================================
+	// 读取购物车
 	loadCart: function ()
 	{
 		try
 		{
-			var saved = localStorage.getItem('mairiji_cart');
+			var saved = localStorage.getItem(this.config.storageKeys.cart);
 			return saved ? JSON.parse(saved) : [];
 		}
-		catch (e)
-		{
-			return [];
-		}
+		catch (e) { return []; }
 	},
 
+	// 保存购物车
 	saveCart: function ()
 	{
 		try
 		{
-			localStorage.setItem('mairiji_cart', JSON.stringify(this.cart));
+			localStorage.setItem(this.config.storageKeys.cart, JSON.stringify(this.cart));
 		}
-		catch (e)
-		{}
+		catch (e) {}
 	},
 
 	// 💡 智能匹配当前语言对应的商品名称
@@ -1806,7 +1798,7 @@ MaiRijiApp.prototype = {
 
 	updateCartUI: function ()
 	{
-		var $list = $('#cart-items-list');
+		var els = this.$els;
 		var totalQty = 0;
 		var totalPrice = 0;
 		var isEnglish = this.getCurrentLanguage() === 'en';
@@ -1814,9 +1806,9 @@ MaiRijiApp.prototype = {
 
 		if (!this.cart || this.cart.length === 0)
 		{
-			$list.html('<div class="cart-empty-tip">' + (isEnglish ? 'Your basket is empty 🥖' : '你的购物篮还是空的 🥖') + '</div>');
-			$('#cart-total-price').text('RM 0.00');
-			$('#cart-count-badge').text('0');
+			els.cartList.html('<div class="cart-empty-tip">' + (isEnglish ? 'Your basket is empty 🥖' : '你的购物篮还是空的 🥖') + '</div>');
+			els.cartTotalPrice.text('RM 0.00');
+			els.cartBadge.text('0');
 			return;
 		}
 
@@ -1826,50 +1818,34 @@ MaiRijiApp.prototype = {
 			totalQty += item.qty;
 			totalPrice += item.price * item.qty;
 			var folder = item.type === 'cake' ? 'cake' : 'bread';
-
-			// 动态获取当前语言对应的商品名称
 			var displayName = self.getItemDisplayName(item);
 
 			html += `
-            <div class="cart-item" data-id="${item.id}">
-                <div class="cart-item-img" style="background-image: url('assets/img/${folder}/${item.img}.webp');"></div>
-                <div class="cart-item-info">
-                    <div class="cart-item-title">${displayName}</div>
-                    <div class="cart-item-price">RM ${item.price.toFixed(2)}</div>
-                    <div class="cart-qty-ctrl">
-                        <!-- 减号 SVG -->
-                        <button class="cart-qty-btn cart-qty-minus" title="Reduce">
-                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
-                        
-                        <span class="cart-qty-num">${item.qty}</span>
-                        
-                        <!-- 加号 SVG -->
-                        <button class="cart-qty-btn cart-qty-plus" title="Increase">
-                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
-                        
-                        <!-- 垃圾桶删除 SVG -->
-                        <span class="cart-item-del" title="${isEnglish ? 'Remove' : '删除'}">
-                            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            `;
+			<div class="cart-item" data-id="${item.id}">
+				<div class="cart-item-img" style="background-image: url('assets/img/${folder}/${item.img}.webp');"></div>
+				<div class="cart-item-info">
+					<div class="cart-item-title">${displayName}</div>
+					<div class="cart-item-price">RM ${item.price.toFixed(2)}</div>
+					<div class="cart-qty-ctrl">
+						<button class="cart-qty-btn cart-qty-minus" title="Reduce">
+							<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+						</button>
+						<span class="cart-qty-num">${item.qty}</span>
+						<button class="cart-qty-btn cart-qty-plus" title="Increase">
+							<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+						</button>
+						<span class="cart-item-del" title="${isEnglish ? 'Remove' : '删除'}">
+							<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+						</span>
+					</div>
+				</div>
+			</div>
+			`;
 		});
 
-		$list.html(html);
-		$('#cart-total-price').text('RM ' + totalPrice.toFixed(2));
-		$('#cart-count-badge').text(totalQty);
+		els.cartList.html(html);
+		els.cartTotalPrice.text('RM ' + totalPrice.toFixed(2));
+		els.cartBadge.text(totalQty);
 	},
 
 	// 🌟 自动生成 WhatsApp 完美双语格式消息并跳转（带 800 毫秒落叶动画延时）

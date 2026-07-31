@@ -1,4 +1,18 @@
 /* ==========================================================================
+   0. 麦日记 · 主题全局变量 (Design Tokens / CSS Variables)
+   ========================================================================== */
+:root {
+    --bg-cream: #fbf9f4;         /* 全站奶油底色 */
+    --bg-card-warm: #faf6ee;     /* 暖麦色卡片背景 */
+    --text-brown-dark: #5a3a22;  /* 烘焙暖棕色 */
+    --accent-caramel: #8b5e3c;   /* 浓郁焦糖棕 */
+    --accent-gold: #92683b;      /* 麦香金 */
+    --btn-wheat-bg: #fec195;     /* 麦穗黄按钮背景 */
+    --border-light: #e0d8cd;     /* 柔和边框色 */
+    --border-dashed: #e4d5c7;    /* 暖色虚线边框 */
+}
+
+/* ==========================================================================
    1. 基础重置与动画 (Reset, Animation & Global Utils)
    ========================================================================== */
 
@@ -41,14 +55,14 @@ section.pbig { padding: 75px 0 75px; }
 .wrap .col-image img { width: 100%; height: auto; }
 
 /* 响应式调整 */
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .wrap .col { width: 100%; }
     section.pbig { padding: 50px 0 30px; }
 }
 
 /* 滚动触发锚点 */
 .scrollTrigger.post-fixed { margin-top: 100vh; }
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .scrollTrigger.post-fixed { margin-top: 0; }
 }
 
@@ -115,7 +129,7 @@ section.pbig { padding: 75px 0 75px; }
 }
 
 /* 移动端导航栏 (Mobile Header & Menu) */
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .main-header .wrap { width: 100% !important; }
     .main-header .logos { background-color: #fbf9f4; height: 70px; }
     
@@ -170,7 +184,7 @@ section.pbig { padding: 75px 0 75px; }
 }
 
 .menu-panel-logo { display: none; }
-@media screen and (max-width: 769px) { body.menuOpen .menu-panel-logo { display: block; } }
+@media screen and (max-width: 768px) { body.menuOpen .menu-panel-logo { display: block; } }
 
 /* ==========================================================================
    4. 首屏 Hero 区域
@@ -198,7 +212,7 @@ section.home-intro .button { box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
 .home-intro .inner.scroll-hide { opacity: 0 !important; visibility: hidden; transition: opacity 0.5s ease-out, visibility 0.5s ease-out; pointer-events: none; }
 
 /* 移动端 Hero */
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     section.intro, header.intro { margin-top: 70px; height: auto; padding: 100px 0; overflow: hidden; }
     section.intro.fixed, header.intro.fixed { position: relative; padding: 100px 0 100px; }
     section.intro .down, header.intro .down { display: none; }
@@ -234,7 +248,7 @@ section.home-intro .button { box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
     position: relative; z-index: 1; margin: 0;
 }
 
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .full-width-image-divider { background-attachment: scroll; height: 350px; background-position: center center; }
 }
 
@@ -308,7 +322,7 @@ footer.main-footer .cols .col.logo div img { width: 100%; height: auto; display:
 footer.main-footer a.legals { width: 100%; text-align: center; font-size: 10px; color: black; text-transform: uppercase; letter-spacing: 5px; display: block; opacity: 0.5; transition: 0.3s; }
 footer.main-footer a.legals:hover { opacity: 1; }
 
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     footer.main-footer .cols { width: 100%; margin-bottom: 20px; }
     footer.main-footer .cols .col.logo { padding-top: 20px; padding-bottom: 10px; width: 100%; }
     body.menuOpen footer.main-footer { display: none; }
@@ -348,7 +362,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
 .savoria-card:hover .card-overlay { opacity: 1; transform: translateY(0); }
 
 /* 移动端横向滚动 (Infinite Marquee) */
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .horizontal-scroll-wrapper { height: auto !important; background-color: #fff; }
     .savoria-sticky-viewport { position: relative !important; height: auto !important; top: auto !important; padding: 60px 0; display: block; }
     .savoria-header { margin-bottom: 30px; }
@@ -367,7 +381,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
 #ambiance-section #home-diary { margin-top: 10vh; opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; width: 100%; }
 #ambiance-section #home-diary.is-visible { opacity: 1; transform: translateY(0); }
 
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
   #home-diary { opacity: 1 !important; transform: none !important; margin-top: 40px; padding-bottom: 20px; }
 }
 
@@ -552,7 +566,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
 .floating-button.lang-button:hover { background-color: rgb(181, 160, 255); }
 
 /* 响应式 */
-@media only screen and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
     .floating-controls { right: 16px; bottom: 16px; gap: 8px; }
     .floating-button { width: 46px; height: 46px; }
 }
