@@ -724,13 +724,6 @@ footer.main-footer a.legals:hover { opacity: 1; }
     transform: scale(1.05); 
 }
 
-/* 页脚 Instagram 按钮外容器 */
-.logo-socials {
-    display: inline-flex;
-    margin-top: 15px;
-    position: relative;
-}
-
 /* ==========================================================================
    极简风 Instagram 拍照闪光按钮 (无账号名·极简精致款)
    ========================================================================== */
