@@ -487,5 +487,39 @@
     </div>
 </div>
 
+<!-- ======================= 📍 GPS Location Confirm Modal ======================= -->
+<div id="gps-modal-backdrop" class="modal-backdrop"></div>
+<div id="gps-confirm-modal" class="checkout-modal gps-modal">
+    <div class="modal-header">
+        <h3>📍 Confirm GPS Location</h3>
+        <button class="close-modal-btn" id="close-gps-modal" title="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div id="gps-loading-status" class="form-tip" style="margin-bottom: 15px; text-align: center;">
+            ⌛ Detecting your precise GPS location, please wait...
+        </div>
+        <form id="gps-confirm-form">
+            <div class="form-group">
+                <label for="gps-unit">House No. / Unit / Floor <span class="required">*</span></label>
+                <input type="text" id="gps-unit" placeholder="e.g. No. 18 or Block B-12-05" required>
+            </div>
+            <div class="form-group">
+				<label for="gps-street">Street / Area / City</label>
+				<textarea id="gps-street" rows="3" placeholder="Detecting address..."></textarea>
+			</div>
+            <div class="form-group">
+                <label for="gps-coords">GPS Coordinates</label>
+                <input type="text" id="gps-coords" readonly style="background-color: #eee; color: #666;">
+            </div>
+            <button type="submit" class="wheat-btn" style="margin-top: 15px; width: 100%; padding: 12px;">
+				<span class="btn-text-wrapper">
+					<span class="btn-txt default">Confirm & Use This Address</span>
+					<span class="btn-txt hover">Confirm Address!</span>
+				</span>
+			</button>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

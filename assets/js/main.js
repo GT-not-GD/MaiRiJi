@@ -954,11 +954,43 @@ MaiRijiApp.prototype = {
             }
         });
 
-		// P. GPS 一键定位点击事件
+		// P. 点击一键定位：弹出 GPS 二级确认弹窗并自动抓取定位
 		$(document).on('click', '#get-gps-btn', function (e)
 		{
 			e.preventDefault();
-			$this.fetchGPSLocation();
+			$this.openGPSModal();
+		});
+
+		// Q. 关闭 GPS 二级确认弹窗
+		$('#close-gps-modal, #gps-modal-backdrop').on('click', function ()
+		{
+			$this.closeGPSModal();
+		});
+
+		// R. 提交 GPS 确认表单：拼合地址并填回主结算框
+		$('#gps-confirm-form').on('submit', function (e)
+		{
+			e.preventDefault();
+			var unit = $('#gps-unit').val().trim();
+			var street = $('#gps-street').val().trim();
+			var coords = $('#gps-coords').val().trim();
+			var isEnglish = $this.getCurrentLanguage() === 'en';
+
+			if (!unit) {
+				alert(isEnglish ? 'Please enter your house or unit number.' : '请补充填写门牌号或楼层单位。');
+				return;
+			}
+
+			var googleMapsUrl = "https://maps.google.com/?q=" + coords;
+			var finalAddressText = (isEnglish ? "Unit/House No: " : "门牌单位：") + unit + "\n" +
+								(isEnglish ? "Street/Area: " : "详细区域：") + street + "\n" +
+								"📍 Google Maps: " + googleMapsUrl;
+
+			// 将拼好的地址填入主结算表单的地址栏中
+			$('#cust-address').val(finalAddressText);
+
+			// 关闭定位弹窗
+			$this.closeGPSModal();
 		});
 	},
 
@@ -1744,7 +1776,7 @@ MaiRijiApp.prototype = {
             if (customerData.name) {
                 msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + "\n";
             }
-            msg += (isEnglish ? "Address / Pickup: " : "配送地址/说明：") + customerData.address + "\n";
+            msg += (isEnglish ? "Address / Pickup: \n" : "配送地址/说明：\n") + customerData.address + "\n";
             msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
         }
 
@@ -1882,6 +1914,91 @@ MaiRijiApp.prototype = {
                 maximumAge: 0
             }
         );
+    },
+
+	openGPSModal: function ()
+    {
+        var isEnglish = this.getCurrentLanguage() === 'en';
+        
+        // 显示定位弹窗
+        $('#gps-modal-backdrop').addClass('show');
+        $('#gps-confirm-modal').addClass('show');
+
+        // 重置表单
+        $('#gps-unit').val('');
+        $('#gps-street').val('');
+        $('#gps-coords').val('');
+        $('#gps-loading-status').html(isEnglish ? "⌛ Detecting your precise GPS location, please wait..." : "⌛ 正在获取您的精准 GPS 位置，请稍候...");
+
+        this.startGPSDetection();
+    },
+
+    closeGPSModal: function ()
+    {
+        $('#gps-modal-backdrop').removeClass('show');
+        $('#gps-confirm-modal').removeClass('show');
+    },
+
+    startGPSDetection: function ()
+    {
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
+        if (!navigator.geolocation)
+        {
+            alert(isEnglish ? "Your browser does not support GPS geolocation." : "您的浏览器不支持 GPS 地理定位。");
+            $('#gps-loading-status').html(isEnglish ? "❌ GPS not supported." : "❌ 浏览器不支持 GPS");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function (position)
+            {
+                var lat = position.coords.latitude.toFixed(6);
+                var lng = position.coords.longitude.toFixed(6);
+
+                $('#gps-coords').val(lat + ", " + lng);
+
+                // 🌟 核心修改：在 URL 末尾加入 &accept-language=en，强制 OSM 逆解析输出英文/罗马字母地址
+                var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=" + lat + "&lon=" + lng;
+
+                fetch(reverseUrl, {
+                    headers: { 'Accept-Language': 'en-US,en;q=0.9' } // 强制 Headers 传英文
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var street = data.display_name || "GPS Detected Area";
+                    $('#gps-street').val(street);
+
+                    // 如果自动识别到了门牌号，预填写门牌框
+                    if (data.address && data.address.house_number) {
+                        $('#gps-unit').val("No. " + data.address.house_number);
+                    }
+
+                    $('#gps-loading-status').html(isEnglish ? "✅ Location detected! Please verify & enter house number." : "✅ 定位成功！请核对街道并补全门牌号。");
+                    $('#gps-unit').focus();
+                })
+                .catch(function() {
+                    $('#gps-street').val("Detected GPS Area");
+                    $('#gps-loading-status').html(isEnglish ? "✅ Coordinates captured. Please fill in house number." : "✅ 坐标抓取成功，请补充门牌号。");
+                    $('#gps-unit').focus();
+                });
+            },
+            function (error)
+            {
+                var errMsg = isEnglish ? "Failed to get location. Please check location permissions." : "定位失败，请确保已开启浏览器位置权限。";
+                $('#gps-loading-status').html("❌ " + errMsg);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    },
+
+    handleGPSMock: function (msg)
+    {
+        var isEnglish = this.getCurrentLanguage() === 'en';
+        $('#gps-coords').val("3.118234, 101.621092");
+        $('#gps-street').val(isEnglish ? "Petaling Jaya, Selangor, Malaysia" : "雪兰莪州 Petaling Jaya 示范街区");
+        $('#gps-loading-status').html("⚠️ " + msg);
+        $('#gps-unit').focus();
     },
 
 };

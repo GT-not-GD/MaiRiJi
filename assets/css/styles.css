@@ -1340,3 +1340,23 @@ body.no-scroll .main-header {
     opacity: 0.7;
     cursor: wait;
 }
+
+/* ==========================================================================
+   19. GPS 二级确认弹窗样式 (Higher Z-Index)
+   ========================================================================== */
+#gps-modal-backdrop {
+    z-index: 100010 !important;
+}
+#gps-confirm-modal {
+    z-index: 100011 !important;
+    max-width: 420px;
+}
+
+/* 优化 GPS 弹窗多行地址框 */
+#gps-street {
+    resize: vertical;
+    line-height: 1.5;
+    min-height: 72px;
+    padding: 8px 10px;
+    font-size: 13.5px;
+}
