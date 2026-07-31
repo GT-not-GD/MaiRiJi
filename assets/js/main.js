@@ -591,7 +591,7 @@ MaiRijiApp.prototype = {
 
 			html += `
             <li class="grid__item slider__slide">
-                <a href="javascript:void(0);" class="product-card-wrapper card-wrapper open-detail-btn" data-type="${type}" data-id="${item.id}" style="background: transparent; border: none; box-shadow: none; padding: 0; display: block; cursor: none;">
+                <a href="#product-detail" class="product-card-wrapper card-wrapper open-detail-btn" data-type="${type}" data-id="${item.id}" style="background: transparent; border: none; box-shadow: none; padding: 0; display: block; cursor: none;">
                     <div class="stack-container">
                         ${badgeHtml} <!-- 👈 插入敬请期待标签 -->
                         <div class="polaroid card-bottom">
@@ -921,7 +921,10 @@ MaiRijiApp.prototype = {
                 return;
             }
 
-            // 播放落叶动画，800毫秒后在新页面打开 WhatsApp
+            // 🌟 提交时自动记录姓名和地址，方便下次使用
+            if (name) localStorage.setItem('mairiji_cust_name', name);
+            if (address) localStorage.setItem('mairiji_cust_address', address);
+
             $btn.addClass('clicked');
 
             setTimeout(function() {
@@ -991,6 +994,31 @@ MaiRijiApp.prototype = {
 
 			// 关闭定位弹窗
 			$this.closeGPSModal();
+		});
+
+		// S. 全局 Esc 键盘快捷键关闭弹窗/抽屉
+		$(document).on('keyup', function (e)
+		{
+			if (e.key === 'Escape')
+			{
+				if ($('#gps-confirm-modal').hasClass('show'))
+				{
+					$this.closeGPSModal();
+				}
+				else if ($('#checkout-modal').hasClass('show'))
+				{
+					$this.closeCheckoutModal();
+				}
+				else if ($('#cart-drawer-panel').hasClass('open'))
+				{
+					$this.closeCart();
+				}
+				else if ($('#product-detail-panel').hasClass('open'))
+				{
+					$('#product-detail-panel').removeClass('open');
+					$('body').removeClass('no-scroll');
+				}
+			}
 		});
 	},
 
@@ -1701,7 +1729,6 @@ MaiRijiApp.prototype = {
 		var html = '';
 		$.each(this.cart, function (i, item)
 		{
-			var itemTotal = (item.price * item.qty).toFixed(2);
 			totalQty += item.qty;
 			totalPrice += item.price * item.qty;
 			var folder = item.type === 'cake' ? 'cake' : 'bread';
@@ -1814,7 +1841,7 @@ MaiRijiApp.prototype = {
 
     openCheckoutModal: function ()
     {
-        // 计算明天日期 (T + 1)，设置为日期选择器的最小值 min
+        // 动态计算明天日期 (T + 1)
         var tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         var yyyy = tomorrow.getFullYear();
@@ -1824,11 +1851,23 @@ MaiRijiApp.prototype = {
 
         var $dateInput = $('#cust-date');
         $dateInput.attr('min', minDateStr);
-        if (!$dateInput.val()) {
-            $dateInput.val(minDateStr); // 默认选定明天
+        
+        // 如果当前选中的日期小于明天，强制重置为明天
+        if (!$dateInput.val() || $dateInput.val() < minDateStr) {
+            $dateInput.val(minDateStr);
         }
 
-        // 先关闭侧边购物车，弹出信息 Modal
+		// 自动读取上次保存的姓名与地址
+        var savedName = localStorage.getItem('mairiji_cust_name');
+        var savedAddress = localStorage.getItem('mairiji_cust_address');
+        if (savedName && !$('#cust-name').val()) {
+            $('#cust-name').val(savedName);
+        }
+        if (savedAddress && !$('#cust-address').val()) {
+            $('#cust-address').val(savedAddress);
+        }
+
+        // 关闭侧边购物车，弹出信息 Modal
         this.closeCart();
         $('#checkout-modal-backdrop').addClass('show');
         $('#checkout-modal').addClass('show');

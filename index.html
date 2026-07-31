@@ -2,7 +2,7 @@
 <html class="no-js" lang="zh-CN" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" href="assets/img/favicon.ico">
 
     <title>麦日记 - 烘焙与生活的美好点滴</title>
@@ -13,6 +13,8 @@
 	<meta name="description" content="欢迎来到麦日记。日记里记录了关于烘焙的灵感、故事和生活点滴，探索面粉与温度的艺术。"/>
 	<meta name="keywords" content="烘焙, 面包, 甜点, 麦日记, baking, diary">
 	<meta name="robots" content="index, follow">
+	<link rel="alternate" hreflang="zh-CN" href="https://gt-not-gd.github.io/MaiRiji/index.html" />
+	<link rel="alternate" hreflang="en" href="https://gt-not-gd.github.io/MaiRiji/index-en.html" />
 	<link rel="canonical" href="https://gt-not-gd.github.io/MaiRiji/">
 
 	<!-- 2. Open Graph Protocol (用于微信、微博、Facebook等) -->
@@ -112,7 +114,7 @@
 </header>
 
 <!-- ======================= 页面滚动内容容器 ======================= -->
-<div id="page-container"> 
+<main id="page-container">
 
 	<!-- 🟢 1. 首页视图 (Home View) -->
     <div id="view-home" class="page-view active-view">
@@ -270,7 +272,7 @@
 			</div>
 		</section>
 	</div>
-
+</main>
 <!-- ======================= 页脚 ======================= -->
 <footer role="contentinfo" class="main-footer">
     <div class="bg"></div>
@@ -326,19 +328,19 @@
         </div>
     </div>
 
-    <!-- 底部悬浮下单栏 (单语言优化版) -->
-    <div class="detail-footer">
-        <button id="detail-order-btn" class="button" style="width: 100%; max-width: 400px; padding: 15px; font-size: 18px; border-radius: 8px;">
-            <span style="display: inline-flex; align-items: center; gap: 8px;">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                加进购物篮
-            </span>
-        </button>
-    </div>
+    <!-- 底部悬浮下单栏 -->
+	<div class="detail-footer">
+		<button id="detail-order-btn" class="button">
+			<span style="display: inline-flex; align-items: center; gap: 8px;">
+				<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+					<line x1="3" y1="6" x2="21" y2="6"></line>
+					<path d="M16 10a4 4 0 0 1-8 0"></path>
+				</svg>
+				加进购物篮
+			</span>
+		</button>
+	</div>
 </div>
 
 <!-- Floating controls: Back to Top + Language -->
@@ -447,7 +449,7 @@
         <button class="close-modal-btn" id="close-checkout-modal" title="关闭">&times;</button>
     </div>
     <div class="modal-body">
-        <form id="checkout-form">
+        <form id="checkout-form" novalidate>
             <div class="form-group">
                 <label for="cust-name">联系姓名 <span class="optional">(可选)</span></label>
                 <input type="text" id="cust-name" placeholder="例如：陈小姐 / Mr. Tan">
@@ -497,7 +499,7 @@
         <div id="gps-loading-status" class="form-tip" style="margin-bottom: 15px; text-align: center;">
             ⌛ 正在获取您的精准 GPS 位置，请稍候...
         </div>
-        <form id="gps-confirm-form">
+        <form id="gps-confirm-form" novalidate>
             <div class="form-group">
                 <label for="gps-unit">门牌号 / 楼层单位 <span class="required">*</span></label>
                 <input type="text" id="gps-unit" placeholder="如：No. 18 或 Block B-12-05" required>

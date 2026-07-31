@@ -329,7 +329,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
 
 .savoria-header { width: 100%; text-align: center; margin-bottom: 30px; flex-shrink: 0; position: relative; z-index: 2; }
 .savoria-header h2 { font-family: 'Playfair Display', 'Noto Serif SC', serif; font-size: 50px; color: #92683b; margin-bottom: 10px; }
-.savoria-header p { font-family: 'Noto Serif SC', sans-serif; color: #888888; text-transform: uppercase; letter-spacing: 3px; font-size: 14px; margin-bottom: 10px; }
+.savoria-header p { font-family: 'Noto Serif SC', sans-serif; color: #5a3a22; text-transform: uppercase; letter-spacing: 3px; font-size: 14px; margin-bottom: 10px; }
 
 .savoria-track { display: flex; gap: 30px; padding-left: 5vw; width: max-content; will-change: transform; align-items: center; }
 .mobile-clones { display: none; }
@@ -926,26 +926,87 @@ body.no-scroll {
 }
 .detail-gallery img:hover { transform: translateY(-5px); }
 
-/* 底部悬浮下单区域 */
+/* ==========================================================================
+   产品详情页底部悬浮按钮 (响应式自适应)
+   ========================================================================== */
+
+/* 1. 底部固定容器 */
 .detail-footer {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    background: linear-gradient(to top, rgba(251, 249, 244, 1) 70%, rgba(251, 249, 244, 0));
-    padding: 20px 20px 30px;
+    background: linear-gradient(to top, rgba(251, 249, 244, 1) 75%, rgba(251, 249, 244, 0));
+    padding: 16px 20px max(20px, env(safe-area-inset-bottom));
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 3010;
+    box-sizing: border-box;
 }
 
-/* 手机端适配 */
+/* 2. 按钮桌面端默认基础样式 */
+.detail-footer #detail-order-btn {
+    width: 100%;
+    max-width: 380px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0 !important; /* 清除可能继承的 margin-top */
+    transition: all 0.25s ease;
+}
+
+.detail-footer #detail-order-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* 3. 未上线状态下切换为 .wheat-btn 时的布局微调 */
+.detail-footer #detail-order-btn.wheat-btn {
+    margin-top: 0 !important;
+    padding: 10px 24px;
+}
+
+/* 📱 4. 平板与手机端自适应 (768px 及以下) */
 @media screen and (max-width: 768px) {
-    .detail-hero { height: 18vh; min-height: 140px; }
-    .detail-header h2 { font-size: 28px; }
-    .detail-gallery { grid-template-columns: 1fr; gap: 15px; } /* 手机变成单列大图 */
-    .close-detail-btn { top: 15px; right: 15px; width: 40px; height: 40px; font-size: 18px; }
+    .detail-footer {
+        padding: 10px 16px max(14px, env(safe-area-inset-bottom)); /* 减小固定栏高度 */
+    }
+    
+    .detail-footer #detail-order-btn {
+        max-width: 320px;  /* 限制手机端的最大宽度，不贴边 */
+        padding: 10px 16px; /* 适中的上下内边距 */
+        font-size: 14px;    /* 缩小字号 */
+        border-radius: 6px;
+        height: 44px;       /* 规范触控高度 */
+    }
+    
+    .detail-footer #detail-order-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* 调整未上线状态文字滚动容器的高度 */
+    .detail-footer #detail-order-btn .btn-text-wrapper {
+        height: 18px;
+        font-size: 13.5px;
+    }
+}
+
+/* 📱 5. 小屏手机极简适配 (380px 及以下，如 iPhone SE / 窄屏手机) */
+@media screen and (max-width: 380px) {
+    .detail-footer #detail-order-btn {
+        max-width: 280px;
+        padding: 8px 12px;
+        font-size: 13px;
+        height: 40px;
+    }
 }
 
 /* ==========================================================================
@@ -1352,4 +1413,18 @@ body.no-scroll .main-header {
     min-height: 72px;
     padding: 8px 10px;
     font-size: 13.5px;
+}
+
+/* 针对小屏手机优化弹窗展示空间 */
+@media screen and (max-width: 480px) {
+    .checkout-modal {
+        padding: 18px 16px !important;
+        width: 94% !important;
+    }
+    .checkout-modal .modal-header h3 {
+        font-size: 18px !important;
+    }
+    .checkout-modal .form-group {
+        margin-bottom: 12px !important;
+    }
 }
