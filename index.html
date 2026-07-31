@@ -323,6 +323,73 @@
             <div class="detail-desc">
                 <p id="detail-text">这里是面包的故事和描述...</p>
             </div>
+			<!-- 🌟 折叠手风琴区域：成分表、保存建议、加热建议 -->
+			<div class="detail-accordions">
+				<div class="accordion-item">
+					<button type="button" class="accordion-header">
+						<span>配料成分</span>
+						<div class="accordion-icon-badge">
+							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="6 9 12 15 18 9"></polyline>
+							</svg>
+						</div>
+					</button>
+					<div class="accordion-content">
+						<div class="accordion-content-inner">
+							<p id="detail-ingredients">-</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- 🌟 新增：过敏原提示 -->
+				<div class="accordion-item">
+					<button type="button" class="accordion-header">
+						<span>过敏原提示</span>
+						<div class="accordion-icon-badge">
+							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="6 9 12 15 18 9"></polyline>
+							</svg>
+						</div>
+					</button>
+					<div class="accordion-content">
+						<div class="accordion-content-inner allergen-box">
+							<p id="detail-allergens">-</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="accordion-item">
+					<button type="button" class="accordion-header">
+						<span>保存建议</span>
+						<div class="accordion-icon-badge">
+							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="6 9 12 15 18 9"></polyline>
+							</svg>
+						</div>
+					</button>
+					<div class="accordion-content">
+						<div class="accordion-content-inner">
+							<p id="detail-storage">-</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="accordion-item">
+					<button type="button" class="accordion-header">
+						<span id="detail-reheat-title">加热建议</span>
+						<div class="accordion-icon-badge">
+							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="6 9 12 15 18 9"></polyline>
+							</svg>
+						</div>
+					</button>
+					<div class="accordion-content">
+						<div class="accordion-content-inner">
+							<p id="detail-reheat">-</p>
+						</div>
+					</div>
+				</div>
+			</div>
             <div class="detail-gallery grid grid--2-col" id="detail-gallery">
             </div>
         </div>

@@ -382,14 +382,15 @@ MaiRijiApp.prototype = {
 	{
 		var isEnglish = this.getCurrentLanguage() === 'en';
 
-		// 💡 重点：把商品赋值给 this，方便我们全局调用
 		this.breadProducts = isEnglish ? [
 		{
 			id: 'b1',
 			name: "Country Sourdough",
 			price: "14.00",
 			img: "1",
-			desc: "Our signature country loaf, fermented for over 18 hours with natural wild yeast. Features a crisp, blistered crust and a soft, highly hydrated crumb with a subtle, delicate acidity.",
+			desc: "Our signature country loaf, fermented for over 18 hours with sourdough starter. Crafted with Japanese bread flour and German rye flour for a crisp crust, highly hydrated crumb, and a subtle delicate acidity.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye)",
 			gallery: ["1", "1-hover"]
 		},
 		{
@@ -397,7 +398,9 @@ MaiRijiApp.prototype = {
 			name: "Chocolate Sourdough",
 			price: "16.00",
 			img: "2",
-			desc: "Crafted with premium dark chocolate folded into long-fermented dough. Rich, decadent chocolate notes perfectly balanced with a gentle sourdough finish.",
+			desc: "Rich dark chocolate and cocoa powder folded into long-fermented dough. Melts slightly during baking for a smooth, indulgent chocolate flavor perfectly balanced with gentle sourdough.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, dark chocolate, cocoa powder, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye), Milk, Soy (from dark chocolate)",
 			gallery: ["2", "2-hover"]
 		},
 		{
@@ -405,15 +408,19 @@ MaiRijiApp.prototype = {
 			name: "Lemon Blueberry Sourdough",
 			price: "16.50",
 			img: "3",
-			desc: "Bursting with tart dried blueberries and fragrant fresh lemon zest. A refreshing, fruity sourdough with bright citrus aroma in every bite.",
-			gallery: ["3", "3-hover"]
+			desc: "Bursting with tart wild dried blueberries and fragrant fresh lemon zest. A refreshing, fruity sourdough with bright citrus aroma in every bite.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, wild dried blueberries, fresh lemon zest, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye)",
+			gallery: ["3", "3-hover", "3-detail-1"]
 		},
 		{
 			id: 'b4',
 			name: "Classic Walnut Raisin Sourdough",
 			price: "16.00",
 			img: "4",
-			desc: "Packed with crunchy toasted walnuts and sweet sun-dried raisins. Offers a delightful contrast of textures and natural sweetness.",
+			desc: "Packed with crunchy toasted walnuts and sweet sun-dried raisins. Offers a rich contrast of nutty aromas and natural fruit sweetness.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, toasted walnuts, sun-dried raisins, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye), Tree Nuts (Walnuts)",
 			gallery: ["4", "4-hover"]
 		},
 		{
@@ -421,15 +428,19 @@ MaiRijiApp.prototype = {
 			name: "Coffee Chocolate Sourdough",
 			price: "16.00",
 			img: "5",
-			desc: "Infused with aromatic espresso coffee dough and rich dark chocolate pieces. Bold roasted coffee notes harmonized with smooth chocolate sweetness.",
-			gallery: ["5", "5-hover"]
+			desc: "Infused with espresso coffee dough, rich dark chocolate chips, and toasted walnuts. Bold roasted coffee notes harmonized with sweet chocolate and nutty warmth.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, espresso coffee, dark chocolate chips, toasted walnuts, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye), Tree Nuts (Walnuts), Milk, Soy",
+			gallery: ["5", "5-hover", "5-detail-1"]
 		},
 		{
 			id: 'b6',
 			name: "Matcha Cranberry Sourdough",
 			price: "16.00",
 			img: "6",
-			desc: "Earthy premium matcha paired with sweet-tart dried cranberries. Vibrant in color and rich in tea aroma, creating a beautifully balanced flavor.",
+			desc: "Earthy premium matcha paired with sweet-tart dried cranberries. Vibrant in tea aroma with a beautifully balanced, bittersweet flavor.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, premium matcha powder, dried cranberries, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye)",
 			gallery: ["6", "6-hover"]
 		},
 		{
@@ -437,15 +448,19 @@ MaiRijiApp.prototype = {
 			name: "Highland Barley Walnut Sourdough",
 			price: "16.00",
 			img: "7",
-			desc: "Made with nutritious highland barley and toasted walnuts. Earthy, nutty, and wholesome with a rich grain texture and wonderful chewiness.",
-			gallery: ["7", "7-hover"]
+			desc: "Made with nutritious Tibetan highland barley flour, toasted walnuts, and crunchy pumpkin seeds. Wholesome and earthy with rich grain textures and wonderful chewiness.",
+			ingredients: "Japanese high-protein bread flour, Tibetan highland barley flour, toasted walnuts, crunchy pumpkin seeds, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Barley), Tree Nuts (Walnuts), Seeds (Pumpkin seeds)",
+			gallery: ["7", "7-hover", "7-detail-1"]
 		},
 		{
 			id: 'b8',
-			name: "Black Tea Orange Peel Sourdough",
+			name: "Earl Grey Orange & Cranberry Sourdough",
 			price: "16.50",
 			img: "8",
-			desc: "Infused with fragrant black tea dough and dotted with candied orange peels. Elegant citrus notes merged with cozy, warm tea aroma.",
+			desc: "Infused with fragrant Earl Grey tea dough, candied orange zest, and dried cranberries. Elegant citrus and bergamot notes merged with warm tea aroma.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, Earl Grey tea powder, candied orange zest, dried cranberries, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye)",
 			gallery: ["8", "8-hover"]
 		},
 		{
@@ -453,7 +468,9 @@ MaiRijiApp.prototype = {
 			name: "Honey Pumpkin & Seed Sourdough",
 			price: "16.50",
 			img: "9",
-			desc: "A cozy blend of real pumpkin puree, pure honey, and crunchy pumpkin seeds. Tender, naturally sweet crumb topped with toasted seeds.",
+			desc: "A cozy blend of real pumpkin puree, pure honey, roasted pumpkin cubes, and toasted pumpkin seeds. Tender, naturally sweet crumb with crunchy seeds.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, fresh pumpkin puree, pure honey, roasted pumpkin cubes, crunchy pumpkin seeds, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye), Seeds (Pumpkin seeds)",
 			gallery: ["9", "9-hover"]
 		},
 		{
@@ -461,7 +478,9 @@ MaiRijiApp.prototype = {
 			name: "Dragon Fruit Cream Cheese Sourdough",
 			price: "17.00",
 			img: "10",
-			desc: "Made with 100% fresh red dragon fruit puree for a striking natural pink color, filled with velvety, rich cream cheese pockets.",
+			desc: "Made with fresh red dragon fruit for a striking natural pink dough, filled with rich and velvety cream cheese pockets.",
+			ingredients: "Japanese high-protein bread flour, German rye flour, fresh red dragon fruit, cream cheese filling, water, sourdough starter, rose salt.",
+			allergens: "Gluten (Wheat, Rye), Milk (Cream cheese)",
 			gallery: ["10", "10-hover"]
 		}] : [
 		{
@@ -469,7 +488,9 @@ MaiRijiApp.prototype = {
 			name: "乡村欧包",
 			price: "14.00",
 			img: "1",
-			desc: "麦日记的招牌经典之作。只使用面粉、水、盐和培育多年的天然酸种。历经18小时以上的低温慢发酵，外壳酥脆，内里组织湿润弹牙，带有纯粹的麦香与微酸回甘。",
+			desc: "麦日记的招牌经典之作。只使用面粉、水、盐和酸种酵母。历经18小时以上的低温慢发酵，外壳酥脆，内里组织湿润弹牙，带有纯粹的麦香与微酸回甘。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）。",
 			gallery: ["1", "1-hover"]
 		},
 		{
@@ -477,7 +498,9 @@ MaiRijiApp.prototype = {
 			name: "巧克力欧包",
 			price: "16.00",
 			img: "2",
-			desc: "选用浓郁微苦的法式黑巧克力融入面团。经过烘烤后巧克力微微融化，带给面包丝滑口感与丰富的可可层次，甜而不腻，满足感十足。",
+			desc: "选用浓郁的黑巧克力融入面团。经过烘烤后巧克力微微融化，带给面包丝滑口感与丰富的可可层次，甜而不腻，满足感十足。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、黑巧克力、可可粉、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）、乳制品、大豆成分（来自黑巧克力）。",
 			gallery: ["2", "2-hover"]
 		},
 		{
@@ -486,6 +509,8 @@ MaiRijiApp.prototype = {
 			price: "16.50",
 			img: "3",
 			desc: "清爽的鲜磨柠檬皮屑与多汁的蓝莓干完美结合。酸甜果香在舌尖绽放，入口带着天然果酸与柠檬清香，是下午茶的绝佳选择。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、野生蓝莓干、新鲜鲜磨柠檬皮屑、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）。",
 			gallery: ["3", "3-hover", "3-detail-1"]
 		},
 		{
@@ -494,6 +519,8 @@ MaiRijiApp.prototype = {
 			price: "16.00",
 			img: "4",
 			desc: "香脆的烤核桃搭配日晒甘甜的葡萄干。坚果的醇香与果干的自然酸甜交织，咀嚼间充满饱满的层次感，是广受欢迎的经典口味。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、烤核桃仁、日晒葡萄干、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）、树坚果（核桃）。",
 			gallery: ["4", "4-hover"]
 		},
 		{
@@ -501,7 +528,9 @@ MaiRijiApp.prototype = {
 			name: "咖啡巧克力欧包",
 			price: "16.00",
 			img: "5",
-			desc: "浓郁咖啡风味与黑巧克力块的浪漫碰撞。醇厚的咖啡苦香烘托出巧克力的甜美，回味悠长，唤醒每一个慵懒的早晨。",
+			desc: "浓郁咖啡风味与黑巧克力块、香脆核桃仁的浪漫碰撞。醇厚的咖啡苦香烘托出巧克力的甜美与核桃油脂香，回味悠长，唤醒每一个慵懒的早晨。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、浓缩咖啡液、黑巧克力粒、烤核桃仁、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）、树坚果（核桃）、乳制品、大豆成分。",
 			gallery: ["5", "5-hover", "5-detail-1"]
 		},
 		{
@@ -510,6 +539,8 @@ MaiRijiApp.prototype = {
 			price: "16.00",
 			img: "6",
 			desc: "严选优质抹茶粉，呈现幽雅的自然茶绿。搭配酸甜可口的蔓越莓干，抹茶的微苦与果干的甘甜互补，茶香余韵悠长。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、优质抹茶粉、蔓越莓干、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）。",
 			gallery: ["6", "6-hover"]
 		},
 		{
@@ -517,7 +548,9 @@ MaiRijiApp.prototype = {
 			name: "青稞核桃欧包",
 			price: "16.00",
 			img: "7",
-			desc: "融入营养丰富的熟青稞与烤核桃粒。青稞特有的谷物粗粝感与坚果油脂香气相结合，越嚼越香，健康又有嚼劲。",
+			desc: "融入营养丰富的西藏青稞粉、烤核桃粒与香脆南瓜籽。青稞特有的谷物香气与坚果油脂香、南瓜籽交织，越嚼越香，健康更有嚼劲。",
+			ingredients: "日本高筋小麦粉、中国西藏青稞粉、烤核桃仁、香脆南瓜籽、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、青稞）、树坚果（核桃）、种子类（南瓜籽）。",
 			gallery: ["7", "7-hover", "7-detail-1"]
 		},
 		{
@@ -525,7 +558,9 @@ MaiRijiApp.prototype = {
 			name: "红茶橙皮欧包",
 			price: "16.50",
 			img: "8",
-			desc: "醇厚红茶汤揉面，搭配糖渍橙皮丁。茶香温润，橙皮清甜微苦，每一口都能感受到柑橘与红茶的雅致韵味。",
+			desc: "伯爵红茶粉揉面，搭配糖渍橙皮皮屑与蔓越莓干。佛手柑茶香温润，橙皮清甜与蔓越莓酸甜交织，雅致韵味十足。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、伯爵红茶粉、糖渍橙皮皮屑、蔓越莓干、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）。",
 			gallery: ["8", "8-hover"]
 		},
 		{
@@ -533,7 +568,9 @@ MaiRijiApp.prototype = {
 			name: "蜂蜜金瓜南瓜籽欧包",
 			price: "16.50",
 			img: "9",
-			desc: "融入纯正蜂蜜与新鲜南瓜泥，表层撒满香脆南瓜籽。面包体绵软带有天然甜香，南瓜籽增加香脆嚼劲，营养满分。",
+			desc: "融入纯正蜂蜜与新鲜南瓜泥，包裹着绵软的烤南瓜丁，撒满香脆南瓜籽。天然甜香与多重南瓜层次交织，口感软糯香脆。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、新鲜南瓜泥、纯正蜂蜜、烤南瓜丁、香脆南瓜籽、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）、种子类（南瓜籽）。",
 			gallery: ["9", "9-hover"]
 		},
 		{
@@ -542,6 +579,8 @@ MaiRijiApp.prototype = {
 			price: "17.00",
 			img: "10",
 			desc: "纯红肉火龙果榨汁揉面，呈现梦幻的天然粉红色。包裹着浓郁绵密的奶油奶酪夹心，果香与奶香交织，颜值与美味兼备。",
+			ingredients: "日本高筋小麦粉、德国裸麦粉、新鲜红肉火龙果、奶油奶酪夹心、水、酸种酵母、玫瑰盐。",
+			allergens: "含有麸质（小麦、裸麦）、乳制品（奶油奶酪）。",
 			gallery: ["10", "10-hover"]
 		}];
 
@@ -553,6 +592,8 @@ MaiRijiApp.prototype = {
 			img: "1",
 			status: 'coming_soon',
 			desc: "A heavenly double-layer creation featuring a velvety unbaked mascarpone mousse on top, a rich baked cheesecake in the middle, and a crispy caramelized cookie base. A melt-in-your-mouth indulgence infused with warm amber caramel notes.",
+			ingredients: "Mascarpone cheese, sour cream, cream cheese, caramel biscuit crust, fresh cream, eggs, sugar, butter.",
+			allergens: "Contains Milk, Eggs, Gluten (Wheat), Soy.",
 			gallery: ["1", "1-hover"]
 		}] : [
 		{
@@ -562,6 +603,8 @@ MaiRijiApp.prototype = {
 			img: "1",
 			status: 'coming_soon',
 			desc: "底座是香脆的焦糖饼干，中层是浓郁醇厚的烘焙芝士，顶层则是如云朵般轻盈的生乳酪慕斯。温暖焦香与丝滑奶香完美交织，带来层次丰富、入口即化的奢华体验。",
+			ingredients: "马斯卡彭乳酪、酸奶油、奶油芝士、焦糖饼干底、新鲜奶油、鸡蛋、砂糖、黄油。",
+			allergens: "含有乳制品（奶油、奶酪）、鸡蛋、麸质（小麦/焦糖饼干底）、大豆成分。",
 			gallery: ["1", "1-hover"]
 		}];
 
@@ -1020,27 +1063,78 @@ MaiRijiApp.prototype = {
 				}
 			}
 		});
+
+		// 手风琴折叠展开交互
+		$(document).on('click', '.accordion-header', function () {
+			var $btn = $(this);
+			var $content = $btn.next('.accordion-content');
+			
+			$btn.toggleClass('active');
+			$content.stop().slideToggle(250); // 平滑展开或折叠
+		});
 	},
 
 	openProductDetail: function (type, id)
 	{
-		var self = this; // 💡 重点：声明 self 指向 MaiRijiApp 实例
+		var self = this;
 		var isEnglish = this.getCurrentLanguage() === 'en';
 
 		// 查找产品数据
 		var products = type === 'cake' ? this.cakeProducts : this.breadProducts;
-		var item = products.filter(function (p)
-		{
-			return p.id === id;
-		})[0];
+		var item = products.filter(function (p) { return p.id === id; })[0];
 		if (!item) return;
 
 		var folder = type === 'cake' ? 'cake' : 'bread';
 
-		// 1. 填入文字信息
+		// 1. 填入基础文字信息
 		$('#detail-title').text(item.name);
 		$('#detail-price').text('RM ' + item.price);
 		$('#detail-text').html(item.desc);
+
+		// 🌟 2. 每次打开时，重置所有折叠项为隐藏状态
+		$('.accordion-header').removeClass('active');
+		$('.accordion-content').hide();
+
+		// 🌟 3. 填充【成分表】
+		var ingredientsText = item.ingredients || (
+			type === 'cake' ?
+			(isEnglish ? "Fresh cream, mascarpone, cream cheese, caramel biscuit, eggs, sugar, butter." : "新鲜奶油、马斯卡彭乳酪、奶油芝士、焦糖饼干底、鸡蛋、幼细砂糖、黄油。") :
+			(isEnglish ? "High-protein wheat flour, water, natural wild yeast sourdough starter, pink salt." : "日本高筋小麦粉、德国裸麦粉、水、酸种酵母、玫瑰盐。")
+		);
+		$('#detail-ingredients').text(ingredientsText);
+
+		// 🌟 动态填入【过敏原提示】
+		var allergensText = item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。");
+		$('#detail-allergens').text(allergensText);
+
+		// 🌟 4. 填充【保存建议】与【加热/食用建议】
+		if (type === 'cake') {
+			// 蛋糕类提示
+			$('#detail-storage').text(
+				isEnglish ?
+				"Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture." :
+				"需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。"
+			);
+			$('#detail-reheat-title').text(isEnglish ? "Serving Suggestion" : "食用建议");
+			$('#detail-reheat').text(
+				isEnglish ?
+				"Take out from fridge and let it rest at room temperature for 10-15 minutes before serving for a softer, silkier texture." :
+				"冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。"
+			);
+		} else {
+			// 酸种欧包类提示
+			$('#detail-storage').text(
+				isEnglish ?
+				"• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread)." :
+				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流失与淀粉老化）。"
+			);
+			$('#detail-reheat-title').text(isEnglish ? "Reheating Suggestions" : "加热复酥建议");
+			$('#detail-reheat').text(
+				isEnglish ?
+				"1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy." :
+				"1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。"
+			);
+		}
 
 		// 2. 替换顶部大图
 		var heroUrl = 'assets/img/' + folder + '/' + item.img + '.webp';

@@ -1428,3 +1428,161 @@ body.no-scroll .main-header {
         margin-bottom: 12px !important;
     }
 }
+
+/* ==========================================================================
+   🍞 麦日记专属 · 温馨手作风手风琴折叠面板
+   ========================================================================== */
+
+/* 主包裹卡片 */
+.detail-accordions {
+    margin: 30px 0;
+    padding: 6px 12px;
+    background-color: #faf6ee; /* 暖麦色小卡片背景 */
+    border: 1px solid #eadcd2;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(90, 58, 34, 0.03);
+}
+
+.accordion-item {
+    border-bottom: 1px dashed #e4d5c7;
+    transition: background-color 0.25s ease;
+    border-radius: 8px;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+/* 标头按钮 */
+.accordion-header {
+    width: 100%;
+    padding: 14px 10px;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #5a3a22;
+    cursor: pointer;
+    text-align: left;
+    outline: none;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.accordion-header:hover {
+    background-color: rgba(240, 230, 216, 0.5);
+    color: #8b5e3c;
+}
+
+/* 标头文字小装饰点 */
+.accordion-header span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.accordion-header span::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #d8c8b7;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.accordion-header:hover span::before,
+.accordion-header.active span::before {
+    background-color: #8b5e3c;
+    transform: scale(1.3);
+}
+
+/* 右侧圆纽扣箭头指示器 */
+.accordion-icon-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #f0e5d8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    flex-shrink: 0;
+}
+
+.accordion-icon-badge svg {
+    color: #8b5e3c;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s ease;
+}
+
+/* 激活展开状态：圆纽扣变深色，箭头翻转 */
+.accordion-header.active .accordion-icon-badge {
+    background-color: #8b5e3c;
+}
+
+.accordion-header.active .accordion-icon-badge svg {
+    color: #ffffff;
+    transform: rotate(180deg);
+}
+
+/* 展开内容内盒 (类似小便签纸) */
+.accordion-content {
+    display: none;
+    padding: 0 10px 14px;
+}
+
+.accordion-content-inner {
+    background-color: #ffffff;
+    border: 1px solid #f0e5d8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: #555555;
+    line-height: 1.7;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.accordion-content-inner p {
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* 📱 移动端小屏微调 */
+@media screen and (max-width: 768px) {
+    .detail-accordions {
+        margin: 20px 0;
+        padding: 4px 8px;
+    }
+    .accordion-header {
+        font-size: 14px;
+        padding: 12px 6px;
+    }
+    .accordion-icon-badge {
+        width: 24px;
+        height: 24px;
+    }
+    .accordion-icon-badge svg {
+        width: 14px;
+        height: 14px;
+    }
+    .accordion-content-inner {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+/* 🌟 过敏原专用温和提示盒 */
+.accordion-content-inner.allergen-box {
+    background-color: #fcf4ec; /* 柔和暖杏色底 */
+    border: 1px solid #f2dfd3;
+    border-left: 3px solid #c87a57; /* 醒目但不刺眼的暖陶色左侧边条 */
+    color: #6a3e2b;
+}
+
+.accordion-content-inner.allergen-box p {
+    font-weight: 500;
+}
