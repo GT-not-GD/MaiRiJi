@@ -453,9 +453,14 @@
                 <input type="text" id="cust-name" placeholder="例如：陈小姐 / Mr. Tan">
             </div>
             <div class="form-group">
-                <label for="cust-address">配送地址 / 取货说明 <span class="required">*</span></label>
-                <textarea id="cust-address" rows="3" placeholder="请输入详细配送地址（如自提请输入“自提 / Self Pick-up”）" required></textarea>
-            </div>
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+					<label for="cust-address" style="margin-bottom: 0;">配送地址 / 取货说明 <span class="required">*</span></label>
+					<button type="button" id="get-gps-btn" class="gps-btn" title="点击自动定位当前位置">
+						📍 一键定位
+					</button>
+				</div>
+				<textarea id="cust-address" rows="3" placeholder="请输入详细配送地址（或点击右上方“一键定位”）" required></textarea>
+			</div>
             <div class="form-group">
                 <label for="cust-date">期望取货 / 送货日期 <span class="required">*</span></label>
                 <input type="date" id="cust-date" required>

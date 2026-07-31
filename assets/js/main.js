@@ -953,6 +953,13 @@ MaiRijiApp.prototype = {
                 }, 800);
             }
         });
+
+		// P. GPS 一键定位点击事件
+		$(document).on('click', '#get-gps-btn', function (e)
+		{
+			e.preventDefault();
+			$this.fetchGPSLocation();
+		});
 	},
 
 	openProductDetail: function (type, id)
@@ -1803,6 +1810,78 @@ MaiRijiApp.prototype = {
         if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open')) {
             $('body').removeClass('no-scroll');
         }
+    },
+
+	fetchGPSLocation: function ()
+    {
+        var $btn = $('#get-gps-btn');
+        var $addressInput = $('#cust-address');
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
+        if (!navigator.geolocation)
+        {
+            alert(isEnglish ? "Your browser does not support GPS geolocation." : "您的浏览器不支持 GPS 地理定位。");
+            return;
+        }
+
+        var originalText = isEnglish ? "📍 Detect Location" : "📍 一键定位";
+        $btn.addClass('loading').text(isEnglish ? "⌛ Locating..." : "⌛ 定位中...");
+
+        navigator.geolocation.getCurrentPosition(
+            function (position)
+            {
+                var lat = position.coords.latitude.toFixed(6);
+                var lng = position.coords.longitude.toFixed(6);
+                var googleMapsUrl = "https://maps.google.com/?q=" + lat + "," + lng;
+
+                // 使用免费的 OpenStreetMap 接口逆解析门牌地址
+                var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + lat + "&lon=" + lng;
+
+                fetch(reverseUrl, {
+                    headers: {
+                        'Accept-Language': isEnglish ? 'en' : 'zh-CN,zh'
+                    }
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var addressName = data.display_name || (isEnglish ? "GPS Location" : "GPS 位置");
+                    var formattedText = addressName + "\n📍 Google Maps: " + googleMapsUrl;
+                    
+                    $addressInput.val(formattedText);
+                    $btn.removeClass('loading').text(originalText);
+                })
+                .catch(function() {
+                    // 即使网络逆解析失败，也依然填入精确定位坐标和 Google Maps 链接
+                    var formattedText = (isEnglish ? "GPS Coordinates: " : "GPS 坐标位置：") + lat + ", " + lng + "\n📍 Google Maps: " + googleMapsUrl;
+                    $addressInput.val(formattedText);
+                    $btn.removeClass('loading').text(originalText);
+                });
+            },
+            function (error)
+            {
+                $btn.removeClass('loading').text(originalText);
+                switch (error.code)
+                {
+                    case error.PERMISSION_DENIED:
+                        alert(isEnglish ? "Location access denied. Please allow location permissions in your browser." : "定位请求被拒绝。请在浏览器提示时开启位置权限。");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert(isEnglish ? "Location information unavailable." : "无法获取您当前的位置信息。");
+                        break;
+                    case error.TIMEOUT:
+                        alert(isEnglish ? "Location request timed out. Please try again." : "获取位置超时，请重试。");
+                        break;
+                    default:
+                        alert(isEnglish ? "An unknown error occurred while detecting location." : "获取定位时发生未知错误。");
+                        break;
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
     },
 
 };

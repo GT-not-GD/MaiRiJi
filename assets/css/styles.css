@@ -1311,3 +1311,32 @@ body.no-scroll .main-header {
     max-height: 90dvh !important;
     overflow-y: auto;
 }
+
+/* ==========================================================================
+   18. GPS 一键定位按钮样式
+   ========================================================================== */
+.gps-btn {
+    background: #f4eae0;
+    color: #8b5e3c;
+    border: 1px solid #d8c8b7;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    outline: none;
+}
+.gps-btn:hover {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
+    box-shadow: 0 2px 8px rgba(139, 94, 60, 0.2);
+}
+.gps-btn.loading {
+    opacity: 0.7;
+    cursor: wait;
+}
