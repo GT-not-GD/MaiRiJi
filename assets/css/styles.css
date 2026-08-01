@@ -177,7 +177,7 @@ section.pbig { padding: 75px 0 75px; }
 @media only screen and (min-width: 769px) and (max-width: 1199px) {
     .main-header a#logo { width: 140px !important; }
     .main-header a#logo img { transform: translateX(-50%) translateY(-50%) scale(0.75) !important; }
-    .main-header nav.main-nav ul li { padding: 0 15px !important; }
+    .main-header nav.main-nav ul li { padding: 0 15px !important; } 
     .main-header nav.main-nav ul li a { font-size: 13px !important; letter-spacing: 1px !important; width: auto !important; white-space: nowrap; }
     .main-header nav.main-nav ul li:nth-child(2) { padding-right: 90px !important; }
     .main-header nav.main-nav ul li:nth-child(3) { padding-left: 90px !important; }
@@ -1599,4 +1599,57 @@ body.no-scroll .main-header {
 
 .accordion-content-inner.allergen-box p {
     font-weight: 500;
+}
+
+/* ==========================================================================
+   🍞 麦日记全站统一 Toast 悬浮提示条 (替代原生 alert)
+   ========================================================================== */
+#app-toast-msg {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translate(-50%, -20px);
+    background-color: #5a3a22; /* 麦日记暖咖啡色 */
+    color: #fbf9f4;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14.5px;
+    font-weight: 600;
+    box-shadow: 0 8px 25px rgba(90, 58, 34, 0.25);
+    border: 1px solid #8b5e3c;
+    z-index: 200000; /* 最高层级，置顶于弹窗与抽屉 */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* 激活弹出状态 */
+#app-toast-msg.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+/* 📱 移动端小屏自适应 */
+@media screen and (max-width: 768px) {
+    #app-toast-msg {
+        top: 15px;
+        font-size: 13px;
+        padding: 10px 18px;
+        max-width: 85vw;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.5;
+    }
+}
+
+/* 感谢弹窗最高层级控制 */
+#thankyou-modal-backdrop {
+    z-index: 100020 !important;
+}
+#thankyou-modal {
+    z-index: 100021 !important;
+    max-width: 400px;
 }

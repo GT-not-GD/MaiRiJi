@@ -523,14 +523,35 @@
                 <input type="text" id="cust-name" placeholder="e.g. Ms. Tan / John">
             </div>
             <div class="form-group">
-				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-					<label for="cust-address" style="margin-bottom: 0;">Delivery Address / Pickup Note <span class="required">*</span></label>
-					<button type="button" id="get-gps-btn" class="gps-btn" title="Detect current GPS location">
-						📍 Detect Location
-					</button>
-				</div>
-				<textarea id="cust-address" rows="3" placeholder="Enter full address for delivery, or click 'Detect Location'" required></textarea>
+				<label for="cust-delivery-zone">Delivery Method / Area <span class="required">*</span></label>
+				<select id="cust-delivery-zone" style="width: 100%; padding: 10px 12px; border: 1px solid #d8c8b7; border-radius: 6px; font-size: 14px; color: #333; background: #fff;">
+					<option value="tj_sepat">🛵 Tanjong Sepat Area (Home Delivery)</option>
+					<option value="banting">🚚 Banting Area (By Prior Arrangement)</option>
+					<option value="pickup">🏡 Self-Pickup (Tanjong Sepat Bakery)</option>
+					<option value="other">⚠️ Other Areas (No Delivery Available)</option>
+				</select>
+
+				<!-- 内联温馨提示栏 -->
+				<div id="zone-notice" class="form-tip" style="display: none; margin-top: 8px; background-color: #fdf2e9; border-left: 3px solid #e67e22; color: #a04000;"></div>
 			</div>
+
+			<div class="form-group" id="cust-address-group">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+					<label for="cust-address" style="margin-bottom: 0;">Delivery Address <span class="required">*</span></label>
+					<button type="button" id="get-gps-btn" class="gps-btn" title="Detect Location">📍 Detect Location</button>
+				</div>
+				<textarea id="cust-address" rows="3" placeholder="Enter full address or click 'Detect Location'" required></textarea>
+			</div>
+
+			<!-- 🌟 Self-Pickup Location Card -->
+			<div id="cust-pickup-info" class="form-tip" style="display: none; background-color: #f7ece1; border-left: 3px solid #8b5e3c; color: #5a3a22; margin-top: 10px; padding: 12px; border-radius: 6px;">
+				<p style="font-weight: 700; margin-bottom: 4px; color: #5a3a22;">📍 Self-Pickup Location:</p>
+				<p style="margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; color: #333;">65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat</p>
+				<a href="https://maps.google.com/?q=65,+Jalan+Pelangi+12,+Taman+Pelangi,+42800+Tanjong+Sepat" target="_blank" rel="noopener" style="color: #8b5e3c; text-decoration: underline; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px;">
+					🗺️ Open in Google Maps
+				</a>
+			</div>
+
             <div class="form-group">
                 <label for="cust-date">Preferred Delivery / Pickup Date <span class="required">*</span></label>
                 <input type="date" id="cust-date" required>
@@ -587,6 +608,27 @@
 				</span>
 			</button>
         </form>
+    </div>
+</div>
+
+<!-- 🌟 Thank You Modal -->
+<div id="thankyou-modal-backdrop" class="modal-backdrop"></div>
+<div id="thankyou-modal" class="checkout-modal thankyou-modal" style="text-align: center;">
+    <div class="modal-body" style="padding: 25px 20px 20px;">
+        <div style="font-size: 45px; margin-bottom: 12px; animation: bounce 2s infinite;">🍞</div>
+        <h3 style="font-family: 'Playfair Display', 'Noto Serif SC', serif; color: #5a3a22; font-size: 22px; margin-bottom: 12px; font-weight: 700;">
+            Thank You for Your Order!
+        </h3>
+        <p style="font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 22px;">
+            Your order has been redirected to WhatsApp.<br>
+            We will confirm your fermentation schedule and delivery/pickup timing with you shortly.
+        </p>
+        <button type="button" class="wheat-btn" id="close-thankyou-btn" style="margin: 0 auto; width: 80%; padding: 10px;">
+            <span class="btn-text-wrapper">
+                <span class="btn-txt default">Continue Browsing</span>
+                <span class="btn-txt hover">Done!</span>
+            </span>
+        </button>
     </div>
 </div>
 

@@ -517,19 +517,42 @@
     </div>
     <div class="modal-body">
         <form id="checkout-form" novalidate>
+            <!-- 联系姓名 -->
+			<div class="form-group">
+				<label for="cust-name">联系姓名 <span class="optional">(可选)</span></label>
+				<input type="text" id="cust-name" placeholder="例如：陈小姐 / Mr. Tan">
+			</div>
+			<!-- 配送区域与方式选择 -->
             <div class="form-group">
-                <label for="cust-name">联系姓名 <span class="optional">(可选)</span></label>
-                <input type="text" id="cust-name" placeholder="例如：陈小姐 / Mr. Tan">
-            </div>
-            <div class="form-group">
+				<label for="cust-delivery-zone">配送方式 / 区域 <span class="required">*</span></label>
+				<select id="cust-delivery-zone" style="width: 100%; padding: 10px 12px; border: 1px solid #d8c8b7; border-radius: 6px; font-size: 14px; color: #333; background: #fff;">
+					<option value="tj_sepat">🛵 Tanjong Sepat 地区送货上门</option>
+					<option value="banting">🚚 Banting 地区（需事先沟通安排）</option>
+					<option value="pickup">🏡 到店自提（Tanjong Sepat）</option>
+					<option value="other">⚠️ 其他区域（暂无配送服务）</option>
+				</select>
+				<!-- 内联温馨提示栏 -->
+				<div id="zone-notice" class="form-tip" style="display: none; margin-top: 8px; background-color: #fdf2e9; border-left: 3px solid #e67e22; color: #a04000;"></div>
+			</div>
+
+			<!-- 地址输入框外包裹一个容器，方便自提时动态隐藏 -->
+			<div class="form-group" id="cust-address-group">
 				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-					<label for="cust-address" style="margin-bottom: 0;">配送地址 / 取货说明 <span class="required">*</span></label>
-					<button type="button" id="get-gps-btn" class="gps-btn" title="点击自动定位当前位置">
-						📍 一键定位
-					</button>
+					<label for="cust-address" style="margin-bottom: 0;">详细配送地址 <span class="required">*</span></label>
+					<button type="button" id="get-gps-btn" class="gps-btn" title="点击自动定位当前位置">📍 一键定位</button>
 				</div>
 				<textarea id="cust-address" rows="3" placeholder="请输入详细配送地址（或点击右上方“一键定位”）" required></textarea>
 			</div>
+
+			<!-- 🌟 到店自提地址展示卡片（选择自提时显示） -->
+			<div id="cust-pickup-info" class="form-tip" style="display: none; background-color: #f7ece1; border-left: 3px solid #8b5e3c; color: #5a3a22; margin-top: 10px; padding: 12px; border-radius: 6px;">
+				<p style="font-weight: 700; margin-bottom: 4px; color: #5a3a22;">📍 麦日记工坊自提地址：</p>
+				<p style="margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; color: #333;">65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat</p>
+				<a href="https://maps.google.com/?q=65,+Jalan+Pelangi+12,+Taman+Pelangi,+42800+Tanjong+Sepat" target="_blank" rel="noopener" style="color: #8b5e3c; text-decoration: underline; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px;">
+					🗺️ 点击打开 Google Maps 导航
+				</a>
+			</div>
+
             <div class="form-group">
                 <label for="cust-date">期望取货 / 送货日期 <span class="required">*</span></label>
                 <input type="date" id="cust-date" required>
@@ -586,6 +609,27 @@
 				</span>
 			</button>
         </form>
+    </div>
+</div>
+
+<!-- 🌟 【新增】感谢预定弹窗 (Thank You Modal) -->
+<div id="thankyou-modal-backdrop" class="modal-backdrop"></div>
+<div id="thankyou-modal" class="checkout-modal thankyou-modal" style="text-align: center;">
+    <div class="modal-body" style="padding: 25px 20px 20px;">
+        <div style="font-size: 45px; margin-bottom: 12px; animation: bounce 2s infinite;">🍞</div>
+        <h3 style="font-family: 'Playfair Display', 'Noto Serif SC', serif; color: #5a3a22; font-size: 22px; margin-bottom: 12px; font-weight: 700;">
+            感谢您的预定！
+        </h3>
+        <p style="font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 22px;">
+            订单已跳转至 WhatsApp。<br>
+            我们将尽快与您确认发酵排单及具体送货/自提时间，期待为您带来手作烘焙的温暖风味！
+        </p>
+        <button type="button" class="wheat-btn" id="close-thankyou-btn" style="margin: 0 auto; width: 80%; padding: 10px;">
+            <span class="btn-text-wrapper">
+                <span class="btn-txt default">继续浏览 / 完成</span>
+                <span class="btn-txt hover">完成!</span>
+            </span>
+        </button>
     </div>
 </div>
 

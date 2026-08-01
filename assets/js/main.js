@@ -966,7 +966,7 @@ MaiRijiApp.prototype = {
             e.preventDefault();
             if (!$this.cart || $this.cart.length === 0)
             {
-                alert($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
+                $this.showToast($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
                 return;
             }
             $this.openCheckoutModal();
@@ -979,31 +979,64 @@ MaiRijiApp.prototype = {
         });
 
         $('#checkout-form').off('submit').on('submit', function (e)
-        {
-            e.preventDefault();
-            var $btn = $(this).find('.wheat-btn');
-            var name = $('#cust-name').val().trim();
-            var address = $('#cust-address').val().trim();
-            var date = $('#cust-date').val();
+		{
+			e.preventDefault();
+			var $btn = $(this).find('.wheat-btn');
+			var name = $('#cust-name').val().trim();
+			var address = $('#cust-address').val().trim();
+			var date = $('#cust-date').val();
+			var zoneVal = $('#cust-delivery-zone').val();
+			var isEnglish = $this.getCurrentLanguage() === 'en';
 
-            if (!address || !date)
-            {
-                alert($this.getCurrentLanguage() === 'en' ? 'Please fill in required fields.' : '请填写完整配送地址和期望日期。');
-                return;
-            }
+			if (zoneVal === 'other') {
+				$this.showToast(isEnglish ? "Delivery is unavailable for other areas. Please select Self-Pickup." : "其他区域暂无配送服务，请选择【到店自提】哦！");
+				return;
+			}
 
-            // 🌟 提交时自动记录姓名和地址，方便下次使用
-            if (name) localStorage.setItem('mairiji_cust_name', name);
-            if (address) localStorage.setItem('mairiji_cust_address', address);
+			if ((zoneVal !== 'pickup' && !address) || !date)
+			{
+				$this.showToast(isEnglish ? 'Please fill in required fields.' : '请填写完整配送地址和期望日期。');
+				return;
+			}
 
-            $btn.addClass('clicked');
+			// 格式化配送区域标题
+			var zoneLabels = {
+				tj_sepat: isEnglish ? "Tanjong Sepat Delivery" : "Tanjong Sepat 地区送货",
+				banting: isEnglish ? "Banting Area (Arrangement Needed)" : "Banting 地区（需沟通安排）",
+				pickup: isEnglish ? "Self-Pickup (Tanjong Sepat)" : "Tanjong Sepat 店面自提"
+			};
+			var deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
 
-            setTimeout(function() {
-                $this.closeCheckoutModal();
-                $this.checkoutWhatsApp({ name: name, address: address, date: date });
-                $btn.removeClass('clicked');
-            }, 800);
-        });
+			// 记录历史输入
+			if (name) localStorage.setItem($this.config.storageKeys.custName, name);
+			if (address && zoneVal !== 'pickup') localStorage.setItem($this.config.storageKeys.custAddress, address);
+
+			$btn.addClass('clicked');
+
+			setTimeout(function() {
+				$this.closeCheckoutModal();
+				
+				// 1. 打开 WhatsApp 订单
+				$this.checkoutWhatsApp({ 
+					name: name, 
+					address: address, 
+					date: date,
+					deliveryZone: deliveryZoneText 
+				});
+
+				// 🌟 2. 弹出现在网页上的感谢弹窗
+				$('#thankyou-modal-backdrop').addClass('show');
+				$('#thankyou-modal').addClass('show');
+				$('body').addClass('no-scroll');
+
+				// 🌟 3. 订单完成后，自动清空购物篮数据并刷新界面
+				$this.cart = [];
+				$this.saveCart();
+				$this.updateCartUI();
+
+				$btn.removeClass('clicked');
+			}, 800);
+		});
 
         // 点击 Instagram 极简快门按钮：播放闪光灯动画并跳转
         $('#insta-flash-btn').on('click', function(e) {
@@ -1051,7 +1084,7 @@ MaiRijiApp.prototype = {
 			var isEnglish = $this.getCurrentLanguage() === 'en';
 
 			if (!unit) {
-				alert(isEnglish ? 'Please enter your house or unit number.' : '请补充填写门牌号或楼层单位。');
+				$this.showToast(isEnglish ? 'Please enter your house or unit number.' : '请补充填写门牌号或楼层单位。');
 				return;
 			}
 
@@ -1100,6 +1133,55 @@ MaiRijiApp.prototype = {
 			var isExpanded = $btn.toggleClass('active').hasClass('active');
 			$btn.attr('aria-expanded', isExpanded); // 🌟 实时同步展开/收起状态
 			$content.stop().slideToggle(250);
+		});
+
+		// 配送区域/方式切换监听
+		$(document).on('change', '#cust-delivery-zone', function () {
+			var val = $(this).val();
+			var isEnglish = $this.getCurrentLanguage() === 'en';
+			var $addressGroup = $('#cust-address-group');
+			var $notice = $('#zone-notice');
+			var $pickupInfo = $('#cust-pickup-info');
+
+			// 麦日记自提固定地址
+			var pickupAddress = "65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat";
+
+			if (val === 'pickup') {
+				// 选择到店自提：隐藏地址输入框，展开自提地址与导航卡片
+				$addressGroup.slideUp(200);
+				$notice.slideUp(200);
+				$pickupInfo.slideDown(200);
+				
+				// 自动将固定自提地址写入后台数据框
+				$('#cust-address').val(pickupAddress + " (店面自提)");
+			} else if (val === 'other') {
+				// 选择其他区域
+				$addressGroup.slideUp(200);
+				$pickupInfo.slideUp(200);
+				$notice.html(isEnglish ? 
+					"⚠️ Sorry, we currently only deliver to <strong>Tanjong Sepat</strong> & <strong>Banting</strong>. Please select <strong>Self-Pickup</strong>." : 
+					"⚠️ 抱歉！我们目前仅提供 <strong>Tanjong Sepat</strong> 配送及 <strong>Banting</strong> 地区安排配送。其他区域欢迎选择<strong>【到店自提】</strong>哦！"
+				).slideDown(200);
+				
+				$('#cust-address').val('');
+			} else {
+				// Tanjong Sepat 或 Banting 送货上门
+				$addressGroup.slideDown(200);
+				$notice.slideUp(200);
+				$pickupInfo.slideUp(200);
+				
+				// 清除自提地址残留
+				if ($('#cust-address').val().indexOf("Taman Pelangi") !== -1) {
+					$('#cust-address').val('');
+				}
+			}
+		});
+
+		// 关闭感谢弹窗
+		$('#close-thankyou-btn, #thankyou-modal-backdrop').on('click', function () {
+			$('#thankyou-modal-backdrop').removeClass('show');
+			$('#thankyou-modal').removeClass('show');
+			$('body').removeClass('no-scroll');
 		});
 	},
 
@@ -1853,7 +1935,7 @@ MaiRijiApp.prototype = {
     {
         if (!this.cart || this.cart.length === 0)
         {
-            alert(this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
+            $this.showToast($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
             return;
         }
 
@@ -1868,14 +1950,17 @@ MaiRijiApp.prototype = {
             "你好，麦日记！我想预定以下商品：\n\n";
 
         if (customerData)
-        {
-            msg += isEnglish ? "【Customer Info】\n" : "【预定信息】\n";
-            if (customerData.name) {
-                msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + "\n";
-            }
-            msg += (isEnglish ? "Address / Pickup: \n" : "配送地址/说明：\n") + customerData.address + "\n";
-            msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
-        }
+		{
+			msg += isEnglish ? "【Customer & Delivery Info】\n" : "【预定与配送信息】\n";
+			if (customerData.deliveryZone) {
+				msg += (isEnglish ? "Type/Zone: " : "配送/取货方式：") + customerData.deliveryZone + "\n";
+			}
+			if (customerData.name) {
+				msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + "\n";
+			}
+			msg += (isEnglish ? "Address/Note: \n" : "地址/说明：\n") + customerData.address + "\n";
+			msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
+		}
 
         msg += isEnglish ? "【Order Details】\n" : "【商品明细】\n";
 
@@ -1982,7 +2067,7 @@ MaiRijiApp.prototype = {
 
         if (!navigator.geolocation)
         {
-            alert(isEnglish ? "Your browser does not support GPS geolocation." : "您的浏览器不支持 GPS 地理定位。");
+            $this.showToast(isEnglish ? "GPS geolocation is not supported." : "您的浏览器不支持 GPS 地理定位。");
             $('#gps-loading-status').html(isEnglish ? "❌ GPS not supported." : "❌ 浏览器不支持 GPS");
             return;
         }
@@ -2029,4 +2114,22 @@ MaiRijiApp.prototype = {
         );
     },
 
+	// 🍞 麦日记通用 Toast 悬浮提示条工具函数
+	showToast: function (msg, duration)
+	{
+		duration = duration || 2500;
+		var $toast = $('#app-toast-msg');
+		
+		// 如果页面上还没有容器，动态生成一个
+		if ($toast.length === 0) {
+			$toast = $('<div id="app-toast-msg"></div>').appendTo('body');
+		}
+		
+		$toast.text(msg).addClass('show');
+		
+		clearTimeout(this.toastTimer);
+		this.toastTimer = setTimeout(function () {
+			$toast.removeClass('show');
+		}, duration);
+	},
 };
