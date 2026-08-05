@@ -1,0 +1,186 @@
+{
+  "zh": {
+    "nav": {
+      "home": "首页",
+      "menu": "菜单",
+      "diary": "日记",
+      "about": "关于我"
+    },
+    "hero": {
+      "home_title": "记录每一次烘焙的<br>温度与故事",
+      "explore_menu": "探索风味",
+      "menu_bread_title": "品味每一口发酵的<br>时间与风味",
+      "menu_cake_title": "为甜蜜时刻准备一份<br>精致蛋糕",
+      "view_bread": "浏览欧包",
+      "view_cake": "浏览蛋糕"
+    },
+    "philosophy": {
+      "title": "我们的烘焙哲学",
+      "p1": "《麦日记》，是我们与面粉、水和酵母对话的日记。这里记录的并非冰冷的配方，而是每一次烘焙背后的灵感、情绪与故事。",
+      "p2": "我坚信，最好的味道源于最纯粹的食材和最耐心的守候。在这里，我想与你分享这份源自手作的温暖，以及烘焙带给我的简单快乐。让我们一起，用双手创造生活中的美好点滴。"
+    },
+    "ambiance": {
+      "title": "氛围与风味",
+      "subtitle": "The Ambiance & Flavor"
+    },
+    "diary": {
+      "quote": "“今天午后，阳光正好。我尝试在面团里加入了昨天新买的桂花干，烤箱运作时，整个屋子都弥漫着秋天的香气。那一刻我明白，烘焙于我而言，更像是一场温柔的创作。”",
+      "author": "—— 麦日记，十一月三日",
+      "read_more": "阅读更多日记"
+    },
+    "menu": {
+      "bread_intro_title": "时间的馈赠：我们的酸种欧包",
+      "bread_intro_p1": "我们相信，最好的风味源自最纯粹的食材与最耐心的守候。每一颗欧包，都始于我们亲手培育的天然酵母，经过超过18小时的低温长时间发酵，让麦香与风味物质得以缓慢、充分地孕育。",
+      "bread_intro_p2": "这不仅赋予了面包深邃、微酸的独特风味，更让面包体变得湿润、柔软且易于消化。这是我们对传统的致敬，也是献给您的、来自时间的馈赠。",
+      "cake_intro_title": "甜蜜时刻：我们的蛋糕",
+      "cake_intro_p1": "每一款蛋糕都以柔软的口感、细腻的奶香和精致的装饰为核心，像一段被认真准备的甜蜜时刻。我们用新鲜奶油、优质原料与细致手法，让每一次分享都更有仪式感。",
+      "cake_intro_p2": "无论是生日、庆祝还是日常小小惊喜，这里的蛋糕都希望把幸福和温柔一口一口地送到你手中。",
+      "tab_bread": "Bread / 欧包",
+      "tab_cake": "Cake / 蛋糕",
+      "bread_title": "Sourdough / 酸种欧包",
+      "cake_title": "Cake / 蛋糕",
+      "coming_soon": "敬请期待"
+    },
+    "cart": {
+      "title": "你的购物篮",
+      "empty": "你的购物篮还是空的 🥖",
+      "total": "总计 Total:",
+      "checkout_btn_default": "WhatsApp 结算预定",
+      "checkout_btn_hover": "Send Order!"
+    },
+    "detail": {
+      "add_to_cart": "加进购物篮",
+      "inquire_btn": "询问预售 / 上市时间",
+      "acc_ingredients": "配料成分",
+      "acc_allergens": "过敏原提示",
+      "acc_storage": "保存建议",
+      "acc_reheat": "加热建议",
+      "serving_suggestion": "食用建议",
+      "storage_bread": "• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流线与淀粉老化）。",
+      "storage_cake": "需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。",
+      "reheat_bread": "1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。",
+      "reheat_cake": "冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。"
+    },
+    "checkout": {
+      "modal_title": "填写预定与配送信息",
+      "name_label": "联系姓名",
+      "name_optional": "(可选)",
+      "name_placeholder": "例如：陈小姐 / Mr. Tan",
+      "zone_label": "配送方式 / 区域",
+      "zone_tj": "🛵 Tanjong Sepat 地区送货上门",
+      "zone_banting": "🚚 Banting 地区（需事先沟通安排）",
+      "zone_pickup": "🏡 到店自提（Tanjong Sepat）",
+      "zone_other": "⚠️ 其他区域（暂无配送服务）",
+      "address_label": "详细配送地址",
+      "gps_btn": "📍 一键定位",
+      "address_placeholder": "请输入详细配送地址（或点击右上方“一键定位”）",
+      "pickup_title": "📍 麦日记工坊自提地址：",
+      "pickup_map_btn": "🗺️ 点击打开 Google Maps 导航",
+      "date_label": "期望取货 / 送货日期",
+      "date_tip": "🌾 <strong>温馨提示：</strong>酸种欧包需经过 18 小时以上长时间发酵，请至少提前 1 天预定。您选择的日期仅供参考，发送订单后我们将与您二次确认具体时间。",
+      "submit_btn_default": "确认并发送 WhatsApp 订单",
+      "submit_btn_hover": "Send Order!"
+    },
+    "toast": {
+      "empty_cart": "购物篮还是空的哦！",
+      "other_zone_err": "其他区域暂无配送服务，请选择【到店自提】哦！",
+      "fill_required": "请填写完整配送地址和期望日期。",
+      "fill_unit": "请补充填写门牌号或楼层单位。"
+    },
+    "footer": {
+      "copyright": "© 2025 麦日记. 保留所有权利."
+    }
+  },
+  "en": {
+    "nav": {
+      "home": "Home",
+      "menu": "Menu",
+      "diary": "Diary",
+      "about": "About"
+    },
+    "hero": {
+      "home_title": "Every bake tells a story<br>of warmth and craft",
+      "explore_menu": "Explore Menu",
+      "menu_bread_title": "A slow fermentation of time<br>and flavor in every bite",
+      "menu_cake_title": "A beautifully crafted cake<br>for your sweetest moments",
+      "view_bread": "View Sourdough",
+      "view_cake": "View Cakes"
+    },
+    "philosophy": {
+      "title": "Our Baking Philosophy",
+      "p1": "MaiRiji is our diary of conversation with flour, water, and yeast. It is not only about precise recipes, but also about the inspiration, emotion, and stories hidden behind every bake.",
+      "p2": "We believe the best flavor comes from honest ingredients and patient care. Here, we share the warmth of handmade baking and the quiet joy it brings to everyday life."
+    },
+    "ambiance": {
+      "title": "Atmosphere & Flavor",
+      "subtitle": "The Ambiance & Flavor"
+    },
+    "diary": {
+      "quote": "“On a quiet afternoon, sunlight filled the room as the oven warmed. The scent of dried osmanthus drifted through the kitchen, and I remembered why baking feels so gentle and alive.”",
+      "author": "—— MaiRiji, 3 November",
+      "read_more": "Read More"
+    },
+    "menu": {
+      "bread_intro_title": "A gift of time: our sourdough",
+      "bread_intro_p1": "We believe the best flavors come from the purest ingredients and the most patient care. Each loaf begins with naturally cultivated starter and a long fermentation of over 18 hours, allowing aroma and character to develop slowly and fully.",
+      "bread_intro_p2": "This gives our bread its deep, gentle acidity and a soft, moist crumb. It is our tribute to tradition and a gift from time to your table.",
+      "cake_intro_title": "Sweet moments: our cakes",
+      "cake_intro_p1": "Every cake is built around a soft texture, rich creaminess, and thoughtful decoration, turning each celebration into a memorable moment. We use fresh cream, quality ingredients, and careful craftsmanship to make every sharing feel special.",
+      "cake_intro_p2": "Whether it is a birthday, a celebration, or simply a small surprise, our cakes are made to bring joy and tenderness to your table.",
+      "tab_bread": "Bread / Sourdough",
+      "tab_cake": "Cake / Desserts",
+      "bread_title": "Sourdough / Bread",
+      "cake_title": "Cake / Desserts",
+      "coming_soon": "Coming Soon"
+    },
+    "cart": {
+      "title": "Your Basket",
+      "empty": "Your basket is empty 🥖",
+      "total": "Total:",
+      "checkout_btn_default": "Order via WhatsApp",
+      "checkout_btn_hover": "Send Order!"
+    },
+    "detail": {
+      "add_to_cart": "Add to Basket",
+      "inquire_btn": "Inquire Release Date",
+      "acc_ingredients": "Ingredients",
+      "acc_allergens": "Allergen Info",
+      "acc_storage": "Storage Suggestions",
+      "acc_reheat": "Reheating Suggestions",
+      "serving_suggestion": "Serving Suggestion",
+      "storage_bread": "• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread).",
+      "storage_cake": "Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture.",
+      "reheat_bread": "1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy.",
+      "reheat_cake": "Take out from fridge and let it rest at room temperature for 10-15 minutes before serving for a softer, silkier texture."
+    },
+    "checkout": {
+      "modal_title": "Delivery & Pickup Details",
+      "name_label": "Name",
+      "name_optional": "(Optional)",
+      "name_placeholder": "e.g. Ms. Tan / John",
+      "zone_label": "Delivery Method / Area",
+      "zone_tj": "🛵 Tanjong Sepat Area (Home Delivery)",
+      "zone_banting": "🚚 Banting Area (By Prior Arrangement)",
+      "zone_pickup": "🏡 Self-Pickup (Tanjong Sepat Bakery)",
+      "zone_other": "⚠️ Other Areas (No Delivery Available)",
+      "address_label": "Delivery Address",
+      "gps_btn": "📍 Detect Location",
+      "address_placeholder": "Enter full address or click 'Detect Location'",
+      "pickup_title": "📍 Self-Pickup Location:",
+      "pickup_map_btn": "🗺️ Open in Google Maps",
+      "date_label": "Preferred Delivery / Pickup Date",
+      "date_tip": "🌾 <strong>Notice:</strong> Our sourdough undergoes a slow fermentation process of over 18 hours. Please order at least 1 day in advance. Selected date is for reference; we will confirm exact timing with you via WhatsApp.",
+      "submit_btn_default": "Confirm Order via WhatsApp",
+      "submit_btn_hover": "Send Order!"
+    },
+    "toast": {
+      "empty_cart": "Your basket is empty!",
+      "other_zone_err": "Delivery is unavailable for other areas. Please select Self-Pickup.",
+      "fill_required": "Please fill in required fields.",
+      "fill_unit": "Please enter your house or unit number."
+    },
+    "footer": {
+      "copyright": "© 2025 MaiRiji. All rights reserved."
+    }
+  }
+}

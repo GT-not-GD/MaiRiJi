@@ -267,20 +267,104 @@ function MaiRijiApp()
 		storageKeys: {
 			cart: 'mairiji_cart',
 			custName: 'mairiji_cust_name',
-			custAddress: 'mairiji_cust_address'
+			custAddress: 'mairiji_cust_address',
+			lang: 'mairiji_lang' // [新增] 用于保存用户选择的语言
 		}
 	};
 
 	this.cursorTimer = null;
+	// [新增] 启动时检查本地是否存了语言，如果没有则默认中文
+	this.currentLang = localStorage.getItem(this.config.storageKeys.lang) || 'zh';
 }
 
 MaiRijiApp.prototype = {
 
+	// 1. [修改] 预加载：同时请求 products.json 和 locales.json
 	preload: function ()
 	{
-		this.init();
+		var self = this;
+		$.when(
+			$.getJSON('assets/data/products.json'),
+			$.getJSON('assets/data/locales.json')
+		).done(function (prodRes, localeRes) {
+			self.productsData = prodRes[0];
+			self.localesData = localeRes[0];
+			self.init();
+		}).fail(function () {
+			console.error("加载数据失败，请确保在服务器环境下运行。");
+		});
 	},
 
+	// 2. [新增] 全局翻译引擎 (Translation Engine)
+	t: function (keyPath)
+	{
+		if (!this.localesData || !this.localesData[this.currentLang]) return keyPath;
+		
+		var keys = keyPath.split('.');
+		var current = this.localesData[this.currentLang];
+		for (var i = 0; i < keys.length; i++) {
+			if (current[keys[i]] === undefined) return keyPath;
+			current = current[keys[i]];
+		}
+		return current;
+	},
+
+	// 3. [新增] 一键更新 DOM 中的所有文字
+	updateDOMTranslations: function ()
+	{
+		var self = this;
+		$('html').attr('lang', this.currentLang === 'en' ? 'en' : 'zh-CN');
+
+		// 翻译带有 data-i18n 的普通文本
+		$('[data-i18n]').each(function () {
+			var key = $(this).data('i18n');
+			var translated = self.t(key);
+			if (translated) $(this).html(translated);
+		});
+
+		// 翻译带有 data-i18n-placeholder 的输入框
+		$('[data-i18n-placeholder]').each(function () {
+			var key = $(this).data('i18n-placeholder');
+			var translated = self.t(key);
+			if (translated) $(this).attr('placeholder', translated);
+		});
+
+		// 翻译右下角悬浮按钮文字：英文版显示"中文"，中文版显示"EN"
+		$('#lang-float .textIcon').text(this.currentLang === 'en' ? '中文' : 'EN');
+	},
+
+	// 4. [新增] 原地无刷新切换语言功能
+	switchLanguage: function (targetLang)
+	{
+		// 切换语言变量并存入浏览器
+		this.currentLang = targetLang || (this.currentLang === 'en' ? 'zh' : 'en');
+		localStorage.setItem(this.config.storageKeys.lang, this.currentLang);
+
+		// 刷新页面文字和商品
+		this.updateDOMTranslations();
+		this.renderProducts();
+		this.updateCartUI();
+
+		// 👇 🌟 [新增这一行！] 重新加载新生成商品的高清图片，解除模糊状态！
+		this.loadHighResImages();
+
+		// 如果当前商品详情面板是开着的，重新渲染详情里的文字
+		if (this.$els.detailPanel.hasClass('open')) {
+			var currentType = this.$els.detailPanel.data('type'); 
+			var currentId = this.$els.detailPanel.data('id');
+			if (currentType && currentId) {
+				this.openProductDetail(currentType, currentId);
+			}
+		}
+	},
+
+	// 5. [修改] 读取当前语言
+	getCurrentLanguage: function ()
+	{
+		return this.currentLang;
+	},
+
+	// 6. [修改] 初始化
 	init: function ()
 	{
 		var $this = this;
@@ -306,6 +390,9 @@ MaiRijiApp.prototype = {
 			cartBadge: $('#cart-count-badge')
 		};
 
+		// --- 🌟 关键：启动时翻译页面 ---
+		this.updateDOMTranslations();
+
 		this.renderProducts();
 		this.renderSavoriaCards('bread');
 		this.forceLoadTinyImages();
@@ -320,9 +407,22 @@ MaiRijiApp.prototype = {
 		this.initKnightShowcase();
 	},
 
-	getCurrentLanguage: function ()
+	// 7. [修改] 渲染商品 (基于 JSON 数据)
+	renderProducts: function ()
 	{
-		return $('html').attr('lang') === 'en' ? 'en' : 'zh';
+		var langKey = this.getCurrentLanguage();
+
+		if (this.productsData && this.productsData[langKey]) {
+			this.breadProducts = this.productsData[langKey].bread;
+			this.cakeProducts = this.productsData[langKey].cake;
+		} else {
+			this.breadProducts = [];
+			this.cakeProducts = [];
+		}
+
+		// 这里调用 t() 函数去获取菜单标题
+		this.renderProductGroup('bread', this.breadProducts, this.t('menu.bread_title'));
+		this.renderProductGroup('cake', this.cakeProducts, this.t('menu.cake_title'));
 	},
 
 	renderSavoriaCards: function (folder)
@@ -389,240 +489,6 @@ MaiRijiApp.prototype = {
 				new Image().src = url;
 			}
 		});
-	},
-
-	renderProducts: function ()
-	{
-		var isEnglish = this.getCurrentLanguage() === 'en';
-
-		this.breadProducts = isEnglish ? [
-		{
-			id: 'b1',
-			name: "Country Sourdough",
-			price: "14.00",
-			img: "1",
-			desc: "Our signature country loaf, fermented for over 18 hours with sourdough starter. Crafted with Japanese bread flour and German rye flour for a crisp crust, highly hydrated crumb, and a subtle delicate acidity.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye)",
-			gallery: ["1", "1-hover"]
-		},
-		{
-			id: 'b2',
-			name: "Chocolate Sourdough",
-			price: "16.00",
-			img: "2",
-			desc: "Rich dark chocolate and cocoa powder folded into long-fermented dough. Melts slightly during baking for a smooth, indulgent chocolate flavor perfectly balanced with gentle sourdough.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, dark chocolate, cocoa powder, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye), Milk, Soy (from dark chocolate)",
-			gallery: ["2", "2-hover"]
-		},
-		{
-			id: 'b3',
-			name: "Lemon Blueberry Sourdough",
-			price: "16.50",
-			img: "3",
-			desc: "Bursting with tart wild dried blueberries and fragrant fresh lemon zest. A refreshing, fruity sourdough with bright citrus aroma in every bite.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, wild dried blueberries, fresh lemon zest, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye)",
-			gallery: ["3", "3-hover", "3-detail-1"]
-		},
-		{
-			id: 'b4',
-			name: "Classic Walnut Raisin Sourdough",
-			price: "16.00",
-			img: "4",
-			desc: "Packed with crunchy toasted walnuts and sweet sun-dried raisins. Offers a rich contrast of nutty aromas and natural fruit sweetness.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, toasted walnuts, sun-dried raisins, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye), Tree Nuts (Walnuts)",
-			gallery: ["4", "4-hover"]
-		},
-		{
-			id: 'b5',
-			name: "Coffee Chocolate Sourdough",
-			price: "16.00",
-			img: "5",
-			desc: "Infused with espresso coffee dough, rich dark chocolate chips, and toasted walnuts. Bold roasted coffee notes harmonized with sweet chocolate and nutty warmth.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, espresso coffee, dark chocolate chips, toasted walnuts, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye), Tree Nuts (Walnuts), Milk, Soy",
-			gallery: ["5", "5-hover", "5-detail-1"]
-		},
-		{
-			id: 'b6',
-			name: "Matcha Cranberry Sourdough",
-			price: "16.00",
-			img: "6",
-			desc: "Earthy premium matcha paired with sweet-tart dried cranberries. Vibrant in tea aroma with a beautifully balanced, bittersweet flavor.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, premium matcha powder, dried cranberries, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye)",
-			gallery: ["6", "6-hover"]
-		},
-		{
-			id: 'b7',
-			name: "Highland Barley Walnut Sourdough",
-			price: "16.00",
-			img: "7",
-			desc: "Made with nutritious Tibetan highland barley flour, toasted walnuts, and crunchy pumpkin seeds. Wholesome and earthy with rich grain textures and wonderful chewiness.",
-			ingredients: "Japanese high-protein bread flour, Tibetan highland barley flour, toasted walnuts, crunchy pumpkin seeds, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Barley), Tree Nuts (Walnuts), Seeds (Pumpkin seeds)",
-			gallery: ["7", "7-hover", "7-detail-1"]
-		},
-		{
-			id: 'b8',
-			name: "Earl Grey Orange & Cranberry Sourdough",
-			price: "16.50",
-			img: "8",
-			desc: "Infused with fragrant Earl Grey tea dough, candied orange zest, and dried cranberries. Elegant citrus and bergamot notes merged with warm tea aroma.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, Earl Grey tea powder, candied orange zest, dried cranberries, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye)",
-			gallery: ["8", "8-hover"]
-		},
-		{
-			id: 'b9',
-			name: "Honey Pumpkin & Seed Sourdough",
-			price: "16.50",
-			img: "9",
-			desc: "A cozy blend of real pumpkin puree, pure honey, roasted pumpkin cubes, and toasted pumpkin seeds. Tender, naturally sweet crumb with crunchy seeds.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, fresh pumpkin puree, pure honey, roasted pumpkin cubes, crunchy pumpkin seeds, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye), Seeds (Pumpkin seeds)",
-			gallery: ["9", "9-hover"]
-		},
-		{
-			id: 'b10',
-			name: "Dragon Fruit Cream Cheese Sourdough",
-			price: "17.00",
-			img: "10",
-			desc: "Made with fresh red dragon fruit for a striking natural pink dough, filled with rich and velvety cream cheese pockets.",
-			ingredients: "Japanese high-protein bread flour, German rye flour, fresh red dragon fruit, cream cheese filling, water, sourdough starter, rose salt.",
-			allergens: "Gluten (Wheat, Rye), Milk (Cream cheese)",
-			gallery: ["10", "10-hover"]
-		}] : [
-		{
-			id: 'b1',
-			name: "乡村欧包",
-			price: "14.00",
-			img: "1",
-			desc: "麦日记的招牌经典之作。只使用面粉、水、盐和酸种酵母。历经18小时以上的低温慢发酵，外壳酥脆，内里组织湿润弹牙，带有纯粹的麦香与微酸回甘。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）。",
-			gallery: ["1", "1-hover"]
-		},
-		{
-			id: 'b2',
-			name: "巧克力欧包",
-			price: "16.00",
-			img: "2",
-			desc: "选用浓郁的黑巧克力融入面团。经过烘烤后巧克力微微融化，带给面包丝滑口感与丰富的可可层次，甜而不腻，满足感十足。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、黑巧克力、可可粉、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）、乳制品、大豆成分（来自黑巧克力）。",
-			gallery: ["2", "2-hover"]
-		},
-		{
-			id: 'b3',
-			name: "柠檬蓝莓欧包",
-			price: "16.50",
-			img: "3",
-			desc: "清爽的鲜磨柠檬皮屑与多汁的蓝莓干完美结合。酸甜果香在舌尖绽放，入口带着天然果酸与柠檬清香，是下午茶的绝佳选择。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、野生蓝莓干、新鲜鲜磨柠檬皮屑、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）。",
-			gallery: ["3", "3-hover", "3-detail-1"]
-		},
-		{
-			id: 'b4',
-			name: "经典葡萄核桃欧包",
-			price: "16.00",
-			img: "4",
-			desc: "香脆的烤核桃搭配日晒甘甜的葡萄干。坚果的醇香与果干的自然酸甜交织，咀嚼间充满饱满的层次感，是广受欢迎的经典口味。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、烤核桃仁、日晒葡萄干、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）、树坚果（核桃）。",
-			gallery: ["4", "4-hover"]
-		},
-		{
-			id: 'b5',
-			name: "咖啡巧克力欧包",
-			price: "16.00",
-			img: "5",
-			desc: "浓郁咖啡风味与黑巧克力块、香脆核桃仁的浪漫碰撞。醇厚的咖啡苦香烘托出巧克力的甜美与核桃油脂香，回味悠长，唤醒每一个慵懒的早晨。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、浓缩咖啡液、黑巧克力粒、烤核桃仁、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）、树坚果（核桃）、乳制品、大豆成分。",
-			gallery: ["5", "5-hover", "5-detail-1"]
-		},
-		{
-			id: 'b6',
-			name: "抹茶蔓越莓欧包",
-			price: "16.00",
-			img: "6",
-			desc: "严选优质抹茶粉，呈现幽雅的自然茶绿。搭配酸甜可口的蔓越莓干，抹茶的微苦与果干的甘甜互补，茶香余韵悠线。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、优质抹茶粉、蔓越莓干、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）。",
-			gallery: ["6", "6-hover"]
-		},
-		{
-			id: 'b7',
-			name: "青稞核桃欧包",
-			price: "16.00",
-			img: "7",
-			desc: "融入营养丰富的西藏青稞粉、烤核桃粒与香脆南瓜籽。青稞特有的谷物香气与坚果油脂香、南瓜籽交织，越嚼越香，健康更有嚼劲。",
-			ingredients: "日本高筋小麦粉、中国西藏青稞粉、烤核桃仁、香脆南瓜籽、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、青稞）、树坚果（核桃）、种子类（南瓜籽）。",
-			gallery: ["7", "7-hover", "7-detail-1"]
-		},
-		{
-			id: 'b8',
-			name: "红茶橙皮欧包",
-			price: "16.50",
-			img: "8",
-			desc: "伯爵红茶粉揉面，搭配糖渍橙皮皮屑与蔓越莓干。佛手柑茶香温润，橙皮清甜与蔓越莓酸甜交织，雅致韵味十足。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、伯爵红茶粉、糖渍橙皮皮屑、蔓越莓干、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）。",
-			gallery: ["8", "8-hover"]
-		},
-		{
-			id: 'b9',
-			name: "蜂蜜金瓜南瓜籽欧包",
-			price: "16.50",
-			img: "9",
-			desc: "融入纯正蜂蜜与新鲜南瓜泥，包裹着绵软的烤南瓜丁，撒满香脆南瓜籽。天然甜香与多重南瓜层次交织，口感软糯香脆。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、新鲜南瓜泥、纯正蜂蜜、烤南瓜丁、香脆南瓜籽、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）、种子类（南瓜籽）。",
-			gallery: ["9", "9-hover"]
-		},
-		{
-			id: 'b10',
-			name: "火龙果奶酪欧包",
-			price: "17.00",
-			img: "10",
-			desc: "纯红肉火龙果榨汁揉面，呈现梦幻的天然粉红色。包裹着浓郁绵密的奶油奶酪夹心，果香与奶香交织，颜值与美味兼备。",
-			ingredients: "日本高筋小麦粉、德国裸麦粉、新鲜红肉火龙果、奶油奶酪夹心、水、酸种酵母、玫瑰盐。",
-			allergens: "含有麸质（小麦、裸麦）、乳制品（奶油奶酪）。",
-			gallery: ["10", "10-hover"]
-		}];
-
-		this.cakeProducts = isEnglish ? [
-		{
-			id: 'c1',
-			name: "Amber Caramel Double Fromage Cheesecake",
-			price: "0.00",
-			img: "1",
-			status: 'coming_soon',
-			desc: "A heavenly double-layer creation featuring a velvety unbaked mascarpone mousse on top, a rich baked cheesecake in the middle, and a crispy caramelized cookie base. A melt-in-your-mouth indulgence infused with warm amber caramel notes.",
-			ingredients: "Mascarpone cheese, sour cream, cream cheese, caramel biscuit crust, fresh cream, eggs, sugar, butter.",
-			allergens: "Contains Milk, Eggs, Gluten (Wheat), Soy.",
-			gallery: ["1", "1-hover"]
-		}] : [
-		{
-			id: 'c1',
-			name: "琥珀焦糖双层乳酪蛋糕",
-			price: "0.00",
-			img: "1",
-			status: 'coming_soon',
-			desc: "底座是香脆的焦糖饼干，中层是浓郁醇厚的烘焙芝士，顶层则是如云朵般轻盈的生乳酪慕斯。温暖焦香与丝滑奶香完美交织，带来层次丰富、入口即化的奢华体验。",
-			ingredients: "马斯卡彭乳酪、酸奶油、奶油芝士、焦糖饼干底、新鲜奶油、鸡蛋、砂糖、黄油。",
-			allergens: "含有乳制品（奶油、奶酪）、鸡蛋、麸质（小麦/焦糖饼干底）、大豆成分。",
-			gallery: ["1", "1-hover"]
-		}];
-
-		this.renderProductGroup('bread', this.breadProducts, isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包');
-		this.renderProductGroup('cake', this.cakeProducts, isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕');
 	},
 
 	renderProductGroup: function (type, products, title)
@@ -760,6 +626,12 @@ MaiRijiApp.prototype = {
 
 		this.initStickyNav();
 
+		// 绑定悬浮语言切换按钮
+		$('#lang-float').off('click').on('click', function (e) {
+			e.preventDefault();
+			$this.switchLanguage(); // 触发原地切换语言
+		});
+
 		if (!this.isMobile())
 		{
 			var loader = new WnkMediaLoader($('img'), this);
@@ -795,6 +667,45 @@ MaiRijiApp.prototype = {
 			}
 		});
 
+		// 🌟 [新增] 性能优化：IntersectionObserver (可视区监听)
+		// 避免在用户看底部菜单时，还在后台疯狂计算首屏大图的视差矩阵，降低设备发热与掉帧
+		$this.activeObservers = { horizontal: true, parallax: true };
+
+		if ('IntersectionObserver' in window) {
+			// rootMargin: '500px' 表示在元素进入屏幕前 500px 就提前唤醒计算，防止突然闪现，保证丝滑
+			var observerOptions = { root: null, rootMargin: '500px 0px', threshold: 0 };
+
+			// 1. 监听横向滚动区域
+			var hScrollEl = document.querySelector('.horizontal-scroll-wrapper');
+			if (hScrollEl) {
+				var hObserver = new IntersectionObserver(function(entries) {
+					$this.activeObservers.horizontal = entries[0].isIntersecting;
+				}, observerOptions);
+				hObserver.observe(hScrollEl);
+			}
+
+			// 2. 监听所有包含视差滚动的背景图区域
+			var pTargets = document.querySelectorAll('section.intro, header.intro, .full-width-image-divider');
+			if (pTargets.length > 0) {
+				var pObserver = new IntersectionObserver(function(entries) {
+					entries.forEach(function(entry) {
+						entry.target._isPVisible = entry.isIntersecting;
+					});
+					
+					var isAnyVisible = false;
+					pTargets.forEach(function(el) {
+						if (el._isPVisible) isAnyVisible = true;
+					});
+					$this.activeObservers.parallax = isAnyVisible;
+				}, observerOptions);
+
+				pTargets.forEach(function(el) {
+					pObserver.observe(el);
+				});
+			}
+		}
+
+		// 🌟 带有防抖与视口判断的超级滚动监听
 		var ticking = false;
 		$(window).on('scroll', function ()
 		{
@@ -803,11 +714,16 @@ MaiRijiApp.prototype = {
 				window.requestAnimationFrame(function ()
 				{
 					var scrollTop = $(window).scrollTop();
-					$this.handleHorizontalScroll(scrollTop);
-					if ($this.wax && $this.wax.enabled)
-					{
+					
+					// [性能提升区] 只有目标区域在可视范围内，才去执行极其消耗性能的 JS 重绘
+					if ($this.activeObservers.horizontal) {
+						$this.handleHorizontalScroll(scrollTop);
+					}
+					
+					if ($this.activeObservers.parallax && $this.wax && $this.wax.enabled) {
 						$this.wax.onFrame();
 					}
+					
 					ticking = false;
 				});
 				ticking = true;
@@ -1122,6 +1038,10 @@ MaiRijiApp.prototype = {
 
 	openProductDetail: function (type, id)
 	{
+		// 记录当前打开的商品，方便切换语言时重新渲染
+		this.$els.detailPanel.data('type', type);
+		this.$els.detailPanel.data('id', id);
+
 		var self = this;
 		var isEnglish = this.getCurrentLanguage() === 'en';
 		var els = this.$els;
@@ -1578,8 +1498,7 @@ MaiRijiApp.prototype = {
 		$(document).on('mousemove.customCursor', function (e)
 		{
 			$cursor.css({
-				'left': (e.clientX - 5) + 'px',
-				'top': (e.clientY - 5) + 'px'
+				'transform': 'translate3d(' + (e.clientX - 5) + 'px, ' + (e.clientY - 5) + 'px, 0)'
 			});
 			if ($cursor.css('display') === 'none') $cursor.show();
 		});
