@@ -4,7 +4,28 @@
       "home": "首页",
       "menu": "菜单",
       "diary": "日记",
-      "about": "关于我"
+      "about": "关于我",
+      "vip": "VIP 档案"
+    },
+    "vip": {
+      "title": "✨ 成为麦友 VIP",
+      "subtitle": "建立您的专属烘焙档案。下次光临时，我们将自动为您填好联系方式。",
+      "name": "您的称呼",
+      "name_ph": "如：陈小姐 / John",
+      "phone": "WhatsApp 号码",
+      "phone_ph": "如：012-3456789",
+      "btn_default": "生成我的专属档案",
+      "btn_hover": "Register!"
+    },
+    "vip_profile": {
+      "modal_title": "👑 麦友 VIP 专属档案",
+      "card_tag": "MAIRIJI VIP MEMBER",
+      "badge": "👑 尊贵麦友",
+      "name_label": "会员姓名：",
+      "phone_label": "联系电话：",
+      "address_label": "默认地址：",
+      "logout_btn": "退出登录 / 清除档案",
+      "close_btn": "关 闭"
     },
     "hero": {
       "home_title": "记录每一次烘焙的<br>温度与故事",
@@ -66,6 +87,8 @@
       "name_label": "联系姓名",
       "name_optional": "(可选)",
       "name_placeholder": "例如：陈小姐 / Mr. Tan",
+      "phone_label": "联系电话",
+      "phone_ph": "如：012-3456789（WhatsApp/通话）",
       "zone_label": "配送方式 / 区域",
       "zone_tj": "🛵 Tanjong Sepat 地区送货上门",
       "zone_banting": "🚚 Banting 地区（需事先沟通安排）",
@@ -96,7 +119,28 @@
       "home": "Home",
       "menu": "Menu",
       "diary": "Diary",
-      "about": "About"
+      "about": "About",
+      "vip": "VIP Profile"
+    },
+    "vip": {
+      "title": "✨ Become a MaiRiji VIP",
+      "subtitle": "Create your bakery profile. We'll remember your details for your next visit.",
+      "name": "Your Name",
+      "name_ph": "e.g. Ms. Tan / John",
+      "phone": "WhatsApp Number",
+      "phone_ph": "e.g. 012-3456789",
+      "btn_default": "Create My Profile",
+      "btn_hover": "Register!"
+    },
+    "vip_profile": {
+      "modal_title": "👑 MaiRiji VIP Profile",
+      "card_tag": "MAIRIJI VIP MEMBER",
+      "badge": "👑 VIP Member",
+      "name_label": "Member Name: ",
+      "phone_label": "Phone Number: ",
+      "address_label": "Default Address: ",
+      "logout_btn": "Sign Out / Clear Profile",
+      "close_btn": "Close"
     },
     "hero": {
       "home_title": "Every bake tells a story<br>of warmth and craft",
@@ -158,6 +202,8 @@
       "name_label": "Name",
       "name_optional": "(Optional)",
       "name_placeholder": "e.g. Ms. Tan / John",
+      "phone_label": "Contact Phone",
+      "phone_ph": "e.g. 012-3456789",
       "zone_label": "Delivery Method / Area",
       "zone_tj": "🛵 Tanjong Sepat Area (Home Delivery)",
       "zone_banting": "🚚 Banting Area (By Prior Arrangement)",

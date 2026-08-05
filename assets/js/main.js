@@ -19,10 +19,10 @@ WnkLaxController.prototype = {
 	{
 		for (var i = 0; i < this.elements.length; i++)
 		{
-			if (this.elements[i].el.get(0) == el.get(0))
-			{
+			if (this.elements[i].el.get(0) == el.get(0)) {
 				this.elements[i].destroy();
-				this.elements.splice(this.elements[i], 1)
+				this.elements.splice(i, 1); 
+				break; 
 			}
 		}
 	},
@@ -219,24 +219,26 @@ WnkMediaLoader.prototype = {
 
 		if ($media.prop('tagName') === 'IMG')
 		{
-			$media.one("load.WnkMediaLoader error.WnkMediaLoader", function() {
+			$media.one("load.WnkMediaLoader error.WnkMediaLoader", function ()
+			{
 				self.onMediaLoaded();
 			});
 
-			if (media.complete) {
+			if (media.complete)
+			{
 				$media.trigger('load');
 			}
 		}
 		else if ($media.prop('tagName') === 'VIDEO')
 		{
-			$media.one("loadeddata.WnkMediaLoader error.WnkMediaLoader", function() {
+			$media.one("loadeddata.WnkMediaLoader error.WnkMediaLoader", function ()
+			{
 				self.onMediaLoaded();
 			});
 			media.load();
 		}
 		else
 		{
-			this.count = -1;
 			this.onMediaLoaded();
 		}
 	},
@@ -264,16 +266,17 @@ function MaiRijiApp()
 
 	this.config = {
 		waNumber: "601115277643",
-		storageKeys: {
+		googleSheetUrl: "https://script.google.com/macros/s/AKfycby1Qm6k1oiw4zqqIS5WWFUKBGnWuW-CdvctB4DvHFPMFm4YcGsL_O3S8oNgB6IMzFVL5Q/exec",
+		storageKeys:
+		{
 			cart: 'mairiji_cart',
 			custName: 'mairiji_cust_name',
+			custPhone: 'mairiji_cust_phone',
 			custAddress: 'mairiji_cust_address',
-			lang: 'mairiji_lang' // [新增] 用于保存用户选择的语言
+			lang: 'mairiji_lang'
 		}
 	};
-
 	this.cursorTimer = null;
-	// [新增] 启动时检查本地是否存了语言，如果没有则默认中文
 	this.currentLang = localStorage.getItem(this.config.storageKeys.lang) || 'zh';
 }
 
@@ -286,11 +289,13 @@ MaiRijiApp.prototype = {
 		$.when(
 			$.getJSON('assets/data/products.json'),
 			$.getJSON('assets/data/locales.json')
-		).done(function (prodRes, localeRes) {
+		).done(function (prodRes, localeRes)
+		{
 			self.productsData = prodRes[0];
 			self.localesData = localeRes[0];
 			self.init();
-		}).fail(function () {
+		}).fail(function ()
+		{
 			console.error("加载数据失败，请确保在服务器环境下运行。");
 		});
 	},
@@ -299,10 +304,11 @@ MaiRijiApp.prototype = {
 	t: function (keyPath)
 	{
 		if (!this.localesData || !this.localesData[this.currentLang]) return keyPath;
-		
+
 		var keys = keyPath.split('.');
 		var current = this.localesData[this.currentLang];
-		for (var i = 0; i < keys.length; i++) {
+		for (var i = 0; i < keys.length; i++)
+		{
 			if (current[keys[i]] === undefined) return keyPath;
 			current = current[keys[i]];
 		}
@@ -316,14 +322,16 @@ MaiRijiApp.prototype = {
 		$('html').attr('lang', this.currentLang === 'en' ? 'en' : 'zh-CN');
 
 		// 翻译带有 data-i18n 的普通文本
-		$('[data-i18n]').each(function () {
+		$('[data-i18n]').each(function ()
+		{
 			var key = $(this).data('i18n');
 			var translated = self.t(key);
 			if (translated) $(this).html(translated);
 		});
 
 		// 翻译带有 data-i18n-placeholder 的输入框
-		$('[data-i18n-placeholder]').each(function () {
+		$('[data-i18n-placeholder]').each(function ()
+		{
 			var key = $(this).data('i18n-placeholder');
 			var translated = self.t(key);
 			if (translated) $(this).attr('placeholder', translated);
@@ -333,29 +341,98 @@ MaiRijiApp.prototype = {
 		$('#lang-float .textIcon').text(this.currentLang === 'en' ? '中文' : 'EN');
 	},
 
-	// 4. [新增] 原地无刷新切换语言功能
+	// 4. 🌟 [升级版] 原地无刷新切换语言 (带画面微暗 + 乱码解密特效 + 防连点锁)
 	switchLanguage: function (targetLang)
 	{
+		var self = this;
+
+		// 🎯 【防多按/防重按】500毫秒 CD 冷却锁，如果正在切换中，直接拒绝重复点击
+		if (this.isLangSwitching) return;
+		this.isLangSwitching = true;
+
 		// 切换语言变量并存入浏览器
 		this.currentLang = targetLang || (this.currentLang === 'en' ? 'zh' : 'en');
 		localStorage.setItem(this.config.storageKeys.lang, this.currentLang);
 
-		// 刷新页面文字和商品
-		this.updateDOMTranslations();
-		this.renderProducts();
-		this.updateCartUI();
-
-		// 👇 🌟 [新增这一行！] 重新加载新生成商品的高清图片，解除模糊状态！
-		this.loadHighResImages();
-
-		// 如果当前商品详情面板是开着的，重新渲染详情里的文字
-		if (this.$els.detailPanel.hasClass('open')) {
-			var currentType = this.$els.detailPanel.data('type'); 
-			var currentId = this.$els.detailPanel.data('id');
-			if (currentType && currentId) {
-				this.openProductDetail(currentType, currentId);
-			}
+		// 🎯 【特效 1：画面变暗/微模糊】动态生成或显示遮罩
+		var $overlay = $('#lang-switch-overlay');
+		if ($overlay.length === 0)
+		{
+			$overlay = $('<div id="lang-switch-overlay"></div>').appendTo('body');
 		}
+		$overlay.addClass('show');
+
+		// 🎯 【特效 2：文字乱码解密】定义字符池
+		var $targets = $('[data-i18n]');
+		var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789麦日记风味烘焙';
+
+		$targets.addClass('text-scrambling');
+
+		// 乱码动画：每 35 毫秒随机替换一次字符，闪烁 4 次
+		var scrambleCount = 0;
+		var scrambleInterval = setInterval(function ()
+		{
+			$targets.each(function () {
+				var $el = $(this);
+				// 如果内部包含HTML标签（如<br>），跳过乱码闪烁，避免破坏结构
+				if ($el.children().length > 0 || $el.html().indexOf('<') !== -1) return;
+				
+				var scrambled = '';
+				var len = Math.min(Math.max($el.text().length, 4), 10);
+				for (var i = 0; i < len; i++) {
+					scrambled += chars.charAt(Math.floor(Math.random() * chars.length));
+				}
+				$el.text(scrambled);
+			});
+			scrambleCount++;
+			if (scrambleCount >= 4)
+			{
+				clearInterval(scrambleInterval);
+			}
+		}, 35);
+
+		// 🎯 【特效 3：220毫秒后还原为正式语言文字】
+		setTimeout(function ()
+		{
+			// 还原文字
+			self.updateDOMTranslations();
+			self.renderProducts();
+			self.updateCartUI();
+			self.loadHighResImages();
+
+			// 悬浮按钮提示更新
+			var existingVIP = localStorage.getItem(self.config.storageKeys.custName);
+			if (existingVIP)
+			{
+				$('#open-vip-btn').attr('data-label', 'Hi, ' + existingVIP);
+			}
+			else
+			{
+				$('#open-vip-btn').attr('data-label', self.t('nav.vip'));
+			}
+
+			// 如果详情页开着，重新渲染详情
+			if (self.$els.detailPanel.hasClass('open'))
+			{
+				var currentType = self.$els.detailPanel.data('type');
+				var currentId = self.$els.detailPanel.data('id');
+				if (currentType && currentId)
+				{
+					self.openProductDetail(currentType, currentId);
+				}
+			}
+
+			// 移除乱码状态与遮罩
+			$targets.removeClass('text-scrambling');
+			$overlay.removeClass('show');
+
+			// 250毫秒后解锁，允许下一次点击
+			setTimeout(function ()
+			{
+				self.isLangSwitching = false;
+			}, 250);
+
+		}, 220);
 	},
 
 	// 5. [修改] 读取当前语言
@@ -404,7 +481,16 @@ MaiRijiApp.prototype = {
 		this.cart = this.loadCart();
 		this.updateCartUI();
 
-		this.initKnightShowcase();
+		// 检查本地是否有 VIP 档案，更新右下角悬浮按钮的悬停提示文字
+		var existingVIP = localStorage.getItem(this.config.storageKeys.custName);
+		if (existingVIP)
+		{
+			$('#open-vip-btn').attr('data-label', 'Hi, ' + existingVIP);
+		}
+		else
+		{
+			$('#open-vip-btn').attr('data-label', this.t('nav.vip'));
+		}
 	},
 
 	// 7. [修改] 渲染商品 (基于 JSON 数据)
@@ -412,10 +498,13 @@ MaiRijiApp.prototype = {
 	{
 		var langKey = this.getCurrentLanguage();
 
-		if (this.productsData && this.productsData[langKey]) {
+		if (this.productsData && this.productsData[langKey])
+		{
 			this.breadProducts = this.productsData[langKey].bread;
 			this.cakeProducts = this.productsData[langKey].cake;
-		} else {
+		}
+		else
+		{
 			this.breadProducts = [];
 			this.cakeProducts = [];
 		}
@@ -442,9 +531,7 @@ MaiRijiApp.prototype = {
 		$.each(selectedPhotos, function (index, photoName)
 		{
 			var dirClass = index % 2 === 0 ? 'up' : 'down';
-			var displayLabels = isEnglish ?
-				['Signature', '', 'Fresh', '', 'Sweet', '', ''] :
-				['Signature / 招牌', '', 'Fresh / 新鲜', '', 'Sweet / 甜点', '', ''];
+			var displayLabels = isEnglish ? ['Signature', '', 'Fresh', '', 'Sweet', '', ''] : ['Signature / 招牌', '', 'Fresh / 新鲜', '', 'Sweet / 甜点', '', ''];
 			var displayLabel = displayLabels[index] || '';
 			var tinyUrl = 'assets/img/' + folder + '/' + photoName + '-tiny.webp';
 			var highResUrl = 'assets/img/' + folder + '/' + photoName + '.webp';
@@ -627,7 +714,8 @@ MaiRijiApp.prototype = {
 		this.initStickyNav();
 
 		// 绑定悬浮语言切换按钮
-		$('#lang-float').off('click').on('click', function (e) {
+		$('#lang-float').off('click').on('click', function (e)
+		{
 			e.preventDefault();
 			$this.switchLanguage(); // 触发原地切换语言
 		});
@@ -669,16 +757,26 @@ MaiRijiApp.prototype = {
 
 		// 🌟 [新增] 性能优化：IntersectionObserver (可视区监听)
 		// 避免在用户看底部菜单时，还在后台疯狂计算首屏大图的视差矩阵，降低设备发热与掉帧
-		$this.activeObservers = { horizontal: true, parallax: true };
+		$this.activeObservers = {
+			horizontal: true,
+			parallax: true
+		};
 
-		if ('IntersectionObserver' in window) {
+		if ('IntersectionObserver' in window)
+		{
 			// rootMargin: '500px' 表示在元素进入屏幕前 500px 就提前唤醒计算，防止突然闪现，保证丝滑
-			var observerOptions = { root: null, rootMargin: '500px 0px', threshold: 0 };
+			var observerOptions = {
+				root: null,
+				rootMargin: '500px 0px',
+				threshold: 0
+			};
 
 			// 1. 监听横向滚动区域
 			var hScrollEl = document.querySelector('.horizontal-scroll-wrapper');
-			if (hScrollEl) {
-				var hObserver = new IntersectionObserver(function(entries) {
+			if (hScrollEl)
+			{
+				var hObserver = new IntersectionObserver(function (entries)
+				{
 					$this.activeObservers.horizontal = entries[0].isIntersecting;
 				}, observerOptions);
 				hObserver.observe(hScrollEl);
@@ -686,20 +784,25 @@ MaiRijiApp.prototype = {
 
 			// 2. 监听所有包含视差滚动的背景图区域
 			var pTargets = document.querySelectorAll('section.intro, header.intro, .full-width-image-divider');
-			if (pTargets.length > 0) {
-				var pObserver = new IntersectionObserver(function(entries) {
-					entries.forEach(function(entry) {
+			if (pTargets.length > 0)
+			{
+				var pObserver = new IntersectionObserver(function (entries)
+				{
+					entries.forEach(function (entry)
+					{
 						entry.target._isPVisible = entry.isIntersecting;
 					});
-					
+
 					var isAnyVisible = false;
-					pTargets.forEach(function(el) {
+					pTargets.forEach(function (el)
+					{
 						if (el._isPVisible) isAnyVisible = true;
 					});
 					$this.activeObservers.parallax = isAnyVisible;
 				}, observerOptions);
 
-				pTargets.forEach(function(el) {
+				pTargets.forEach(function (el)
+				{
 					pObserver.observe(el);
 				});
 			}
@@ -714,16 +817,18 @@ MaiRijiApp.prototype = {
 				window.requestAnimationFrame(function ()
 				{
 					var scrollTop = $(window).scrollTop();
-					
+
 					// [性能提升区] 只有目标区域在可视范围内，才去执行极其消耗性能的 JS 重绘
-					if ($this.activeObservers.horizontal) {
+					if ($this.activeObservers.horizontal)
+					{
 						$this.handleHorizontalScroll(scrollTop);
 					}
-					
-					if ($this.activeObservers.parallax && $this.wax && $this.wax.enabled) {
+
+					if ($this.activeObservers.parallax && $this.wax && $this.wax.enabled)
+					{
 						$this.wax.onFrame();
 					}
-					
+
 					ticking = false;
 				});
 				ticking = true;
@@ -742,8 +847,8 @@ MaiRijiApp.prototype = {
 			Waypoint.refreshAll();
 		});
 
-        $(document).on('click', '.wheat-btn[data-link]', function (e)
-        {
+		$(document).on('click', '.wheat-btn[data-link]', function (e)
+		{
 			var $btn = $(this);
 			var targetUrl = $btn.attr('data-link');
 
@@ -835,40 +940,42 @@ MaiRijiApp.prototype = {
 			$this.removeCartItem(id);
 		});
 
-        $('#cart-checkout-btn').on('click', function (e)
-        {
-            e.preventDefault();
-            if (!$this.cart || $this.cart.length === 0)
-            {
-                $this.showToast($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
-                return;
-            }
-            $this.openCheckoutModal();
-        });
+		$('#cart-checkout-btn').on('click', function (e)
+		{
+			e.preventDefault();
+			if (!$this.cart || $this.cart.length === 0)
+			{
+				$this.showToast($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
+				return;
+			}
+			$this.openCheckoutModal();
+		});
 
-        $('#close-checkout-modal, #checkout-modal-backdrop').on('click', function ()
-        {
-            $this.closeCheckoutModal();
-        });
+		$('#close-checkout-modal, #checkout-modal-backdrop').on('click', function ()
+		{
+			$this.closeCheckoutModal();
+		});
 
-        $('#checkout-form').off('submit').on('submit', function (e)
+		$('#checkout-form').off('submit').on('submit', function (e)
 		{
 			e.preventDefault();
 			var $btn = $(this).find('.wheat-btn');
 			var name = $('#cust-name').val().trim();
+			var phone = $('#cust-phone').val().trim(); // 🌟 获取电话
 			var address = $('#cust-address').val().trim();
 			var date = $('#cust-date').val();
 			var zoneVal = $('#cust-delivery-zone').val();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
 
-			if (zoneVal === 'other') {
+			if (zoneVal === 'other')
+			{
 				$this.showToast(isEnglish ? "Delivery is unavailable for other areas. Please select Self-Pickup." : "其他区域暂无配送服务，请选择【到店自提】哦！");
 				return;
 			}
 
-			if ((zoneVal !== 'pickup' && !address) || !date)
+			if (!name || !phone || (zoneVal !== 'pickup' && !address) || !date)
 			{
-				$this.showToast(isEnglish ? 'Please fill in required fields.' : '请填写完整配送地址和期望日期。');
+				$this.showToast(isEnglish ? 'Please fill in required fields.' : '请填写完整联系姓名、电话、配送地址和期望日期。');
 				return;
 			}
 
@@ -879,19 +986,47 @@ MaiRijiApp.prototype = {
 			};
 			var deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
 
+			// 将本次填写的姓名、电话自动记忆到本地
 			if (name) localStorage.setItem($this.config.storageKeys.custName, name);
+			if (phone) localStorage.setItem($this.config.storageKeys.custPhone, phone);
 			if (address && zoneVal !== 'pickup') localStorage.setItem($this.config.storageKeys.custAddress, address);
+
+			// 🌟 [新增静默同步] 在后台默默把新顾客/老顾客的结账信息发给 Google 表格数据库
+			if ($this.config.googleSheetUrl && $this.config.googleSheetUrl.indexOf("http") === 0)
+			{
+				fetch($this.config.googleSheetUrl,
+				{
+					method: "POST",
+					mode: "no-cors",
+					headers:
+					{
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(
+					{
+						name: name,
+						phone: phone
+					})
+				}).catch(function (err)
+				{
+					console.warn("后台 VIP 同步提醒:", err);
+				});
+			}
 
 			$btn.addClass('clicked');
 
-			setTimeout(function() {
+			setTimeout(function ()
+			{
 				$this.closeCheckoutModal();
-				
-				$this.checkoutWhatsApp({ 
-					name: name, 
-					address: address, 
+
+				// 传递电话数据给 WhatsApp 消息生成器
+				$this.checkoutWhatsApp(
+				{
+					name: name,
+					phone: phone,
+					address: address,
 					date: date,
-					deliveryZone: deliveryZoneText 
+					deliveryZone: deliveryZoneText
 				});
 
 				$('#thankyou-modal-backdrop').addClass('show');
@@ -906,26 +1041,31 @@ MaiRijiApp.prototype = {
 			}, 800);
 		});
 
-        $('#insta-flash-btn').on('click', function(e) {
-            e.preventDefault();
-            var $btn = $(this);
-            var url = "https://www.instagram.com/mywheatdiary/";
-            
-            if (!$btn.hasClass('shutter-active')) {
-                $btn.addClass('shutter-active');
-                
-                setTimeout(function() {
-                    var newWin = window.open(url, '_blank');
-                    if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
-                        window.location.href = url;
-                    }
-                }, 400);
-                
-                setTimeout(function() {
-                    $btn.removeClass('shutter-active');
-                }, 800);
-            }
-        });
+		$('#insta-flash-btn').on('click', function (e)
+		{
+			e.preventDefault();
+			var $btn = $(this);
+			var url = "https://www.instagram.com/mywheatdiary/";
+
+			if (!$btn.hasClass('shutter-active'))
+			{
+				$btn.addClass('shutter-active');
+
+				setTimeout(function ()
+				{
+					var newWin = window.open(url, '_blank');
+					if (!newWin || newWin.closed || typeof newWin.closed == 'undefined')
+					{
+						window.location.href = url;
+					}
+				}, 400);
+
+				setTimeout(function ()
+				{
+					$btn.removeClass('shutter-active');
+				}, 800);
+			}
+		});
 
 		$(document).on('click', '#get-gps-btn', function (e)
 		{
@@ -946,15 +1086,16 @@ MaiRijiApp.prototype = {
 			var coords = $('#gps-coords').val().trim();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
 
-			if (!unit) {
+			if (!unit)
+			{
 				$this.showToast(isEnglish ? 'Please enter your house or unit number.' : '请补充填写门牌号或楼层单位。');
 				return;
 			}
 
 			var googleMapsUrl = "https://maps.google.com/?q=" + coords;
 			var finalAddressText = (isEnglish ? "Unit/House No: " : "门牌单位：") + unit + "\n" +
-								(isEnglish ? "Street/Area: " : "详细区域：") + street + "\n" +
-								"📍 Google Maps: " + googleMapsUrl;
+				(isEnglish ? "Street/Area: " : "详细区域：") + street + "\n" +
+				"📍 Google Maps: " + googleMapsUrl;
 
 			$('#cust-address').val(finalAddressText);
 
@@ -985,21 +1126,29 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		$(document).on('click', '.accordion-header', function () {
+		$(document).on('click', '.accordion-header', function ()
+		{
 			var $btn = $(this);
 			var $content = $btn.next('.accordion-content');
-			
+
 			var isExpanded = $btn.toggleClass('active').hasClass('active');
 			$btn.attr('aria-expanded', isExpanded);
 			$content.stop().slideToggle(250);
 		});
 
+		// 🌟 1. 监听地址输入框：一旦用户手动修改地址，立即清除“系统自动填充”标记
+		$(document).on('input', '#cust-address', function() {
+			$(this).removeAttr('data-is-auto-filled');
+		});
+
+		// 🌟 2. 优化后的配送区域切换逻辑
 		$(document).on('change', '#cust-delivery-zone', function () {
 			var val = $(this).val();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
 			var $addressGroup = $('#cust-address-group');
 			var $notice = $('#zone-notice');
 			var $pickupInfo = $('#cust-pickup-info');
+			var $addressInput = $('#cust-address');
 
 			var pickupAddress = "65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat";
 
@@ -1008,7 +1157,8 @@ MaiRijiApp.prototype = {
 				$notice.slideUp(200);
 				$pickupInfo.slideDown(200);
 				
-				$('#cust-address').val(pickupAddress + " (店面自提)");
+				// 标记为“系统自动填入”
+				$addressInput.val(pickupAddress + " (店面自提)").attr('data-is-auto-filled', 'true');
 			} else if (val === 'other') {
 				$addressGroup.slideUp(200);
 				$pickupInfo.slideUp(200);
@@ -1017,22 +1167,170 @@ MaiRijiApp.prototype = {
 					"⚠️ 抱歉！我们目前仅提供 <strong>Tanjong Sepat</strong> 配送及 <strong>Banting</strong> 地区安排配送。其他区域欢迎选择<strong>【到店自提】</strong>哦！"
 				).slideDown(200);
 				
-				$('#cust-address').val('');
+				// 只有当是系统自动填入的自提地址时才清空
+				if ($addressInput.attr('data-is-auto-filled') === 'true') {
+					$addressInput.val('').removeAttr('data-is-auto-filled');
+				}
 			} else {
 				$addressGroup.slideDown(200);
 				$notice.slideUp(200);
 				$pickupInfo.slideUp(200);
 				
-				if ($('#cust-address').val().indexOf("Taman Pelangi") !== -1) {
-					$('#cust-address').val('');
+				// 切换回送货模式：如果之前是系统自动填入的，还原为用户的历史保存地址或清空
+				if ($addressInput.attr('data-is-auto-filled') === 'true') {
+					var savedAddress = localStorage.getItem($this.config.storageKeys.custAddress) || '';
+					$addressInput.val(savedAddress).removeAttr('data-is-auto-filled');
 				}
 			}
 		});
 
-		$('#close-thankyou-btn, #thankyou-modal-backdrop').on('click', function () {
+		$('#close-thankyou-btn, #thankyou-modal-backdrop').on('click', function ()
+		{
 			$('#thankyou-modal-backdrop').removeClass('show');
 			$('#thankyou-modal').removeClass('show');
 			$('body').removeClass('no-scroll');
+		});
+
+		// ==========================================
+		// 🌟 会员/VIP 档案注册逻辑 (Google Sheets)
+		// ==========================================
+		var GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby1Qm6k1oiw4zqqIS5WWFUKBGnWuW-CdvctB4DvHFPMFm4YcGsL_O3S8oNgB6IMzFVL5Q/exec";
+
+		// ==========================================
+		// 🌟 会员 VIP 点击逻辑：未登录弹注册框，已登录弹资料卡
+		// ==========================================
+		$('#open-vip-btn').off('click').on('click', function (e)
+		{
+			e.preventDefault();
+			var isEn = $this.getCurrentLanguage() === 'en';
+			var savedName = localStorage.getItem($this.config.storageKeys.custName);
+			var savedPhone = localStorage.getItem($this.config.storageKeys.custPhone);
+			var savedAddress = localStorage.getItem($this.config.storageKeys.custAddress);
+
+			// 关掉手机侧边菜单（如果在菜单里点击）
+			if ($('body').hasClass('menuOpen')) $('body').removeClass('menuOpen');
+
+			if (savedName)
+			{
+				// 🎯 情况 A：已登录 —— 填充数据并打开【VIP 资料卡弹窗】
+				$('#profile-display-name').text(savedName);
+				$('#profile-display-phone').text(savedPhone || (isEn ? "Not provided" : "未填写"));
+				$('#profile-display-address').text(savedAddress || (isEn ? "No default address saved" : "暂无保存的默认地址"));
+
+				$('#vip-profile-backdrop').addClass('show');
+				$('#vip-profile-modal').addClass('show');
+				$('body').addClass('no-scroll');
+			}
+			else
+			{
+				// 🎯 情况 B：未登录 —— 打开【注册弹窗】
+				$('#vip-modal-backdrop').addClass('show');
+				$('#vip-register-modal').addClass('show');
+				$('body').addClass('no-scroll');
+			}
+		});
+
+		// 关闭【VIP 资料卡弹窗】
+		$('#close-vip-profile-modal, #vip-profile-close-btn, #vip-profile-backdrop').on('click', function ()
+		{
+			$('#vip-profile-backdrop').removeClass('show');
+			$('#vip-profile-modal').removeClass('show');
+			if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open'))
+			{
+				$('body').removeClass('no-scroll');
+			}
+		});
+
+		// 点击【退出登录 / 清除档案】按钮
+		$('#vip-logout-btn').on('click', function ()
+		{
+			var isEn = $this.getCurrentLanguage() === 'en';
+
+			// 清除本地缓存
+			localStorage.removeItem($this.config.storageKeys.custName);
+			localStorage.removeItem($this.config.storageKeys.custPhone);
+			localStorage.removeItem($this.config.storageKeys.custAddress);
+
+			// 关闭资料卡弹窗
+			$('#vip-profile-backdrop').removeClass('show');
+			$('#vip-profile-modal').removeClass('show');
+			if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open'))
+			{
+				$('body').removeClass('no-scroll');
+			}
+
+			// 重置右下角悬浮按钮显示
+			$('#open-vip-btn span').text(isEn ? "VIP Profile" : "VIP 档案");
+			$('#open-vip-btn').attr('data-label', isEn ? "VIP Profile" : "VIP 档案");
+
+			$this.showToast(isEn ? "Signed out & profile cleared." : "已成功退出并清除档案。");
+		});
+
+		// 关闭注册弹窗
+		$('#close-vip-modal, #vip-modal-backdrop').on('click', function ()
+		{
+			$('#vip-modal-backdrop').removeClass('show');
+			$('#vip-register-modal').removeClass('show');
+			if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open'))
+			{
+				$('body').removeClass('no-scroll');
+			}
+		});
+
+		// 提交注册表单
+		$('#vip-register-form').off('submit').on('submit', function (e)
+		{
+			e.preventDefault();
+			var isEn = $this.getCurrentLanguage() === 'en';
+			var name = $('#vip-name').val().trim();
+			var phone = $('#vip-phone').val().trim();
+			var $btn = $('#vip-submit-btn');
+
+			if (!name || !phone)
+			{
+				$this.showToast(isEn ? "Please enter your name and phone number." : "请填写姓名与手机号码哦。");
+				return;
+			}
+
+			// 按钮变为 Loading 状态
+			$btn.css('opacity', '0.7').css('pointer-events', 'none');
+			$btn.find('.btn-txt.default').text(isEn ? "Saving..." : "档案生成中...");
+
+			// 发送数据给 Google Sheets (只发姓名和电话)
+			fetch($this.config.googleSheetUrl,
+				{
+					method: "POST",
+					mode: "no-cors",
+					headers:
+					{
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(
+					{
+						name: name,
+						phone: phone
+					})
+				})
+				.then(function ()
+				{
+					localStorage.setItem($this.config.storageKeys.custName, name);
+					localStorage.setItem($this.config.storageKeys.custPhone, phone);
+
+					$this.showToast(isEn ? "Successfully joined! Welcome, " + name : "注册成功！麦日记欢迎您，" + name);
+
+					$btn.css('opacity', '1').css('pointer-events', 'auto');
+					$btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
+					$('#close-vip-modal').trigger('click');
+
+					$('#open-vip-btn span').text(isEn ? "Hi, " + name : "Hi, " + name);
+					$('#open-vip-btn').attr('data-label', 'Hi, ' + name);
+				})
+				.catch(function (error)
+				{
+					$btn.css('opacity', '1').css('pointer-events', 'auto');
+					$btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
+					$this.showToast(isEn ? "Network error, please try again." : "网络波动，请稍后再试。");
+				});
 		});
 	},
 
@@ -1047,7 +1345,10 @@ MaiRijiApp.prototype = {
 		var els = this.$els;
 
 		var products = type === 'cake' ? this.cakeProducts : this.breadProducts;
-		var item = products.filter(function (p) { return p.id === id; })[0];
+		var item = products.filter(function (p)
+		{
+			return p.id === id;
+		})[0];
 		if (!item) return;
 
 		var folder = type === 'cake' ? 'cake' : 'bread';
@@ -1056,13 +1357,14 @@ MaiRijiApp.prototype = {
 		els.detailPrice.text('RM ' + item.price);
 		els.detailText.html(item.desc);
 
-		els.detailPanel.find('.accordion-header').removeClass('active');
+		els.detailPanel.find('.accordion-header').removeClass('active').attr('aria-expanded', 'false');
 		els.detailPanel.find('.accordion-content').hide();
 
 		els.detailIngredients.text(item.ingredients || '-');
 		els.detailAllergens.text(item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。"));
 
-		if (type === 'cake') {
+		if (type === 'cake')
+		{
 			els.detailStorage.text(isEnglish ?
 				"Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture." :
 				"需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。");
@@ -1070,7 +1372,9 @@ MaiRijiApp.prototype = {
 			els.detailReheat.text(isEnglish ?
 				"Take out from fridge and let it rest at room temperature for 10-15 minutes before serving for a softer, silkier texture." :
 				"冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。");
-		} else {
+		}
+		else
+		{
 			els.detailStorage.text(isEnglish ?
 				"• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread)." :
 				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流线与淀粉老化）。");
@@ -1084,15 +1388,18 @@ MaiRijiApp.prototype = {
 		els.detailHeroImg.css('background-image', "url('" + heroUrl + "')");
 
 		var galleryHtml = '';
-		if (item.gallery && item.gallery.length > 0) {
-			$.each(item.gallery, function (i, imgName) {
+		if (item.gallery && item.gallery.length > 0)
+		{
+			$.each(item.gallery, function (i, imgName)
+			{
 				galleryHtml += '<img src="assets/img/' + folder + '/' + imgName + '.webp" alt="' + item.name + '">';
 			});
 		}
 		els.detailGallery.html(galleryHtml);
 
 		var $orderBtn = els.detailOrderBtn;
-		if (item.status === 'coming_soon') {
+		if (item.status === 'coming_soon')
+		{
 			var inqText = isEnglish ?
 				"Hello MaiRiji! I saw " + item.name + " on your website and am super interested. When will it be available?" :
 				"你好，麦日记！我在网站看到了【" + item.name + "】，非常感兴趣！请问大约什么时候会上市上架呢？";
@@ -1100,15 +1407,21 @@ MaiRijiApp.prototype = {
 
 			$orderBtn.removeClass('button').addClass('wheat-btn').attr('data-link', inqUrl)
 				.html('<span class="btn-text-wrapper"><span class="btn-txt default">' + (isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间') + '</span><span class="btn-txt hover">WhatsApp Us!</span></span>')
-				.off('click').on('click', function (e) {
-					e.preventDefault(); e.stopImmediatePropagation();
+				.off('click').on('click', function (e)
+				{
+					e.preventDefault();
+					e.stopImmediatePropagation();
 					window.open(inqUrl, '_blank');
 				});
-		} else {
+		}
+		else
+		{
 			$orderBtn.removeClass('wheat-btn').addClass('button').removeAttr('data-link')
 				.html('<span style="display: inline-flex; align-items: center; gap: 8px;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' + (isEnglish ? 'Add to Basket' : '加进购物篮') + '</span>')
-				.off('click').on('click', function (e) {
-					e.preventDefault(); e.stopImmediatePropagation();
+				.off('click').on('click', function (e)
+				{
+					e.preventDefault();
+					e.stopImmediatePropagation();
 					self.addToCart(item, type, 1);
 					els.detailPanel.removeClass('open');
 					self.openCart();
@@ -1481,13 +1794,16 @@ MaiRijiApp.prototype = {
 			setCursorImage(currentLoopFrames[currentFrameIndex]);
 		}
 
-		var startCursorTimer = function() {
+		var startCursorTimer = function ()
+		{
 			if (self.cursorTimer) clearInterval(self.cursorTimer);
 			self.cursorTimer = setInterval(updateLoopImage, 200);
 		};
 
-		var stopCursorTimer = function() {
-			if (self.cursorTimer) {
+		var stopCursorTimer = function ()
+		{
+			if (self.cursorTimer)
+			{
 				clearInterval(self.cursorTimer);
 				self.cursorTimer = null;
 			}
@@ -1497,18 +1813,22 @@ MaiRijiApp.prototype = {
 
 		$(document).on('mousemove.customCursor', function (e)
 		{
-			$cursor.css({
+			$cursor.css(
+			{
 				'transform': 'translate3d(' + (e.clientX - 5) + 'px, ' + (e.clientY - 5) + 'px, 0)'
 			});
 			if ($cursor.css('display') === 'none') $cursor.show();
 		});
 
-		$(document).off('.cursorWindow').on({
-			'mouseleave.cursorWindow': function () {
+		$(document).off('.cursorWindow').on(
+		{
+			'mouseleave.cursorWindow': function ()
+			{
 				$cursor.hide();
 				stopCursorTimer();
 			},
-			'mouseenter.cursorWindow': function () {
+			'mouseenter.cursorWindow': function ()
+			{
 				if ($cursor.css('display') === 'none') $cursor.show();
 				startCursorTimer();
 			}
@@ -1544,7 +1864,10 @@ MaiRijiApp.prototype = {
 			var saved = localStorage.getItem(this.config.storageKeys.cart);
 			return saved ? JSON.parse(saved) : [];
 		}
-		catch (e) { return []; }
+		catch (e)
+		{
+			return [];
+		}
 	},
 
 	saveCart: function ()
@@ -1553,7 +1876,8 @@ MaiRijiApp.prototype = {
 		{
 			localStorage.setItem(this.config.storageKeys.cart, JSON.stringify(this.cart));
 		}
-		catch (e) {}
+		catch (e)
+		{}
 	},
 
 	getItemDisplayName: function (item)
@@ -1686,640 +2010,232 @@ MaiRijiApp.prototype = {
 	},
 
 	checkoutWhatsApp: function (customerData)
-    {
-        var isEnglish = this.getCurrentLanguage() === 'en';
+	{
+		var isEnglish = this.getCurrentLanguage() === 'en';
 
-        if (!this.cart || this.cart.length === 0)
-        {
-            this.showToast(isEnglish ? 'Your basket is empty!' : '购物篮还是空的哦！');
-            return;
-        }
+		if (!this.cart || this.cart.length === 0)
+		{
+			this.showToast(isEnglish ? 'Your basket is empty!' : '购物篮还是空的哦！');
+			return;
+		}
 
-        var totalPrice = 0;
-        var totalQty = 0;
-        var self = this;
+		var totalPrice = 0;
+		var totalQty = 0;
+		var self = this;
 
-        var msg = isEnglish ?
-            "Hello MaiRiji! I would like to place an order:\n\n" :
-            "你好，麦日记！我想预定以下商品：\n\n";
+		// 🌟 检查本地是否有 VIP 纪录，有的话直接打上 VIP 标签！
+		var isVIP = !!localStorage.getItem(this.config.storageKeys.custName);
+		var vipBadge = isVIP ? (isEnglish ? " 👑[VIP Member]" : " 👑[VIP会员]") : "";
 
-        if (customerData)
+		var msg = isEnglish ?
+			"Hello MaiRiji! I would like to place an order:\n\n" :
+			"你好，麦日记！我想预定以下商品：\n\n";
+
+		if (customerData)
 		{
 			msg += isEnglish ? "【Customer & Delivery Info】\n" : "【预定与配送信息】\n";
-			if (customerData.deliveryZone) {
+			if (customerData.deliveryZone)
+			{
 				msg += (isEnglish ? "Type/Zone: " : "配送/取货方式：") + customerData.deliveryZone + "\n";
 			}
-			if (customerData.name) {
-				msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + "\n";
+			if (customerData.name)
+			{
+				msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + vipBadge + "\n"; // 👑 尊贵标签
+			}
+			if (customerData.phone)
+			{
+				msg += (isEnglish ? "Contact Phone: " : "联系电话：") + customerData.phone + "\n"; // 🌟 电话信息
 			}
 			msg += (isEnglish ? "Address/Note: \n" : "地址/说明：\n") + customerData.address + "\n";
 			msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
 		}
 
-        msg += isEnglish ? "【Order Details】\n" : "【商品明细】\n";
+		msg += isEnglish ? "【Order Details】\n" : "【商品明细】\n";
 
-        $.each(this.cart, function (i, item)
-        {
-            var lineTotal = (item.price * item.qty).toFixed(2);
-            totalPrice += item.price * item.qty;
-            totalQty += item.qty;
+		$.each(this.cart, function (i, item)
+		{
+			var lineTotal = (item.price * item.qty).toFixed(2);
+			totalPrice += item.price * item.qty;
+			totalQty += item.qty;
 
-            var displayName = self.getItemDisplayName(item);
-            msg += (i + 1) + ". " + displayName + " x " + item.qty + " — RM " + lineTotal + "\n";
-        });
+			var displayName = self.getItemDisplayName(item);
+			msg += (i + 1) + ". " + displayName + " x " + item.qty + " — RM " + lineTotal + "\n";
+		});
 
-        msg += "\n------------------------------\n";
-        msg += isEnglish ?
-            "Total Items: " + totalQty + " | Total: RM " + totalPrice.toFixed(2) + "\n\n" :
-            "共 " + totalQty + " 件商品 | 总计：RM " + totalPrice.toFixed(2) + "\n\n";
+		msg += "\n------------------------------\n";
+		msg += isEnglish ?
+			"Total Items: " + totalQty + " | Total: RM " + totalPrice.toFixed(2) + "\n\n" :
+			"共 " + totalQty + " 件商品 | 总计：RM " + totalPrice.toFixed(2) + "\n\n";
 
-        msg += isEnglish ?
-            "Please confirm availability and delivery schedule with me. Thank you!" :
-            "请与我确认具体配送/自提时间，谢谢！";
+		msg += isEnglish ?
+			"Please confirm availability and delivery schedule with me. Thank you!" :
+			"请与我确认具体配送/自提时间，谢谢！";
 
-        var waNumber = "601115277643";
-        var finalUrl = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent(msg);
+		var waNumber = self.config.waNumber;
+		var finalUrl = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent(msg);
 
-        var newWin = window.open(finalUrl, '_blank');
-        if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
-            window.location.href = finalUrl;
-        }
-    },
+		var newWin = window.open(finalUrl, '_blank');
+		if (!newWin || newWin.closed || typeof newWin.closed == 'undefined')
+		{
+			window.location.href = finalUrl;
+		}
+	},
 
-    openCheckoutModal: function ()
-    {
-        var tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        var yyyy = tomorrow.getFullYear();
-        var mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        var dd = String(tomorrow.getDate()).padStart(2, '0');
-        var minDateStr = yyyy + '-' + mm + '-' + dd;
+	openCheckoutModal: function ()
+	{
+		var tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		var yyyy = tomorrow.getFullYear();
+		var mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+		var dd = String(tomorrow.getDate()).padStart(2, '0');
+		var minDateStr = yyyy + '-' + mm + '-' + dd;
 
-        var $dateInput = $('#cust-date');
-        $dateInput.attr('min', minDateStr);
-        
-        if (!$dateInput.val() || $dateInput.val() < minDateStr) {
-            $dateInput.val(minDateStr);
-        }
+		var $dateInput = $('#cust-date');
+		$dateInput.attr('min', minDateStr);
 
-        var savedName = localStorage.getItem('mairiji_cust_name');
-        var savedAddress = localStorage.getItem('mairiji_cust_address');
-        if (savedName && !$('#cust-name').val()) {
-            $('#cust-name').val(savedName);
-        }
-        if (savedAddress && !$('#cust-address').val()) {
-            $('#cust-address').val(savedAddress);
-        }
+		if (!$dateInput.val() || $dateInput.val() < minDateStr)
+		{
+			$dateInput.val(minDateStr);
+		}
 
-        this.closeCart();
-        $('#checkout-modal-backdrop').addClass('show');
-        $('#checkout-modal').addClass('show');
-        $('body').addClass('no-scroll');
-    },
+		// 🌟 读取保存的姓名、手机号和地址
+		var savedName = localStorage.getItem(this.config.storageKeys.custName);
+		var savedPhone = localStorage.getItem(this.config.storageKeys.custPhone);
+		var savedAddress = localStorage.getItem(this.config.storageKeys.custAddress);
 
-    closeCheckoutModal: function ()
-    {
-        $('#checkout-modal-backdrop').removeClass('show');
-        $('#checkout-modal').removeClass('show');
-        if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open')) {
-            $('body').removeClass('no-scroll');
-        }
-    },
+		// 🌟 只要有保存记录，且输入框是空的，就自动填上去！
+		if (savedName && !$('#cust-name').val())
+		{
+			$('#cust-name').val(savedName);
+		}
+		if (savedPhone && !$('#cust-phone').val())
+		{
+			$('#cust-phone').val(savedPhone); // 👈 预填电话
+		}
+		if (savedAddress && !$('#cust-address').val())
+		{
+			$('#cust-address').val(savedAddress);
+		}
+
+		this.closeCart();
+		$('#checkout-modal-backdrop').addClass('show');
+		$('#checkout-modal').addClass('show');
+		$('body').addClass('no-scroll');
+	},
+
+	closeCheckoutModal: function ()
+	{
+		$('#checkout-modal-backdrop').removeClass('show');
+		$('#checkout-modal').removeClass('show');
+		if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open'))
+		{
+			$('body').removeClass('no-scroll');
+		}
+	},
 
 	openGPSModal: function ()
-    {
-        var isEnglish = this.getCurrentLanguage() === 'en';
-        
-        $('#gps-modal-backdrop').addClass('show');
-        $('#gps-confirm-modal').addClass('show');
+	{
+		var isEnglish = this.getCurrentLanguage() === 'en';
 
-        $('#gps-unit').val('');
-        $('#gps-street').val('');
-        $('#gps-coords').val('');
-        $('#gps-loading-status').html(isEnglish ? "⌛ Detecting your precise GPS location, please wait..." : "⌛ 正在获取您的精准 GPS 位置，请稍候...");
+		$('#gps-modal-backdrop').addClass('show');
+		$('#gps-confirm-modal').addClass('show');
 
-        this.startGPSDetection();
-    },
+		$('#gps-unit').val('');
+		$('#gps-street').val('');
+		$('#gps-coords').val('');
+		$('#gps-loading-status').html(isEnglish ? "⌛ Detecting your precise GPS location, please wait..." : "⌛ 正在获取您的精准 GPS 位置，请稍候...");
 
-    closeGPSModal: function ()
-    {
-        $('#gps-modal-backdrop').removeClass('show');
-        $('#gps-confirm-modal').removeClass('show');
-    },
+		this.startGPSDetection();
+	},
 
-    startGPSDetection: function ()
-    {
-        var isEnglish = this.getCurrentLanguage() === 'en';
-        var self = this;
+	closeGPSModal: function ()
+	{
+		$('#gps-modal-backdrop').removeClass('show');
+		$('#gps-confirm-modal').removeClass('show');
+	},
 
-        if (!navigator.geolocation)
-        {
-            self.showToast(isEnglish ? "GPS geolocation is not supported." : "您的浏览器不支持 GPS 地理定位。");
-            $('#gps-loading-status').html(isEnglish ? "❌ GPS not supported." : "❌ 浏览器不支持 GPS");
-            return;
-        }
+	startGPSDetection: function ()
+	{
+		var isEnglish = this.getCurrentLanguage() === 'en';
+		var self = this;
 
-        navigator.geolocation.getCurrentPosition(
-            function (position)
-            {
-                var lat = position.coords.latitude.toFixed(6);
-                var lng = position.coords.longitude.toFixed(6);
+		if (!navigator.geolocation)
+		{
+			self.showToast(isEnglish ? "GPS geolocation is not supported." : "您的浏览器不支持 GPS 地理定位。");
+			$('#gps-loading-status').html(isEnglish ? "❌ GPS not supported." : "❌ 浏览器不支持 GPS");
+			return;
+		}
 
-                $('#gps-coords').val(lat + ", " + lng);
+		navigator.geolocation.getCurrentPosition(
+			function (position)
+			{
+				var lat = position.coords.latitude.toFixed(6);
+				var lng = position.coords.longitude.toFixed(6);
 
-                var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=" + lat + "&lon=" + lng;
+				$('#gps-coords').val(lat + ", " + lng);
 
-                fetch(reverseUrl, {
-                    headers: { 'Accept-Language': 'en-US,en;q=0.9' }
-                })
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    var street = data.display_name || "GPS Detected Area";
-                    $('#gps-street').val(street);
+				var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=" + lat + "&lon=" + lng;
 
-                    if (data.address && data.address.house_number) {
-                        $('#gps-unit').val("No. " + data.address.house_number);
-                    }
+				fetch(reverseUrl,
+					{
+						headers:
+						{
+							'Accept-Language': 'en-US,en;q=0.9'
+						}
+					})
+					.then(function (res)
+					{
+						return res.json();
+					})
+					.then(function (data)
+					{
+						var street = data.display_name || "GPS Detected Area";
+						$('#gps-street').val(street);
 
-                    $('#gps-loading-status').html(isEnglish ? "✅ Location detected! Please verify & enter house number." : "✅ 定位成功！请核对街道并补全门牌号。");
-                    $('#gps-unit').focus();
-                })
-                .catch(function() {
-                    $('#gps-street').val("Detected GPS Area");
-                    $('#gps-loading-status').html(isEnglish ? "✅ Coordinates captured. Please fill in house number." : "✅ 坐标抓取成功，请补充门牌号。");
-                    $('#gps-unit').focus();
-                });
-            },
-            function (error)
-            {
-                var errMsg = isEnglish ? "Failed to get location. Please check location permissions." : "定位失败，请确保已开启浏览器位置权限。";
-                $('#gps-loading-status').html("❌ " + errMsg);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-    },
+						if (data.address && data.address.house_number)
+						{
+							$('#gps-unit').val("No. " + data.address.house_number);
+						}
+
+						$('#gps-loading-status').html(isEnglish ? "✅ Location detected! Please verify & enter house number." : "✅ 定位成功！请核对街道并补全门牌号。");
+						$('#gps-unit').focus();
+					})
+					.catch(function ()
+					{
+						$('#gps-street').val("Detected GPS Area");
+						$('#gps-loading-status').html(isEnglish ? "✅ Coordinates captured. Please fill in house number." : "✅ 坐标抓取成功，请补充门牌号。");
+						$('#gps-unit').focus();
+					});
+			},
+			function (error)
+			{
+				var errMsg = isEnglish ? "Failed to get location. Please check location permissions." : "定位失败，请确保已开启浏览器位置权限。";
+				$('#gps-loading-status').html("❌ " + errMsg);
+			},
+			{
+				enableHighAccuracy: true,
+				timeout: 10000,
+				maximumAge: 0
+			}
+		);
+	},
 
 	showToast: function (msg, duration)
 	{
 		duration = duration || 2500;
 		var $toast = $('#app-toast-msg');
-		
-		if ($toast.length === 0) {
+
+		if ($toast.length === 0)
+		{
 			$toast = $('<div id="app-toast-msg"></div>').appendTo('body');
 		}
-		
+
 		$toast.text(msg).addClass('show');
-		
+
 		clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(function () {
+		this.toastTimer = setTimeout(function ()
+		{
 			$toast.removeClass('show');
 		}, duration);
 	}
-};
-
-// 🌟 修正版：骑士动画与渲染 (支持 3帧待机 / 3帧奔跑 / 4帧挥刀 / 3帧死亡)
-MaiRijiApp.prototype.initKnightShowcase = function () {
-    var canvas = document.getElementById('tbh-knight-canvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-
-    // 1. 加载 3 帧待机图片 (Idle Frames)
-    var idleFrames = [];
-    var idleSources = [
-        'assets/img/game/knight/knight-idle-1.png',
-        'assets/img/game/knight/knight-idle-2.png',
-        'assets/img/game/knight/knight-idle-3.png'
-    ];
-    for (var i = 0; i < idleSources.length; i++) {
-        var imgIdle = new Image();
-        imgIdle.src = idleSources[i];
-        idleFrames.push(imgIdle);
-    }
-
-    // 2. 加载 3 帧奔跑图片 (Run Frames)
-    var runFrames = [];
-    var runSources = [
-        'assets/img/game/knight/knight-run-1.png',
-        'assets/img/game/knight/knight-run-2.png',
-        'assets/img/game/knight/knight-run-3.png'
-    ];
-    for (var r = 0; r < runSources.length; r++) {
-        var imgRun = new Image();
-        imgRun.src = runSources[r];
-        runFrames.push(imgRun);
-    }
-
-    // 3. 加载 3 帧死亡图片 (Die Frames)
-    var dieFrames = [];
-    var dieSources = [
-        'assets/img/game/knight/knight-die-1.png', // 第 1 帧：受击摇晃
-        'assets/img/game/knight/knight-die-2.png', // 第 2 帧：向前/后倒下
-        'assets/img/game/knight/knight-die-3.png'  // 第 3 帧：伏地阵亡
-    ];
-    for (var d = 0; d < dieSources.length; d++) {
-        var imgDie = new Image();
-        imgDie.src = dieSources[d];
-        dieFrames.push(imgDie);
-    }
-
-    // 备用单图 (降级容错)
-    var knightFallbackImg = new Image();
-    knightFallbackImg.src = 'assets/img/game/knight/knight.png';
-
-    // 4. 加载 4 帧挥刀图片 (Attack Frames)
-    var attackFrames = [];
-    var attackSources = [
-        'assets/img/game/knight/knight-attack-1.png', // 第 1 帧：前摇蓄力
-        'assets/img/game/knight/knight-attack-2.png', // 第 2 帧：极速斩击 (Hitbox 触发)
-        'assets/img/game/knight/knight-attack-3.png', // 第 3 帧：延展缓冲
-        'assets/img/game/knight/knight-attack-4.png'  // 第 4 帧：平稳收刀
-    ];
-    for (var j = 0; j < attackSources.length; j++) {
-        var imgAttack = new Image();
-        imgAttack.src = attackSources[j];
-        attackFrames.push(imgAttack);
-    }
-
-    // 5. 动画时间轴参数 (Durations in ms)
-    var idleFrameDuration = 250; // 待机每帧 0.25 秒
-    var totalIdleDuration = idleFrameDuration * 3;
-
-    var runFrameDuration = 120; // 奔跑每帧 0.12 秒
-    var totalRunDuration = runFrameDuration * 3;
-
-    var dieDurations = [120, 150, 200]; // 死亡 3 帧节奏 (倒地后停留在第 3 帧)
-    var totalDieDuration = 470;
-
-    var attackDurations = [100, 40, 70, 70]; // 挥刀 4 帧节奏
-    var totalAttackDuration = 280;
-
-    // 6. 状态管理
-    var selectedActionMode = 'idle'; // 'idle' | 'run' | 'attack' | 'die'
-    var isAttacking = false;
-    var currentAttackFrameIndex = 0;
-    var attackStartTime = 0;
-
-    var isDying = false;
-    var currentDieFrameIndex = 0;
-    var dieStartTime = 0;
-
-    var showDebugHitbox = false; // 碰撞框默认 OFF
-    var zoomScale = 1.0; // 缩放比例 (默认 100%)
-
-    // 7. 缩放控制逻辑 (Zoom Logic)
-    function updateZoomUI() {
-        $('#tbh-zoom-text').text(Math.round(zoomScale * 100) + '%');
-    }
-
-    // 鼠标中键滚轮缩放
-    $('#tbh-canvas-wrapper').off('wheel').on('wheel', function (e) {
-        e.preventDefault();
-        if (e.originalEvent.deltaY < 0) {
-            zoomScale = Math.min(2.5, zoomScale + 0.1); // 放大
-        } else {
-            zoomScale = Math.max(0.5, zoomScale - 0.1); // 缩小
-        }
-        updateZoomUI();
-    });
-
-    // 缩放按钮
-    $('#tbh-zoom-in').off('click').on('click', function (e) {
-        e.stopPropagation();
-        zoomScale = Math.min(2.5, zoomScale + 0.2);
-        updateZoomUI();
-    });
-
-    $('#tbh-zoom-out').off('click').on('click', function (e) {
-        e.stopPropagation();
-        zoomScale = Math.max(0.5, zoomScale - 0.2);
-        updateZoomUI();
-    });
-
-    $('#tbh-zoom-reset').off('click').on('click', function (e) {
-        e.stopPropagation();
-        zoomScale = 1.0;
-        updateZoomUI();
-    });
-
-    // 8. 动作模式选择 (Action Switcher)
-    $('.action-btn').off('click').on('click', function (e) {
-        e.stopPropagation();
-        var action = $(this).data('tbh-action');
-        $('.action-btn').removeClass('active');
-        $(this).addClass('active');
-
-        selectedActionMode = action;
-
-        if (action === 'attack') {
-            isAttacking = true;
-            currentAttackFrameIndex = 0;
-            attackStartTime = performance.now();
-        } else if (action === 'die') {
-            isDying = true;
-            currentDieFrameIndex = 0;
-            dieStartTime = performance.now();
-        } else {
-            isAttacking = false;
-            isDying = false;
-            currentAttackFrameIndex = 0;
-            currentDieFrameIndex = 0;
-        }
-    });
-
-    // 碰撞框切换按键
-    var $toggleBtn = $('#tbh-toggle-hitbox-btn');
-    if ($toggleBtn.length) {
-        $toggleBtn.off('click').on('click', function (e) {
-            e.stopPropagation();
-            showDebugHitbox = !showDebugHitbox;
-            
-            var isEnglish = $('html').attr('lang') === 'en';
-            if (showDebugHitbox) {
-                $(this).addClass('active').html('<span class="icon">🎯</span> ' + (isEnglish ? 'Hitbox: ON' : '碰撞框: ON'));
-            } else {
-                $(this).removeClass('active').html('<span class="icon">🎯</span> ' + (isEnglish ? 'Hitbox: OFF' : '碰撞框: OFF'));
-            }
-        });
-    }
-
-    // 点击画布测试挥刀
-    canvas.onclick = function () {
-        if (selectedActionMode !== 'attack') {
-            $('.action-btn').removeClass('active');
-            $('.action-btn[data-tbh-action="attack"]').addClass('active');
-            selectedActionMode = 'attack';
-        }
-        isAttacking = true;
-        currentAttackFrameIndex = 0;
-        attackStartTime = performance.now();
-    };
-
-    // 环境微粒
-    var particles = [];
-    for (var pIdx = 0; pIdx < 20; pIdx++) {
-        particles.push({
-            x: (Math.random() - 0.5) * 200,
-            y: Math.random() * 80,
-            size: 2,
-            speedY: Math.random() * 0.4 + 0.2,
-            alpha: Math.random() * 0.6 + 0.1
-        });
-    }
-
-    var frameCount = 0;
-
-    function render() {
-        var rect = canvas.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-            var dpr = window.devicePixelRatio || 1;
-            
-            if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-            }
-
-            ctx.save();
-            ctx.scale(dpr, dpr);
-            ctx.clearRect(0, 0, rect.width, rect.height);
-            
-            ctx.imageSmoothingEnabled = false;
-
-            var width = rect.width;
-            var height = rect.height;
-            var now = performance.now();
-            frameCount += 0.04;
-
-            var centerX = width / 2;
-            var centerY = height / 2 + 10;
-
-            // 1. 夕阳背景光晕
-            var bgRadius = Math.min(width, height) * 0.42;
-            var sunGlow = ctx.createRadialGradient(centerX, centerY - 15, 10, centerX, centerY - 15, bgRadius * 0.85);
-            sunGlow.addColorStop(0, '#fce38a');
-            sunGlow.addColorStop(0.55, '#f2c968');
-            sunGlow.addColorStop(1, 'rgba(242, 201, 104, 0)');
-            
-            ctx.fillStyle = sunGlow;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY - 15, bgRadius * 0.85, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 2. 升腾微粒
-            ctx.save();
-            ctx.translate(centerX, centerY + 80);
-            for (var p = 0; p < particles.length; p++) {
-                var pt = particles[p];
-                pt.y -= pt.speedY;
-                if (pt.y < -120) {
-                    pt.y = 0;
-                    pt.x = (Math.random() - 0.5) * 180;
-                }
-                ctx.fillStyle = '#f39c42';
-                ctx.globalAlpha = pt.alpha * (1 - pt.y / 120);
-                ctx.fillRect(Math.floor(pt.x), Math.floor(-pt.y), pt.size, pt.size);
-            }
-            ctx.restore();
-
-            // 3. 动画帧计算：待机 (3帧) vs 奔跑 (3帧) vs 挥刀 (4帧) vs 死亡 (3帧)
-            var currentRenderImg = knightFallbackImg;
-            var currentIdleFrameIndex = 0;
-            var currentRunFrameIndex = 0;
-
-            if (selectedActionMode === 'attack') {
-                // --- ⚔️ 挥刀模式 ---
-                if (!isAttacking) {
-                    isAttacking = true;
-                    currentAttackFrameIndex = 0;
-                    attackStartTime = now;
-                }
-
-                var elapsedAttackTime = now - attackStartTime;
-
-                if (elapsedAttackTime < attackDurations[0]) {
-                    currentAttackFrameIndex = 0;
-                } else if (elapsedAttackTime < attackDurations[0] + attackDurations[1]) {
-                    currentAttackFrameIndex = 1;
-                } else if (elapsedAttackTime < attackDurations[0] + attackDurations[1] + attackDurations[2]) {
-                    currentAttackFrameIndex = 2;
-                } else if (elapsedAttackTime < totalAttackDuration) {
-                    currentAttackFrameIndex = 3;
-                } else {
-                    attackStartTime = now;
-                    currentAttackFrameIndex = 0;
-                }
-
-                if (attackFrames[currentAttackFrameIndex] && attackFrames[currentAttackFrameIndex].complete && attackFrames[currentAttackFrameIndex].naturalWidth > 0) {
-                    currentRenderImg = attackFrames[currentAttackFrameIndex];
-                }
-            } else if (selectedActionMode === 'run') {
-                // --- 🏃 奔跑模式 ---
-                var elapsedRunTime = now % totalRunDuration;
-                currentRunFrameIndex = Math.floor(elapsedRunTime / runFrameDuration);
-
-                if (runFrames[currentRunFrameIndex] && runFrames[currentRunFrameIndex].complete && runFrames[currentRunFrameIndex].naturalWidth > 0) {
-                    currentRenderImg = runFrames[currentRunFrameIndex];
-                }
-            } else if (selectedActionMode === 'die') {
-                // --- 💀 死亡模式 (倒地后停留在第 3 帧) ---
-                if (!isDying) {
-                    isDying = true;
-                    currentDieFrameIndex = 0;
-                    dieStartTime = now;
-                }
-
-                var elapsedDieTime = now - dieStartTime;
-
-                if (elapsedDieTime < dieDurations[0]) {
-                    currentDieFrameIndex = 0;
-                } else if (elapsedDieTime < dieDurations[0] + dieDurations[1]) {
-                    currentDieFrameIndex = 1;
-                } else {
-                    currentDieFrameIndex = 2; // 保持倒地帧
-                }
-
-                if (dieFrames[currentDieFrameIndex] && dieFrames[currentDieFrameIndex].complete && dieFrames[currentDieFrameIndex].naturalWidth > 0) {
-                    currentRenderImg = dieFrames[currentDieFrameIndex];
-                }
-            } else {
-                // --- 🛡️ 待机模式 ---
-                var elapsedIdleTime = now % totalIdleDuration;
-                currentIdleFrameIndex = Math.floor(elapsedIdleTime / idleFrameDuration);
-
-                if (idleFrames[currentIdleFrameIndex] && idleFrames[currentIdleFrameIndex].complete && idleFrames[currentIdleFrameIndex].naturalWidth > 0) {
-                    currentRenderImg = idleFrames[currentIdleFrameIndex];
-                }
-            }
-
-            // 4. 等比例渲染
-            if (currentRenderImg.complete && currentRenderImg.naturalWidth > 0) {
-                var imgAspect = currentRenderImg.naturalWidth / currentRenderImg.naturalHeight;
-                var maxBound = Math.floor(Math.min(width, height) * 0.65 * zoomScale);
-                var drawW, drawH;
-
-                if (imgAspect > 1) {
-                    drawW = maxBound;
-                    drawH = Math.floor(maxBound / imgAspect);
-                } else {
-                    drawH = maxBound;
-                    drawW = Math.floor(maxBound * imgAspect);
-                }
-
-                var startX = Math.floor(centerX - drawW / 2);
-                var startY = Math.floor(centerY - drawH / 2);
-
-                // 奔跑模式下微小振动感
-                if (selectedActionMode === 'run') {
-                    var runOffsetY = (currentRunFrameIndex % 2 === 1) ? -2 : 0;
-                    startY += runOffsetY;
-                }
-
-                // 绘制当前动作图片
-                ctx.drawImage(currentRenderImg, startX, startY, drawW, drawH);
-
-                // 5. ⚔️ 碰撞判定框 (调试用)
-                if (showDebugHitbox) {
-                    // A. 【蓝色受击框 Hurtbox】：根据死亡倒地状态动态下压
-                    var hurtX = startX + drawW * 0.35;
-                    var hurtY = startY + drawH * 0.25;
-                    var hurtW = drawW * 0.30;
-                    var hurtH = drawH * 0.65;
-
-                    // 死亡倒地过程受击框贴地
-                    if (selectedActionMode === 'die') {
-                        if (currentDieFrameIndex === 1) {
-                            hurtY = startY + drawH * 0.45;
-                            hurtH = drawH * 0.45;
-                        } else if (currentDieFrameIndex === 2) {
-                            hurtX = startX + drawW * 0.20;
-                            hurtY = startY + drawH * 0.70;
-                            hurtW = drawW * 0.60;
-                            hurtH = drawH * 0.22;
-                        }
-                    }
-
-                    ctx.strokeStyle = 'rgba(0, 180, 255, 0.8)';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(hurtX, hurtY, hurtW, hurtH);
-                    ctx.fillStyle = 'rgba(0, 180, 255, 0.15)';
-                    ctx.fillRect(hurtX, hurtY, hurtW, hurtH);
-
-                    ctx.fillStyle = '#00b4ff';
-                    ctx.font = '10px monospace';
-                    ctx.fillText('Hurtbox (受击框)', hurtX, hurtY - 4);
-
-                    // B. 【红色攻击框 Hitbox】：仅在挥刀第 2 帧（斩击瞬间）弹出
-                    if (selectedActionMode === 'attack' && currentAttackFrameIndex === 1) {
-                        var hitX = startX + drawW * 0.52;
-                        var hitY = startY + drawH * 0.25;
-                        var hitW = drawW * 0.42;
-                        var hitH = drawH * 0.60;
-
-                        ctx.strokeStyle = 'rgba(255, 30, 30, 0.95)';
-                        ctx.lineWidth = 3;
-                        ctx.strokeRect(hitX, hitY, hitW, hitH);
-                        ctx.fillStyle = 'rgba(255, 30, 30, 0.35)';
-                        ctx.fillRect(hitX, hitY, hitW, hitH);
-
-                        // 右侧斩击刀光弧线
-                        ctx.strokeStyle = '#ffe082';
-                        ctx.lineWidth = 4;
-                        ctx.beginPath();
-                        ctx.arc(hitX + hitW * 0.2, hitY + hitH * 0.5, hitW * 0.6, -Math.PI * 0.45, Math.PI * 0.45);
-                        ctx.stroke();
-
-                        ctx.fillStyle = '#ff3030';
-                        ctx.font = 'bold 11px monospace';
-                        ctx.fillText('⚡ 右侧 HITBOX (有效伤害!)', hitX, hitY - 6);
-                    }
-                }
-
-                // 6. 顶部 UI 文字与帧状态提示
-                ctx.save();
-                ctx.font = 'bold 22px "Noto Serif SC", "PingFang SC", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                
-                var textX = centerX;
-                var textY = startY - 15;
-
-                ctx.strokeStyle = '#121418';
-                ctx.lineWidth = 4;
-                ctx.strokeText('骑 士', textX, textY);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText('骑 士', textX, textY);
-
-                // 底部状态提示
-                ctx.font = '12px "Noto Serif SC", sans-serif';
-                ctx.fillStyle = '#fce38a';
-                
-                var isEnglish = $('html').attr('lang') === 'en';
-                var statusText = '';
-                if (selectedActionMode === 'attack') {
-                    statusText = isEnglish ? 
-                        '⚔️ Attack Mode: Frame ' + (currentAttackFrameIndex + 1) + ' / 4' : 
-                        '⚔️ 挥剑模式：第 ' + (currentAttackFrameIndex + 1) + ' / 4 帧';
-                } else if (selectedActionMode === 'run') {
-                    statusText = isEnglish ? 
-                        '🏃 Run Mode: Frame ' + (currentRunFrameIndex + 1) + ' / 3' : 
-                        '🏃 奔跑模式：第 ' + (currentRunFrameIndex + 1) + ' / 3 帧';
-                } else if (selectedActionMode === 'die') {
-                    statusText = isEnglish ? 
-                        '💀 Death Mode: Frame ' + (currentDieFrameIndex + 1) + ' / 3' + (currentDieFrameIndex === 2 ? ' (Fallen)' : '') : 
-                        '💀 死亡模式：第 ' + (currentDieFrameIndex + 1) + ' / 3 帧' + (currentDieFrameIndex === 2 ? ' (已倒地)' : '');
-                } else {
-                    statusText = isEnglish ? 
-                        '🛡️ Idle Mode: Frame ' + (currentIdleFrameIndex + 1) + ' / 3' : 
-                        '🛡️ 待机模式：第 ' + (currentIdleFrameIndex + 1) + ' / 3 帧呼吸中';
-                }
-                ctx.fillText(statusText, textX, startY + drawH + 25);
-                ctx.restore();
-            }
-
-            ctx.restore();
-        }
-
-        requestAnimationFrame(render);
-    }
-
-    render();
 };

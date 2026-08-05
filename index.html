@@ -273,53 +273,32 @@
 		</section>
 	</div>
 
-	<!-- 🔵 3. 游戏/日记视图 (View Diary - Task Bar Hero 角色展示) -->
+	<!-- 🔵 3. 日记视图 (View Diary) -->
 	<div id="view-diary" class="page-view">
-		<section class="tbh-hero-showcase-section">
-			<div class="tbh-bg-glow"></div>
-			
-			<div class="tbh-showcase-container">
-				<div class="tbh-hero-header">
-					<div class="tbh-badge">TASK BAR HERO · HERO SHOWCASE</div>
-					<h1 class="tbh-hero-name">圣麦骑士 <span class="tbh-hero-title">KNIGHT</span></h1>
-					<p class="tbh-hero-subtitle">“以坚盾护佑麦浪，用圣剑斩开晨光”</p>
+		<section class="pbig text-section-centered" style="padding: 120px 0 80px; background-color: #fbf9f4;">
+			<div class="wrap with-inner">
+				<div class="centered-content" style="max-width: 750px;">
+					<h3 data-i18n="nav.diary" style="font-family: 'Playfair Display', serif; font-size: 36px; color: #8b5e3c; margin-bottom: 20px;">烘焙日记</h3>
+					<p style="font-family: 'Playfair Display', serif; font-size: 22px; font-style: italic; color: #5a3a22; line-height: 1.8; margin-bottom: 30px;">
+						“面粉、水与时间的温存，记录每一个平凡日子里的小甜意。”
+					</p>
+					<p style="font-size: 15px; color: #666; line-height: 1.8; text-align: justify;">
+						这里是麦日记的灵感随笔。更多手作故事与烘焙随想正在陆续更新中，敬请期待……
+					</p>
 				</div>
+			</div>
+		</section>
+	</div>
 
-				<!-- 🌟 核心控制栏：动作选择 + 缩放控制 + 碰撞框开关 -->
-				<div class="tbh-toolbar">
-					<!-- 1. 动作选择 -->
-					<div class="tbh-btn-group">
-						<span class="tbh-group-label">动作：</span>
-						<button type="button" class="tbh-btn action-btn active" data-tbh-action="idle">🛡️ 待机</button>
-						<button type="button" class="tbh-btn action-btn" data-tbh-action="run">🏃 奔跑</button>
-						<button type="button" class="tbh-btn action-btn" data-tbh-action="attack">⚔️ 挥剑</button>
-						<button type="button" class="tbh-btn action-btn" data-tbh-action="die">💀 死亡</button>
-					</div>
-
-					<!-- 2. 缩放控制 -->
-					<div class="tbh-btn-group">
-						<span class="tbh-group-label">缩放：</span>
-						<button type="button" class="tbh-btn" id="tbh-zoom-out" title="缩小">-</button>
-						<span id="tbh-zoom-text" class="tbh-zoom-readout">100%</span>
-						<button type="button" class="tbh-btn" id="tbh-zoom-in" title="放大">+</button>
-						<button type="button" class="tbh-btn" id="tbh-zoom-reset" title="重置比例">↺</button>
-					</div>
-
-					<!-- 3. 碰撞框开关 -->
-					<button type="button" id="tbh-toggle-hitbox-btn" class="tbh-btn">
-						🎯 碰撞框: OFF
-					</button>
-				</div>
-
-				<!-- Canvas 角色模型渲染区 -->
-				<div class="tbh-canvas-wrapper" id="tbh-canvas-wrapper">
-					<canvas id="tbh-knight-canvas"></canvas>
-				</div>
-
-				<div class="tbh-hero-tags">
-					<span class="tbh-tag"><i class="icon">🛡️</i> 重装守护</span>
-					<span class="tbh-tag"><i class="icon">⚔️</i> 近战斩击</span>
-					<span class="tbh-tag"><i class="icon">🔍</i> 支持鼠标中键滚轮缩放</span>
+	<!-- 🟣 4. 关于我视图 (View About) -->
+	<div id="view-about" class="page-view">
+		<section class="pbig text-section-centered" style="padding: 120px 0 80px; background-color: #fbf9f4;">
+			<div class="wrap with-inner">
+				<div class="centered-content" style="max-width: 750px;">
+					<h3 data-i18n="nav.about">关于我</h3>
+					<p style="font-size: 15px; color: #666; line-height: 1.8;">
+						欢迎来到麦日记。这里记录了关于烘焙的灵感、故事与手作生活。
+					</p>
 				</div>
 			</div>
 		</section>
@@ -464,6 +443,11 @@
 
 <!-- Floating controls -->
 <div class="floating-controls" aria-hidden="false">
+	<button id="open-vip-btn" class="floating-button vip-button" data-label="VIP 档案" title="VIP Profile">
+		<svg class="svgIcon" viewBox="0 0 448 512" aria-hidden="true" focusable="false">
+			<path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 23.5 48 52.8 48h342.4c29.3 0 52.8-21.5 52.8-48v-41.6c0-74.2-60.2-134.4-132.8-134.4z"></path>
+		</svg>
+	</button>
 	<button id="cart-float" class="floating-button cart-button" data-label="购物车" title="View Cart">
 		<span class="textIcon">
 			<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -570,8 +554,13 @@
         <form id="checkout-form" novalidate>
             <!-- 联系姓名 -->
 			<div class="form-group">
-				<label for="cust-name"><span data-i18n="checkout.name_label">联系姓名</span> <span class="optional" data-i18n="checkout.name_optional">(可选)</span></label>
-				<input type="text" id="cust-name" data-i18n-placeholder="checkout.name_placeholder" placeholder="例如：陈小姐 / Mr. Tan">
+				<label for="cust-name"><span data-i18n="checkout.name_label">联系姓名</span> <span class="required">*</span></label>
+				<input type="text" id="cust-name" data-i18n-placeholder="checkout.name_placeholder" placeholder="例如：陈小姐 / Mr. Tan" required>
+			</div>
+			<!-- 联系电话 -->
+			<div class="form-group">
+				<label for="cust-phone"><span data-i18n="checkout.phone_label">联系电话</span> <span class="required">*</span></label>
+				<input type="tel" id="cust-phone" data-i18n-placeholder="checkout.phone_ph" placeholder="如：012-3456789" required>
 			</div>
 			<!-- 配送区域与方式选择 -->
             <div class="form-group">
@@ -682,6 +671,92 @@
                 <span class="btn-txt hover">完成!</span>
             </span>
         </button>
+    </div>
+</div>
+
+<!-- ======================= 🌟 麦友 VIP 注册弹窗 ======================= -->
+<div id="vip-modal-backdrop" class="modal-backdrop"></div>
+<div id="vip-register-modal" class="checkout-modal">
+    <div class="modal-header">
+        <h3 data-i18n="vip.title">✨ 成为麦友 VIP</h3>
+        <button class="close-modal-btn" id="close-vip-modal" title="关闭">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p class="form-tip" style="background: transparent; border: none; color: #666; padding: 0; margin-bottom: 20px; text-align: center;" data-i18n="vip.subtitle">
+            建立您的专属烘焙档案。下次光临时，我们将自动为您填好联系方式。
+        </p>
+        <form id="vip-register-form" novalidate>
+            <div class="form-group">
+                <label for="vip-name"><span data-i18n="vip.name">您的称呼</span> <span class="required">*</span></label>
+                <input type="text" id="vip-name" data-i18n-placeholder="vip.name_ph" placeholder="如：陈小姐 / John" required>
+            </div>
+            <div class="form-group">
+                <label for="vip-phone"><span data-i18n="vip.phone">WhatsApp 号码</span> <span class="required">*</span></label>
+                <input type="tel" id="vip-phone" data-i18n-placeholder="vip.phone_ph" placeholder="如：012-3456789" required>
+            </div>
+            
+            <button type="submit" class="wheat-btn" id="vip-submit-btn" style="margin-top: 10px; width: 100%; padding: 12px;">
+                <span class="btn-text-wrapper">
+                    <span class="btn-txt default" data-i18n="vip.btn_default">生成我的专属档案</span>
+                    <span class="btn-txt hover" data-i18n="vip.btn_hover">Register!</span>
+                </span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ======================= 👑 麦友 VIP 个人资料弹窗 ======================= -->
+<div id="vip-profile-backdrop" class="modal-backdrop"></div>
+<div id="vip-profile-modal" class="checkout-modal">
+    <div class="modal-header">
+        <h3 data-i18n="vip_profile.modal_title">👑 麦友 VIP 专属档案</h3>
+        <button class="close-modal-btn" id="close-vip-profile-modal" title="关闭">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align: center;">
+        
+        <!-- 🌟 烘焙风暖色尊贵会员卡设计 -->
+        <div class="vip-card-box" style="background: linear-gradient(135deg, #faf6ee 0%, #f4eae0 100%); border: 1px solid #d8c8b7; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(139, 94, 60, 0.05); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #d8c8b7; padding-bottom: 8px;">
+                <span style="font-family: 'Playfair Display', serif; font-size: 12px; color: #8b5e3c; font-weight: bold;" data-i18n="vip_profile.card_tag">MAIRIJI VIP MEMBER</span>
+                <span style="font-size: 11px; background: #8b5e3c; color: #fff; padding: 2px 8px; border-radius: 10px;" data-i18n="vip_profile.badge">👑 尊贵麦友</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #888;" data-i18n="vip_profile.name_label">会员姓名：</span>
+                <strong id="profile-display-name" style="font-size: 16px; color: #5a3a22; display: inline-block; margin-left: 4px;">-</strong>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #888;" data-i18n="vip_profile.phone_label">联系电话：</span>
+                <strong id="profile-display-phone" style="font-size: 15px; color: #5a3a22; display: inline-block; margin-left: 4px;">-</strong>
+            </div>
+            
+            <div>
+                <span style="font-size: 12px; color: #888;" data-i18n="vip_profile.address_label">默认地址：</span>
+                <span id="profile-display-address" style="font-size: 13px; color: #5a3a22; display: block; margin-top: 4px; line-height: 1.4; word-break: break-all;">-</span>
+            </div>
+        </div>
+
+        <!-- 操作按钮组 -->
+        <!-- 🌟 统一样式的双麦穗按钮组 (仅颜色区分) -->
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <!-- 1. 退出按钮 (暖陶红/警示色版 wheat-btn) -->
+            <button type="button" id="vip-logout-btn" class="wheat-btn logout-wheat-btn" style="flex: 1; margin-top: 0; padding: 10px;">
+                <span class="btn-text-wrapper">
+                    <span class="btn-txt default" data-i18n="vip_profile.logout_btn">退出登录 / 清除档案</span>
+                    <span class="btn-txt hover">Sign Out!</span>
+                </span>
+            </button>
+            
+            <!-- 2. 关闭按钮 (经典麦黄版 wheat-btn) -->
+            <button type="button" id="vip-profile-close-btn" class="wheat-btn" style="flex: 1; margin-top: 0; padding: 10px;">
+                <span class="btn-text-wrapper">
+                    <span class="btn-txt default" data-i18n="vip_profile.close_btn">关 闭</span>
+                    <span class="btn-txt hover">Close</span>
+                </span>
+            </button>
+        </div>
+
     </div>
 </div>
 
