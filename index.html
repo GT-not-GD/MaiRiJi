@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <link rel="icon" href="assets/img/favicon.ico">
+    <link rel="icon" href="assets/img/logo/favicon.ico">
 
     <title>麦日记 - 烘焙与生活的美好点滴</title>
 	
-	<link rel="preload" href="assets/img/hero-main-tiny.webp" as="image">
+	<link rel="preload" href="assets/img/banners/hero-main-tiny.webp" as="image">
 
 	<!-- 1. SEO 和社交媒体分享信息 -->    
 	<meta name="description" content="欢迎来到麦日记。日记里记录了关于烘焙的灵感、故事和生活点滴，探索面粉与温度的艺术。"/>
@@ -86,8 +86,8 @@
     <div class="wrap">
         <div class="logos">
             <a href="index.html" rel="nofollow" id="logo" title="麦日记">
-                <img src="assets/img/logo.png" class="big"/>
-                <img src="assets/img/logo-mini-black.png" class="small"/>
+                <img src="assets/img/logo/logo.png" class="big"/>
+                <img src="assets/img/logo/logo-mini-black.png" class="small"/>
             </a>
             <button class="m-burger" aria-label="Toggle navigation menu" aria-expanded="false">
 				<span class="burger-icon">
@@ -99,7 +99,7 @@
         </div>
         <div class="navs">
 			<a href="index.html" rel="nofollow" class="menu-panel-logo" title="麦日记">
-				<img src="assets/img/logo-black.png" alt="麦日记 Logo"/>
+				<img src="assets/img/logo/logo-black.png" alt="麦日记 Logo"/>
 			</a>
 			<nav role="navigation" class="main-nav">
 					<ul class="menu">
@@ -123,8 +123,8 @@
 		<section class="intro home-intro fixed" id="top">
 			<div class="bg">
 				<div class="bg-inner progressive-bg blur-effect" 
-					 style="background-image: url('assets/img/hero-main-tiny.webp');" 
-					 data-highres="assets/img/hero-main.webp">
+					 style="background-image: url('assets/img/banners/hero-main-tiny.webp');" 
+					 data-highres="assets/img/banners/hero-main.webp">
 				</div>
 			</div>
 			<div class="wrap">
@@ -155,8 +155,8 @@
 
 		<!-- 2. 全宽幅图片分隔 -->
         <section class="full-width-image-divider progressive-bg blur-effect" 
-        		 style="background-image: url('assets/img/bread-banner-tiny.webp');" 
-        		 data-highres="assets/img/bread-banner.webp">
+        		 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
+        		 data-highres="assets/img/banners/bread-banner.webp">
         </section>
 			
 		<!-- ✨✨✨【粘性横向滚动区】✨✨✨ -->
@@ -196,7 +196,7 @@
     <div id="view-menu" class="page-view">
         <section class="intro home-intro fixed" id="menu-top">
             <div class="bg">
-                <div class="bg-inner" style="background-image: url('assets/img/menu-bg.jpg');"></div>
+                <div class="bg-inner" style="background-image: url('assets/img/banners/menu-bg.jpg');"></div>
             </div>
             
             <div class="wrap">
@@ -241,12 +241,12 @@
 		</section>
 
 		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel active" data-banner-view="bread"
-			 style="background-image: url('assets/img/bread-banner-tiny.webp');" 
-			 data-highres="assets/img/bread-banner.webp">
+			 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
+			 data-highres="assets/img/banners/bread-banner.webp">
         </section>
 		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel" data-banner-view="cake"
-			 style="background-image: url('assets/img/cake-banner-tiny.webp');" 
-			 data-highres="assets/img/cake-banner.webp">
+			 style="background-image: url('assets/img/banners/cake-banner-tiny.webp');" 
+			 data-highres="assets/img/banners/cake-banner.webp">
         </section>
 
 		<!-- 产品展示区 -->
@@ -272,6 +272,58 @@
 			</div>
 		</section>
 	</div>
+
+	<!-- 🔵 3. 游戏/日记视图 (View Diary - Task Bar Hero 角色展示) -->
+	<div id="view-diary" class="page-view">
+		<section class="tbh-hero-showcase-section">
+			<div class="tbh-bg-glow"></div>
+			
+			<div class="tbh-showcase-container">
+				<div class="tbh-hero-header">
+					<div class="tbh-badge">TASK BAR HERO · HERO SHOWCASE</div>
+					<h1 class="tbh-hero-name">圣麦骑士 <span class="tbh-hero-title">KNIGHT</span></h1>
+					<p class="tbh-hero-subtitle">“以坚盾护佑麦浪，用圣剑斩开晨光”</p>
+				</div>
+
+				<!-- 🌟 核心控制栏：动作选择 + 缩放控制 + 碰撞框开关 -->
+				<div class="tbh-toolbar">
+					<!-- 1. 动作选择 -->
+					<div class="tbh-btn-group">
+						<span class="tbh-group-label">动作：</span>
+						<button type="button" class="tbh-btn action-btn active" data-tbh-action="idle">🛡️ 待机</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="run">🏃 奔跑</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="attack">⚔️ 挥剑</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="die">💀 死亡</button>
+					</div>
+
+					<!-- 2. 缩放控制 -->
+					<div class="tbh-btn-group">
+						<span class="tbh-group-label">缩放：</span>
+						<button type="button" class="tbh-btn" id="tbh-zoom-out" title="缩小">-</button>
+						<span id="tbh-zoom-text" class="tbh-zoom-readout">100%</span>
+						<button type="button" class="tbh-btn" id="tbh-zoom-in" title="放大">+</button>
+						<button type="button" class="tbh-btn" id="tbh-zoom-reset" title="重置比例">↺</button>
+					</div>
+
+					<!-- 3. 碰撞框开关 -->
+					<button type="button" id="tbh-toggle-hitbox-btn" class="tbh-btn">
+						🎯 碰撞框: OFF
+					</button>
+				</div>
+
+				<!-- Canvas 角色模型渲染区 -->
+				<div class="tbh-canvas-wrapper" id="tbh-canvas-wrapper">
+					<canvas id="tbh-knight-canvas"></canvas>
+				</div>
+
+				<div class="tbh-hero-tags">
+					<span class="tbh-tag"><i class="icon">🛡️</i> 重装守护</span>
+					<span class="tbh-tag"><i class="icon">⚔️</i> 近战斩击</span>
+					<span class="tbh-tag"><i class="icon">🔍</i> 支持鼠标中键滚轮缩放</span>
+				</div>
+			</div>
+		</section>
+	</div>
 </main>
 <!-- ======================= 页脚 ======================= -->
 <footer role="contentinfo" class="main-footer">
@@ -280,7 +332,7 @@
         <div class="cols">
             <div class="col logo">
                 <div>
-                    <img src="assets/img/logo-black.png" alt="麦日记"/>
+                    <img src="assets/img/logo/logo-black.png" alt="麦日记"/>
                 </div>
 
                 <!-- 纯极简风 Instagram 快门闪光按钮 (无账号名) -->

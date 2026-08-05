@@ -1,3 +1,5 @@
+--- START OF FILE styles.css ---
+
 /* ==========================================================================
    0. 麦日记 · 主题全局变量 (Design Tokens / CSS Variables)
    ========================================================================== */
@@ -24,9 +26,9 @@
     30% { transform: translate3d(0, -4px, 0); }
 }
 
-/* 基础 HTML 标签重置 */
-html { color: #000; background-color: #323232; }
-body { color: #000; font-family: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;  font-weight: 400; margin: 0; padding: 0; }
+/* 基础 HTML 标签重置 - 修复移动端左右晃动溢出 */
+html { color: #000; background-color: #323232; max-width: 100%; overflow-x: clip; }
+body { color: #000; font-family: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;  font-weight: 400; margin: 0; padding: 0; max-width: 100%; overflow-x: clip; }
 div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
 table { border-collapse: collapse; border-spacing: 0; }
 fieldset, img { border: 0; }
@@ -46,8 +48,8 @@ a { text-decoration: none; color: #fff; }
 section, article header, article footer { position: relative; background-repeat: no-repeat; background-position: center center; background-size: cover; background-color: #fbf9f4; padding: 50px 0 50px; }
 section.pbig { padding: 75px 0 75px; }
 
-/* 页面主容器 */
-#page-container { position: relative; z-index: 1000; background-color: #fbf9f4; }
+/* 页面主容器 - 防止内部块元素导致移动端晃动 */
+#page-container { position: relative; z-index: 1000; background-color: #fbf9f4; overflow-x: clip; }
 
 /* 容器 (.wrap) */
 .wrap { max-width: 1400px; width: 90%; margin: 0 auto; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; }
@@ -69,7 +71,7 @@ section.pbig { padding: 75px 0 75px; }
 /* ==========================================================================
    3. 页眉与导航 (Header & Navigation)
    ========================================================================== */
-.main-header { position: fixed; top: 0; width: 100vw; height: 156px; z-index: 2000; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%); transition: background 0.3s;}
+.main-header { position: fixed; top: 0; width: 100%; height: 156px; z-index: 2000; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%); transition: background 0.3s;}
 .main-header .wrap { max-width: 1350px; height: 156px; position: relative; z-index: 10; display: block; }
 .main-header .logos .m-burger { display: none !important; }
 
@@ -99,13 +101,11 @@ section.pbig { padding: 75px 0 75px; }
 
 /* 滚动后的紧凑导航栏 (Sticky Header) */
 @media only screen and (min-width: 1200px), only screen and (min-width: 769px) and (max-width: 1199px) {
-    /* 1. 为 header 及其 wrap 增加高度平滑动画 */
     .main-header, 
     .main-header .wrap {
         transition: height 0.3s ease, background 0.3s;
     }
 
-    /* 2. 缩小状态下，同步将 header 和 wrap 的高度设为 65px */
     .main-header.small { 
         height: 65px; 
         background: none !important;
@@ -189,7 +189,7 @@ section.pbig { padding: 75px 0 75px; }
 /* ==========================================================================
    4. 首屏 Hero 区域
    ========================================================================== */
-section.intro, header.intro { height: 100vh; width: 100vw; position: relative; color: #fff; background-color: transparent; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 0; }
+section.intro, header.intro { height: 100vh; width: 100%; position: relative; color: #fff; background-color: transparent; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 0; }
 section.intro.fixed, header.intro.fixed { position: fixed; top: 0; left: 0; right: 0; }
 section.intro .wrap, header.intro .wrap { opacity: 1; transition: opacity .1s; position: relative; z-index: 50; height: 100%; }
 section.intro .bg, header.intro .bg { position: absolute; cursor: pointer; z-index: 1; left: 0; bottom: 0; right: 0; top: 0; background-position: center center; background-size: cover; overflow: hidden; }
@@ -255,7 +255,7 @@ section.home-intro .button { box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
 /* ==========================================================================
    7. 产品展示 (Slider & Grid)
    ========================================================================== */
-.product-showcase-section { padding-top: 0; padding-bottom: 5rem; }
+.product-showcase-section { padding-top: 0; padding-bottom: 5rem}
 .page-width { max-width: 120rem; margin: 0 auto; padding: 0 1.5rem; }
 .page-width-desktop { padding: 0; margin: 0 auto; }
 @media screen and (min-width: 750px) { .page-width { padding: 0 5rem; } .page-width-desktop { padding: 0; } }
@@ -282,15 +282,70 @@ slider-component { position: relative; display: block; }
 }
 
 /* 移动端滑块布局 */
+/* 移动端/平板端：垂直双列网格，严格对齐手机分辨率 */
 @media screen and (max-width: 989px) {
     #bakery-menu-container .slider { 
-        display: flex !important; flex-wrap: nowrap !important;
-        overflow-x: auto; overflow-y: hidden;
-        scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; 
-        margin: 0; padding-bottom: 1.5rem; width: 100%; margin-left: 0;
+        display: flex !important; 
+        flex-wrap: wrap !important;
+        overflow-x: hidden !important;     /* 👈 关闭横向滑动 */
+        overflow-y: visible !important;
+        margin: 0 !important;               /* 👈 将 -8px 修正为 0，防止挤出屏幕 */
+        padding: 0 0 2rem 0 !important; 
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
-    #bakery-menu-container .grid__item { flex: 0 0 auto; width: 65%; max-width: 280px; padding-left: 15px; scroll-snap-align: center; }
-    #bakery-menu-container .grid__item:last-child { padding-right: 15px; margin-right: 15px; }
+
+    /* 双列等宽自适应（各占 50%） */
+    #bakery-menu-container .grid__item { 
+        flex: 0 0 50% !important; 
+        width: 50% !important; 
+        max-width: 50% !important; 
+        padding: 8px 6px !important;       /* 卡片左右内边距 */
+        box-sizing: border-box !important;
+        scroll-snap-align: none !important;
+    }
+
+    /* 顶部分类切换按钮（欧包 / 蛋糕）防止小屏溢出 */
+    .menu-switcher {
+        gap: 8px !important;
+        padding: 0 10px;
+    }
+    .menu-switcher-btn {
+        padding: 8px 16px !important;
+        font-size: 13.5px !important;
+    }
+
+    /* 卡片文字与价格在移动端双列下的精致排版 */
+    .stack-container {
+        margin-bottom: 6px;
+    }
+
+    .card-information {
+        padding: 8px 2px 0 2px !important;
+        text-align: center;
+    }
+
+    .card-information__text {
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .price {
+        font-size: 15px !important;
+        margin-top: 4px !important;
+    }
+}
+
+/* 📱 极窄屏手机（360px 及以下）自动降级为单列显示 */
+@media screen and (max-width: 360px) {
+    #bakery-menu-container .grid__item {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 12px 15px !important;
+    }
 }
 
 /* 优化后的卡片容器 (透明无干扰) */
@@ -357,14 +412,14 @@ footer.main-footer a.legals:hover { opacity: 1; }
 .savoria-card:hover .img-holder { transform: scale(1.1); filter: brightness(1.1); }
 .savoria-card:hover { z-index: 10; }
 
-.card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+.card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); opacity: 0; transform: translateY(10px); transition: all 0.3s ease; box-sizing: border-box; }
 .card-overlay span { color: #fff; font-family: 'Noto Serif SC', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 14px; font-weight: bold; }
 .savoria-card:hover .card-overlay { opacity: 1; transform: translateY(0); }
 
 /* 移动端横向滚动 (Infinite Marquee) */
 @media only screen and (max-width: 768px) {
     .horizontal-scroll-wrapper { height: auto !important; background-color: #fff; }
-    .savoria-sticky-viewport { position: relative !important; height: auto !important; top: auto !important; padding: 60px 0; display: block; }
+    .savoria-sticky-viewport { position: relative !important; height: auto !important; top: auto !important; padding: 60px 0; display: block; overflow: hidden; }
     .savoria-header { margin-bottom: 30px; }
     
     .savoria-track { display: flex; gap: 20px; width: max-content; padding-left: 0 !important; padding-right: 20px; animation: marqueeScroll 30s linear infinite; }
@@ -374,7 +429,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
     
     .savoria-card { width: 220px !important; height: 320px !important; flex-shrink: 0; margin: 0; transform: none !important; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     .savoria-card .img-holder { filter: brightness(1); transform: none; }
-    .card-overlay { opacity: 1; transform: translateY(0); padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+    .card-overlay { opacity: 1; transform: translateY(0); padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); box-sizing: border-box; }
 }
 
 /* 日记区域衔接 */
@@ -588,7 +643,7 @@ footer.main-footer a.legals:hover { opacity: 1; }
 /* ==========================================================================
    12. 全局加载页 (Bread Loader)
    ========================================================================== */
-#global-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #fbf9f4; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.6s ease-out, visibility 0.6s ease-out; }
+#global-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: #fbf9f4; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.6s ease-out, visibility 0.6s ease-out; }
 #global-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
 
 .loader { width: 100px; height: 80px; position: relative; display: flex; justify-items: center; align-items: center; }
@@ -1064,7 +1119,7 @@ body.no-scroll .main-header {
     top: 0;
     right: -420px; /* 初始藏在右侧 */
     width: 400px;
-    max-width: 85vw;
+    max-width: 85%;
     height: 100vh;
     background-color: #fbf9f4;
     box-shadow: -5px 0 25px rgba(0,0,0,0.15);
@@ -1174,7 +1229,7 @@ body.no-scroll .main-header {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     background: rgba(0, 0, 0, 0.4);
     z-index: 99998; /* 比抽屉低一层，比导航栏高 */
@@ -1228,7 +1283,7 @@ body.no-scroll .main-header {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     z-index: 100000;
@@ -1473,6 +1528,7 @@ body.no-scroll .main-header {
     padding: 14px 10px;
     background: transparent;
     border: none;
+    box-sizing: border-box; /* 防止 padding 导致超出容器宽度 */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1638,7 +1694,7 @@ body.no-scroll .main-header {
         top: 15px;
         font-size: 13px;
         padding: 10px 18px;
-        max-width: 85vw;
+        max-width: 85%; /* 防止 vw 引发溢出 */
         white-space: normal;
         text-align: center;
         line-height: 1.5;
@@ -1652,4 +1708,229 @@ body.no-scroll .main-header {
 #thankyou-modal {
     z-index: 100021 !important;
     max-width: 400px;
+}
+
+/* ==========================================================================
+   Task Bar Hero - 角色展示舞台 (Hero Showcase Stage)
+   ========================================================================== */
+.tbh-hero-showcase-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 40%, #2b1f1d 0%, #140d0c 70%, #0a0606 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 80px 20px 40px;
+    box-sizing: border-box;
+}
+
+/* 背景金色氛围呼吸环 */
+.tbh-bg-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(230, 160, 80, 0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: tbhGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes tbhGlowPulse {
+    0% { transform: scale(0.9); opacity: 0.6; }
+    100% { transform: scale(1.15); opacity: 1; }
+}
+
+/* 展示卡片舞台 (支持鼠标倾斜) */
+.tbh-showcase-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 800px;
+    background: rgba(35, 24, 21, 0.75);
+    border: 1px solid rgba(216, 175, 125, 0.25);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 200, 120, 0.05);
+    padding: 40px 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.15s ease-out;
+    transform-style: preserve-3d;
+}
+
+/* 顶部信息 UI */
+.tbh-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    background: rgba(139, 94, 60, 0.3);
+    border: 1px solid #8b5e3c;
+    border-radius: 20px;
+    color: #e2b885;
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.tbh-hero-name {
+    font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    font-size: 38px;
+    color: #fbf9f4;
+    margin: 0 0 6px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.tbh-hero-title {
+    font-family: 'Kalam', cursive;
+    color: #d8af7d;
+    font-size: 24px;
+    margin-left: 8px;
+}
+
+.tbh-hero-subtitle {
+    font-size: 14px;
+    color: #a89587;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Canvas 舞台容器 */
+.tbh-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    height: 420px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#tbh-knight-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 底部标签 */
+.tbh-hero-tags {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.tbh-tag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(216, 175, 125, 0.2);
+    color: #d8c8b7;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 碰撞框开关按钮样式 */
+.tbh-tag-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(216, 175, 125, 0.3);
+    color: #d8c8b7;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.tbh-tag-btn:hover {
+    background: rgba(216, 175, 125, 0.2);
+    color: #fff;
+    border-color: #e2b885;
+}
+
+/* 开启激活状态 */
+.tbh-tag-btn.active {
+    background: rgba(139, 94, 60, 0.4);
+    border-color: #e2b885;
+    color: #fce38a;
+    box-shadow: 0 0 12px rgba(226, 184, 133, 0.25);
+}
+
+/* ==========================================================================
+   Task Bar Hero - 动作选择与缩放控制栏 (Toolbar)
+   ========================================================================== */
+.tbh-toolbar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    z-index: 10;
+}
+
+.tbh-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(216, 175, 125, 0.2);
+}
+
+.tbh-group-label {
+    font-size: 12px;
+    color: #a89587;
+    margin-right: 2px;
+}
+
+.tbh-zoom-readout {
+    font-size: 12px;
+    color: #fce38a;
+    font-family: monospace;
+    min-width: 42px;
+    text-align: center;
+}
+
+.tbh-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(216, 175, 125, 0.3);
+    color: #d8c8b7;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tbh-btn:hover {
+    background: rgba(216, 175, 125, 0.25);
+    color: #ffffff;
+    border-color: #e2b885;
+}
+
+.tbh-btn.active {
+    background: rgba(139, 94, 60, 0.5);
+    border-color: #e2b885;
+    color: #fce38a;
+    box-shadow: 0 0 10px rgba(226, 184, 133, 0.3);
 }

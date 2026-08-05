@@ -219,7 +219,6 @@ WnkMediaLoader.prototype = {
 
 		if ($media.prop('tagName') === 'IMG')
 		{
-			// 🌟 使用 .on('load error') 替代已废弃的 .load()，同时监听 404 加载失败容错
 			$media.one("load.WnkMediaLoader error.WnkMediaLoader", function() {
 				self.onMediaLoaded();
 			});
@@ -261,10 +260,8 @@ WnkMediaLoader.prototype = {
 
 function MaiRijiApp()
 {
-	// 实例化视差控制器
 	this.wax = new WnkLaxController();
 
-	// 🌟 【新增】集中管理全局配置与本地存储 Key
 	this.config = {
 		waNumber: "601115277643",
 		storageKeys: {
@@ -274,27 +271,22 @@ function MaiRijiApp()
 		}
 	};
 
-	// 🌟 【新增】定义鼠标动画定时器句柄，防止多重定时器泄露
 	this.cursorTimer = null;
 }
 
 MaiRijiApp.prototype = {
 
-	// --- 启动入口 ---
 	preload: function ()
 	{
 		this.init();
 	},
 
-	// --- 初始化 ---
 	init: function ()
 	{
 		var $this = this;
 
-		// 🌟 【新增】DOM 常用元素缓存池（避免重复频繁搜索 DOM 树）
 		this.$els = {
 			body: $('body'),
-			// 产品详情页元素
 			detailPanel: $('#product-detail-panel'),
 			detailTitle: $('#detail-title'),
 			detailPrice: $('#detail-price'),
@@ -307,7 +299,6 @@ MaiRijiApp.prototype = {
 			detailStorage: $('#detail-storage'),
 			detailReheatTitle: $('#detail-reheat-title'),
 			detailReheat: $('#detail-reheat'),
-			// 购物车抽屉元素
 			cartDrawer: $('#cart-drawer-panel'),
 			cartBackdrop: $('#cart-backdrop'),
 			cartList: $('#cart-items-list'),
@@ -315,18 +306,18 @@ MaiRijiApp.prototype = {
 			cartBadge: $('#cart-count-badge')
 		};
 
-		// 生成产品卡片
 		this.renderProducts();
 		this.renderSavoriaCards('bread');
 		this.forceLoadTinyImages();
 
-		// 触发动画与绑定事件
 		$('.home-intro .bg-inner').addClass('play-zoom');
 		this.bindEvents();
 		this.initCustomCursor();
 
 		this.cart = this.loadCart();
 		this.updateCartUI();
+
+		this.initKnightShowcase();
 	},
 
 	getCurrentLanguage: function ()
@@ -334,7 +325,6 @@ MaiRijiApp.prototype = {
 		return $('html').attr('lang') === 'en' ? 'en' : 'zh';
 	},
 
-	// 👇 新增这个函数：自动生成 Savoria 卡片 👇
 	renderSavoriaCards: function (folder)
 	{
 		folder = folder || 'bread';
@@ -359,7 +349,6 @@ MaiRijiApp.prototype = {
 			var tinyUrl = 'assets/img/' + folder + '/' + photoName + '-tiny.webp';
 			var highResUrl = 'assets/img/' + folder + '/' + photoName + '.webp';
 
-			// 预加载 tiny 版本，避免首次显示延迟
 			new Image().src = tinyUrl;
 
 			var overlayHtml = displayLabel ? `<div class="card-overlay"><span>${displayLabel}</span></div>` : '';
@@ -389,24 +378,19 @@ MaiRijiApp.prototype = {
 		return array;
 	},
 
-	// 🌟 新增的黑科技：全局 tiny 图提取与强制加载
 	forceLoadTinyImages: function ()
 	{
 		$('.progressive-bg').each(function ()
 		{
-			// 读取内联 style 里的 background-image URL
 			var bgStr = $(this)[0].style.backgroundImage;
 			if (bgStr && bgStr !== 'none')
 			{
-				// 用正则把 url('...') 里面的干净链接提取出来
 				var url = bgStr.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '');
-				// 强制浏览器后台下载这张 tiny 图
 				new Image().src = url;
 			}
 		});
 	},
 
-	// 自动生成面包卡片
 	renderProducts: function ()
 	{
 		var isEnglish = this.getCurrentLanguage() === 'en';
@@ -567,7 +551,7 @@ MaiRijiApp.prototype = {
 			name: "抹茶蔓越莓欧包",
 			price: "16.00",
 			img: "6",
-			desc: "严选优质抹茶粉，呈现幽雅的自然茶绿。搭配酸甜可口的蔓越莓干，抹茶的微苦与果干的甘甜互补，茶香余韵悠长。",
+			desc: "严选优质抹茶粉，呈现幽雅的自然茶绿。搭配酸甜可口的蔓越莓干，抹茶的微苦与果干的甘甜互补，茶香余韵悠线。",
 			ingredients: "日本高筋小麦粉、德国裸麦粉、优质抹茶粉、蔓越莓干、水、酸种酵母、玫瑰盐。",
 			allergens: "含有麸质（小麦、裸麦）。",
 			gallery: ["6", "6-hover"]
@@ -655,7 +639,6 @@ MaiRijiApp.prototype = {
 			new Image().src = tinyUrlNormal;
 			new Image().src = tinyUrlHover;
 
-			// 💡 新增：判断是否是未上线产品
 			var isComingSoon = item.status === 'coming_soon';
 			var badgeHtml = isComingSoon ?
 				`<span class="coming-soon-badge">${isEnglish ? 'Coming Soon' : '敬请期待'}</span>` :
@@ -665,7 +648,7 @@ MaiRijiApp.prototype = {
             <li class="grid__item slider__slide">
                 <a href="#product-detail" class="product-card-wrapper card-wrapper open-detail-btn" data-type="${type}" data-id="${item.id}" style="background: transparent; border: none; box-shadow: none; padding: 0; display: block; cursor: none;">
                     <div class="stack-container">
-                        ${badgeHtml} <!-- 👈 插入敬请期待标签 -->
+                        ${badgeHtml}
                         <div class="polaroid card-bottom">
                             <div class="photo-area" style="background-color: ${type === 'cake' ? '#fdf7ef' : '#fbf9f4'};"></div>
                         </div>
@@ -705,7 +688,6 @@ MaiRijiApp.prototype = {
 			$('#cake-product-list').html(html);
 		}
 
-		// 仅在渲染面包时设置全局菜单标题
 		if (type === 'bread')
 		{
 			$('.menu-title').text(titleText);
@@ -736,7 +718,6 @@ MaiRijiApp.prototype = {
 
 			$('.menu-title').text(view === 'cake' ? (isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕') : (isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包'));
 
-			// Refresh sticky nav in case layout changed
 			try
 			{
 				self.initStickyNav();
@@ -745,7 +726,6 @@ MaiRijiApp.prototype = {
 			{}
 		};
 
-		// If animation not requested, do immediate switch
 		if (!animate)
 		{
 			doSwitch();
@@ -757,7 +737,6 @@ MaiRijiApp.prototype = {
 		void $toast[0].offsetWidth;
 		$toast.addClass('pop-in');
 
-		// Shorter timing for menu switch
 		setTimeout(function ()
 		{
 			$toast.addClass('expanding');
@@ -775,15 +754,12 @@ MaiRijiApp.prototype = {
 		}, 250);
 	},
 
-	// --- 事件绑定中心 ---
 	bindEvents: function ()
 	{
 		var $this = this;
 
-		// A. 启动导航栏滚动监听 (Sticky Header)
 		this.initStickyNav();
 
-		// B. 图片加载完后启动视差 (仅限桌面端，优化性能)
 		if (!this.isMobile())
 		{
 			var loader = new WnkMediaLoader($('img'), this);
@@ -791,24 +767,20 @@ MaiRijiApp.prototype = {
 			loader.load();
 		}
 
-		// C. 移动端汉堡菜单切换
 		$('.m-burger').on('click', function ()
 		{
 			$('body').toggleClass('menuOpen');
 		});
 
-		// D. 导航栏链接点击 (SPA 页面切换)
 		$('.nav-link').on('click', function (e)
 		{
 			e.preventDefault();
-			// 如果点击的是当前页面，不做任何事
 			var targetId = $(this).data('target');
 			if ($('#' + targetId).hasClass('active-view')) return;
 
 			$this.handlePageTransition($(this));
 		});
 
-		// E. 首页/菜单页“平滑下滑”按钮
 		$(document).on('click', 'a.down, a.scroll-link', function (e)
 		{
 			e.preventDefault();
@@ -816,7 +788,6 @@ MaiRijiApp.prototype = {
 			var $target = $(targetId);
 			if ($target.length > 0)
 			{
-				// 平滑下滑并避开导航栏
 				$('html, body').animate(
 				{
 					scrollTop: $target.offset().top - 60
@@ -824,7 +795,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// F. 全局滚动监听 (用于横向滚动特效)
 		var ticking = false;
 		$(window).on('scroll', function ()
 		{
@@ -844,7 +814,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// G. 窗口大小改变时，重置视差计算
 		$(window).on('resize', function ()
 		{
 			if ($this.wax && $this.wax.elements)
@@ -854,11 +823,9 @@ MaiRijiApp.prototype = {
 					$this.wax.elements[i].onResize();
 				}
 			}
-			// 重新计算导航栏触发点
 			Waypoint.refreshAll();
 		});
 
-		// H. 麦穗按钮点击特效 (仅对带有 data-link 的按钮生效)
         $(document).on('click', '.wheat-btn[data-link]', function (e)
         {
 			var $btn = $(this);
@@ -866,11 +833,10 @@ MaiRijiApp.prototype = {
 
 			if (!$btn.hasClass('clicked'))
 			{
-				$btn.addClass('clicked'); // 播放动画
+				$btn.addClass('clicked');
 
 				setTimeout(function ()
 				{
-					// 只有当有有效链接时才打开新窗口
 					if (targetUrl && targetUrl.length > 0)
 					{
 						window.open(targetUrl, '_blank');
@@ -884,14 +850,12 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// I. 菜单分类切换：Bread / Cake (带转场动画)
 		$('.menu-switcher-btn').on('click', function ()
 		{
 			var target = $(this).data('view');
 			$this.switchMenuView(target, true);
 		});
 
-		// J. 点击产品，打开详情面板
 		$(document).on('click', '.open-detail-btn', function (e)
 		{
 			e.preventDefault();
@@ -900,20 +864,17 @@ MaiRijiApp.prototype = {
 			$this.openProductDetail(type, id);
 		});
 
-		// K. 点击关闭按钮，隐藏面板
 		$(document).on('click', '.close-detail-btn', function (e)
 		{
 			e.preventDefault();
 			$('#product-detail-panel').removeClass('open');
 
-			// 💡 只有当“购物车抽屉”也没有打开时，才恢复导航栏与页面滚动！
 			if (!$('#cart-drawer-panel').hasClass('open'))
 			{
 				$('body').removeClass('no-scroll');
 			}
 		});
 
-		// L. 封装打开与关闭购物车的函数
 		$this.openCart = function ()
 		{
 			$this.$els.cartDrawer.addClass('open');
@@ -932,7 +893,6 @@ MaiRijiApp.prototype = {
 			}
 		};
 
-		// 绑定点击事件：点击浮动图标打开，点击关闭按钮或黑色遮罩关闭
 		$('#cart-float, .open-cart-btn').on('click', function (e)
 		{
 			e.preventDefault();
@@ -943,7 +903,6 @@ MaiRijiApp.prototype = {
 			$this.closeCart();
 		});
 
-		// M. 购物车内部：加减数量与删除
 		$(document).on('click', '.cart-qty-plus', function ()
 		{
 			var id = $(this).closest('.cart-item').data('id');
@@ -960,7 +919,6 @@ MaiRijiApp.prototype = {
 			$this.removeCartItem(id);
 		});
 
-		// N. 点击购物车结算按钮：直接打开弹窗（不播放落叶动画）
         $('#cart-checkout-btn').on('click', function (e)
         {
             e.preventDefault();
@@ -972,7 +930,6 @@ MaiRijiApp.prototype = {
             $this.openCheckoutModal();
         });
 
-        // O. 弹窗关闭与提交
         $('#close-checkout-modal, #checkout-modal-backdrop').on('click', function ()
         {
             $this.closeCheckoutModal();
@@ -999,7 +956,6 @@ MaiRijiApp.prototype = {
 				return;
 			}
 
-			// 格式化配送区域标题
 			var zoneLabels = {
 				tj_sepat: isEnglish ? "Tanjong Sepat Delivery" : "Tanjong Sepat 地区送货",
 				banting: isEnglish ? "Banting Area (Arrangement Needed)" : "Banting 地区（需沟通安排）",
@@ -1007,7 +963,6 @@ MaiRijiApp.prototype = {
 			};
 			var deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
 
-			// 记录历史输入
 			if (name) localStorage.setItem($this.config.storageKeys.custName, name);
 			if (address && zoneVal !== 'pickup') localStorage.setItem($this.config.storageKeys.custAddress, address);
 
@@ -1016,7 +971,6 @@ MaiRijiApp.prototype = {
 			setTimeout(function() {
 				$this.closeCheckoutModal();
 				
-				// 1. 打开 WhatsApp 订单
 				$this.checkoutWhatsApp({ 
 					name: name, 
 					address: address, 
@@ -1024,12 +978,10 @@ MaiRijiApp.prototype = {
 					deliveryZone: deliveryZoneText 
 				});
 
-				// 🌟 2. 弹出现在网页上的感谢弹窗
 				$('#thankyou-modal-backdrop').addClass('show');
 				$('#thankyou-modal').addClass('show');
 				$('body').addClass('no-scroll');
 
-				// 🌟 3. 订单完成后，自动清空购物篮数据并刷新界面
 				$this.cart = [];
 				$this.saveCart();
 				$this.updateCartUI();
@@ -1038,16 +990,14 @@ MaiRijiApp.prototype = {
 			}, 800);
 		});
 
-        // 点击 Instagram 极简快门按钮：播放闪光灯动画并跳转
         $('#insta-flash-btn').on('click', function(e) {
             e.preventDefault();
             var $btn = $(this);
             var url = "https://www.instagram.com/mywheatdiary/";
             
             if (!$btn.hasClass('shutter-active')) {
-                $btn.addClass('shutter-active'); // 播放闪光灯与快门按压动画
+                $btn.addClass('shutter-active');
                 
-                // 400毫秒（闪光灯亮起的最亮时刻）自动跳转
                 setTimeout(function() {
                     var newWin = window.open(url, '_blank');
                     if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
@@ -1061,20 +1011,17 @@ MaiRijiApp.prototype = {
             }
         });
 
-		// P. 点击一键定位：弹出 GPS 二级确认弹窗并自动抓取定位
 		$(document).on('click', '#get-gps-btn', function (e)
 		{
 			e.preventDefault();
 			$this.openGPSModal();
 		});
 
-		// Q. 关闭 GPS 二级确认弹窗
 		$('#close-gps-modal, #gps-modal-backdrop').on('click', function ()
 		{
 			$this.closeGPSModal();
 		});
 
-		// R. 提交 GPS 确认表单：拼合地址并填回主结算框
 		$('#gps-confirm-form').off('submit').on('submit', function (e)
 		{
 			e.preventDefault();
@@ -1093,14 +1040,11 @@ MaiRijiApp.prototype = {
 								(isEnglish ? "Street/Area: " : "详细区域：") + street + "\n" +
 								"📍 Google Maps: " + googleMapsUrl;
 
-			// 将拼好的地址填入主结算表单的地址栏中
 			$('#cust-address').val(finalAddressText);
 
-			// 关闭定位弹窗
 			$this.closeGPSModal();
 		});
 
-		// S. 全局 Esc 键盘快捷键关闭弹窗/抽屉
 		$(document).on('keyup', function (e)
 		{
 			if (e.key === 'Escape')
@@ -1125,17 +1069,15 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 手风琴折叠展开交互
 		$(document).on('click', '.accordion-header', function () {
 			var $btn = $(this);
 			var $content = $btn.next('.accordion-content');
 			
 			var isExpanded = $btn.toggleClass('active').hasClass('active');
-			$btn.attr('aria-expanded', isExpanded); // 🌟 实时同步展开/收起状态
+			$btn.attr('aria-expanded', isExpanded);
 			$content.stop().slideToggle(250);
 		});
 
-		// 配送区域/方式切换监听
 		$(document).on('change', '#cust-delivery-zone', function () {
 			var val = $(this).val();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
@@ -1143,19 +1085,15 @@ MaiRijiApp.prototype = {
 			var $notice = $('#zone-notice');
 			var $pickupInfo = $('#cust-pickup-info');
 
-			// 麦日记自提固定地址
 			var pickupAddress = "65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat";
 
 			if (val === 'pickup') {
-				// 选择到店自提：隐藏地址输入框，展开自提地址与导航卡片
 				$addressGroup.slideUp(200);
 				$notice.slideUp(200);
 				$pickupInfo.slideDown(200);
 				
-				// 自动将固定自提地址写入后台数据框
 				$('#cust-address').val(pickupAddress + " (店面自提)");
 			} else if (val === 'other') {
-				// 选择其他区域
 				$addressGroup.slideUp(200);
 				$pickupInfo.slideUp(200);
 				$notice.html(isEnglish ? 
@@ -1165,19 +1103,16 @@ MaiRijiApp.prototype = {
 				
 				$('#cust-address').val('');
 			} else {
-				// Tanjong Sepat 或 Banting 送货上门
 				$addressGroup.slideDown(200);
 				$notice.slideUp(200);
 				$pickupInfo.slideUp(200);
 				
-				// 清除自提地址残留
 				if ($('#cust-address').val().indexOf("Taman Pelangi") !== -1) {
 					$('#cust-address').val('');
 				}
 			}
 		});
 
-		// 关闭感谢弹窗
 		$('#close-thankyou-btn, #thankyou-modal-backdrop').on('click', function () {
 			$('#thankyou-modal-backdrop').removeClass('show');
 			$('#thankyou-modal').removeClass('show');
@@ -1189,7 +1124,7 @@ MaiRijiApp.prototype = {
 	{
 		var self = this;
 		var isEnglish = this.getCurrentLanguage() === 'en';
-		var els = this.$els; // 使用缓存池
+		var els = this.$els;
 
 		var products = type === 'cake' ? this.cakeProducts : this.breadProducts;
 		var item = products.filter(function (p) { return p.id === id; })[0];
@@ -1197,20 +1132,16 @@ MaiRijiApp.prototype = {
 
 		var folder = type === 'cake' ? 'cake' : 'bread';
 
-		// 1. 使用缓存快速填入基础信息
 		els.detailTitle.text(item.name);
 		els.detailPrice.text('RM ' + item.price);
 		els.detailText.html(item.desc);
 
-		// 2. 重置折叠手风琴状态
 		els.detailPanel.find('.accordion-header').removeClass('active');
 		els.detailPanel.find('.accordion-content').hide();
 
-		// 3. 填入成分与过敏原
 		els.detailIngredients.text(item.ingredients || '-');
 		els.detailAllergens.text(item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。"));
 
-		// 4. 根据产品类别填充保存与建议
 		if (type === 'cake') {
 			els.detailStorage.text(isEnglish ?
 				"Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture." :
@@ -1222,14 +1153,13 @@ MaiRijiApp.prototype = {
 		} else {
 			els.detailStorage.text(isEnglish ?
 				"• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread)." :
-				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流失与淀粉老化）。");
+				"• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流线与淀粉老化）。");
 			els.detailReheatTitle.text(isEnglish ? "Reheating Suggestions" : "加热复酥建议");
 			els.detailReheat.text(isEnglish ?
 				"1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy." :
 				"1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。");
 		}
 
-		// 5. 替换大图与图集
 		var heroUrl = 'assets/img/' + folder + '/' + item.img + '.webp';
 		els.detailHeroImg.css('background-image', "url('" + heroUrl + "')");
 
@@ -1241,7 +1171,6 @@ MaiRijiApp.prototype = {
 		}
 		els.detailGallery.html(galleryHtml);
 
-		// 6. 按钮状态切换（保持现有逻辑，改用缓存选择器）
 		var $orderBtn = els.detailOrderBtn;
 		if (item.status === 'coming_soon') {
 			var inqText = isEnglish ?
@@ -1266,23 +1195,18 @@ MaiRijiApp.prototype = {
 				});
 		}
 
-		// 7. 弹出面板
 		els.detailPanel.addClass('open');
 		els.body.addClass('no-scroll');
 		els.detailPanel.find('.detail-scroll-area').scrollTop(0);
 	},
 
-	// --- 核心逻辑：智能导航栏 (Sticky Nav) ---
 	initStickyNav: function ()
 	{
-		// 清理旧的触发器，防止叠加
 		Waypoint.destroyAll();
 
-		// 默认重置为大导航栏
 		$('.main-header').removeClass('small');
 		$('.home-intro .inner').removeClass('scroll-hide');
 
-		// 寻找当前激活页面的触发点 (scrollTrigger)
 		var $activeTrigger = $('.page-view.active-view .scrollTrigger');
 
 		if ($activeTrigger.length > 0)
@@ -1293,66 +1217,55 @@ MaiRijiApp.prototype = {
 				{
 					if (dir == 'down')
 					{
-						// 向下滚动：变小导航栏，隐藏 Hero 文字
 						$('.main-header').addClass('small');
 						$('.home-intro .inner').addClass('scroll-hide');
 					}
 					else
 					{
-						// 向上回滚：恢复大导航栏，显示 Hero 文字
 						$('.main-header').removeClass('small');
 						$('.home-intro .inner').removeClass('scroll-hide');
 					}
 				},
-				// 触发位置：元素顶部碰到导航栏底部时
 				offset: $('.main-header').height() + 15
 			});
 		}
-		// 强制刷新 Waypoint 计算
 		Waypoint.refreshAll();
 	},
 
-	// --- 核心逻辑：Savoria 横向滚动特效 ---
 	handleHorizontalScroll: function (scrollTop)
 	{
-		// 移动端禁用此特效
 		if (this.isMobile()) return;
 
 		var $scrollWrapper = $('.horizontal-scroll-wrapper');
-		// 如果当前页面没有横向滚动区，直接退出
 		if ($scrollWrapper.length === 0 || $scrollWrapper.is(':hidden')) return;
 
 		var winHeight = $(window).height();
 		var wrapperTop = $scrollWrapper.offset().top;
 		var wrapperHeight = $scrollWrapper.height();
-		var effectiveHeight = wrapperHeight - winHeight; // 可滚动的有效距离
-		var scrollDist = scrollTop - wrapperTop; // 当前已滚动的距离
+		var effectiveHeight = wrapperHeight - winHeight;
+		var scrollDist = scrollTop - wrapperTop;
 
 		var $track = $('.savoria-track');
 		var $cards = $('.savoria-card');
 		var $contentWrap = $('.savoria-sticky-viewport > .wrap');
 		var $diary = $('#home-diary');
 
-		// 处于滚动区间内
 		if (scrollDist >= 0 && scrollDist <= effectiveHeight)
 		{
 			var progress = scrollDist / effectiveHeight;
-			var splitPoint = 0.75; // 前 75% 滚动图片，后 25% 显示日记
+			var splitPoint = 0.75;
 
 			var trackWidth = $track.outerWidth();
 			var viewportWidth = $(window).width();
 
-			// 计算最大横向位移
 			var maxTranslateX = trackWidth - viewportWidth + (viewportWidth * 0.3);
 			var maxTranslateY = Math.max(0, $contentWrap.outerHeight() - winHeight);
 
 			if (progress <= splitPoint)
 			{
-				// 阶段一：横向滚动卡片
 				var hProg = progress / splitPoint;
 				$track.css('transform', 'translateX(' + (-maxTranslateX * hProg) + 'px)');
 
-				// 上下浮动动画
 				$cards.each(function (i)
 				{
 					var isOdd = i % 2 !== 0;
@@ -1360,86 +1273,70 @@ MaiRijiApp.prototype = {
 					$(this).css('transform', 'translateY(' + val + 'px)');
 				});
 
-				// 隐藏日记
 				$diary.removeClass('is-visible');
 				$contentWrap.css('transform', 'translateY(0px)');
 
 			}
 			else
 			{
-				// 阶段二：显示日记
 				var vProg = (progress - splitPoint) / (1 - splitPoint);
-				$track.css('transform', 'translateX(' + (-maxTranslateX) + 'px)'); // 锁定图片位置
-				$diary.addClass('is-visible'); // 显示日记
+				$track.css('transform', 'translateX(' + (-maxTranslateX) + 'px)');
+				$diary.addClass('is-visible');
 
-				// 内容轻微上移，腾出空间
 				$contentWrap.css('transform', 'translateY(' + (-maxTranslateY * vProg) + 'px)');
 			}
 		}
 		else if (scrollDist < 0)
 		{
-			// 回到顶部之前：重置
 			$track.css('transform', 'translateX(0px)');
 			$cards.css('transform', 'translateY(0px)');
 			$diary.removeClass('is-visible');
 		}
 	},
 
-	// --- 核心逻辑：SPA 页面切换转场 ---
+	// --- 核心逻辑：SPA 页面切换转场 (修复对空 $bg[0] 访问导致的异常) ---
 	handlePageTransition: function ($link)
 	{
 		var self = this;
 		var targetId = $link.data('target');
 
-		// 目标页面不存在，直接退出
 		if (!targetId || $('#' + targetId).length === 0) return;
 
 		var $toast = $('#toast-transition');
 
-		// 1. 重置动画状态
 		$toast.removeClass('pop-in expanding fading-out').css('opacity', '');
-		void $toast[0].offsetWidth; // 强制重绘
+		void $toast[0].offsetWidth;
 
-		// 2. 蹦出图标 (Pop In)
 		$toast.addClass('pop-in');
 
-		// 3. 开始转场流程
 		setTimeout(function ()
 		{
-			// 膨胀填满屏幕
 			$toast.addClass('expanding');
 
 			setTimeout(function ()
 			{
-				// --- 幕后操作开始 ---
-
-				// A. 切换视图 DOM
 				$('.page-view').removeClass('active-view');
 				$('#' + targetId).addClass('active-view');
 
-				// B. 滚回顶部
 				window.scrollTo(0, 0);
 
-				// C. 修复 Banner 透明度 (防止之前的滚动逻辑残留)
 				$('.home-intro .wrap, .page-intro .wrap').css('opacity', '');
 
-				// D. 关闭移动端菜单
 				if ($('body').hasClass('menuOpen')) $('body').removeClass('menuOpen');
-				// 👇【新增】强制关闭产品详情面板，并解锁页面滚动 👇
 				$('#product-detail-panel').removeClass('open');
 				$('body').removeClass('no-scroll');
 
-				// E. 重置 Hero 背景动画 (Zoom Effect)
+				// 🌟 【核心修复 1】：添加 length > 0 安全校验，避免未找到 .bg-inner 时报错中断转场
 				var $bg = (targetId === 'view-home') ? $('.home-intro .bg-inner') : $('#' + targetId + ' .bg-inner');
-				$bg.removeClass('play-zoom');
-				void $bg[0].offsetWidth; // 强制重绘
-				$bg.addClass('play-zoom');
+				if ($bg.length > 0)
+				{
+					$bg.removeClass('play-zoom');
+					void $bg[0].offsetWidth;
+					$bg.addClass('play-zoom');
+				}
 
-				// F. 重新初始化 Sticky 导航监听
 				self.initStickyNav();
 
-				// G. 视差稳定器 (Safe Stabilizer) - 关键修复
-				// 连续 60 帧强制刷新，防止 DOM 切换导致的布局抖动
 				var frames = 60;
 				var stabilize = function ()
 				{
@@ -1447,11 +1344,11 @@ MaiRijiApp.prototype = {
 					{
 						for (var i = 0; i < self.wax.elements.length; i++)
 						{
-							self.wax.elements[i].onResize(); // 重新测量位置
-							self.wax.elements[i].onFrame(); // 立即重绘
+							self.wax.elements[i].onResize();
+							self.wax.elements[i].onFrame();
 						}
 					}
-					Waypoint.refreshAll(); // 刷新导航栏触发点
+					Waypoint.refreshAll();
 
 					frames--;
 					if (frames > 0)
@@ -1461,27 +1358,21 @@ MaiRijiApp.prototype = {
 				};
 				stabilize();
 
-				// --- 幕后操作结束 ---
-
-				// 4. 淡出遮罩
 				$toast.addClass('fading-out');
 
-				// 5. 清理动画类名，为下次做准备
 				setTimeout(function ()
 				{
 					$toast.removeClass('pop-in expanding fading-out');
 				}, 400);
 
-			}, 500); // 配合 CSS transition 0.5s
-		}, 600); // 等待图标蹦出
+			}, 500);
+		}, 600);
 	},
 
-	// --- 视差滚动启动器 ---
 	onLoad: function ()
 	{
 		if (this.isMobile()) return;
 
-		// 仅对 Header 区域启用视差 (Footer 已排除)
 		this.wax.addElement($('.page-intro .bg, .home-intro .bg, header.intro .bg'), null,
 		{
 			deltaY: 1.2,
@@ -1491,7 +1382,6 @@ MaiRijiApp.prototype = {
 		this.wax.start();
 	},
 
-	// --- 工具：设备检测 ---
 	isMobile: function ()
 	{
 		var isSmallScreen = window.innerWidth <= 769;
@@ -1503,7 +1393,6 @@ MaiRijiApp.prototype = {
 	{
 		$('html').addClass('custom-cursor-active');
 
-		// 如果是手机端/触控设备，直接退出并移除残留元素
 		if (this.isMobile())
 		{
 			$('#custom-cursor').remove();
@@ -1522,7 +1411,6 @@ MaiRijiApp.prototype = {
 			$('body').append($cursor);
 		}
 
-		// 1. 强制样式 (解决层级被遮挡问题)
 		$cursor.css(
 		{
 			'position': 'fixed',
@@ -1539,37 +1427,30 @@ MaiRijiApp.prototype = {
 			'will-change': 'transform, left, top'
 		});
 
-		// 2. 准备所有帧的路径
 		var defaultFrames = [
-			'assets/img/cursor1.png', 'assets/img/cursor2.png', 'assets/img/cursor3.png'
+			'assets/img/cursor/cursor1.png', 'assets/img/cursor/cursor2.png', 'assets/img/cursor/cursor3.png'
 		];
 		var pointerFrames = [
-			'assets/img/pointer1.png', 'assets/img/pointer2.png', 'assets/img/pointer3.png'
+			'assets/img/cursor/pointer1.png', 'assets/img/cursor/pointer2.png', 'assets/img/cursor/pointer3.png'
 		];
 		var normalClickFrames = [
-			'assets/img/click1.png', 'assets/img/click2.png'
+			'assets/img/cursor/click1.png', 'assets/img/cursor/click2.png'
 		];
 		var pointerClickFrames = [
-			'assets/img/ptrClick1.png', 'assets/img/ptrClick2.png', 'assets/img/ptrClick3.png'
+			'assets/img/cursor/ptrClick1.png', 'assets/img/cursor/ptrClick2.png', 'assets/img/cursor/ptrClick3.png'
 		];
 
-		// ==========================================================
-		// ✨ 核心性能优化：DOM 批量预加载代替 src 替换 ✨
-		// ==========================================================
-		$cursor.empty(); // 清空原本单一的 img 标签
-		var imageElements = {}; // 存储所有预加载的图片 jQuery 对象
+		$cursor.empty();
+		var imageElements = {};
 
-		// 合并所有用到的图片数组
 		var allFrames = defaultFrames.concat(pointerFrames, normalClickFrames, pointerClickFrames);
 
-		// 数组去重 (防止同一张图片生成多个相同的 img 标签)
 		var uniqueFrames = [];
 		$.each(allFrames, function (i, el)
 		{
 			if ($.inArray(el, uniqueFrames) === -1) uniqueFrames.push(el);
 		});
 
-		// 遍历所有不重复的图片，直接生成多个隐藏的 img 标签
 		$.each(uniqueFrames, function (index, src)
 		{
 			var $img = $('<img>').attr('src', src).css(
@@ -1579,29 +1460,24 @@ MaiRijiApp.prototype = {
 				'left': '0',
 				'width': '100%',
 				'height': '100%',
-				'display': 'none' // 初始全部隐藏
+				'display': 'none'
 			});
 			$cursor.append($img);
-			imageElements[src] = $img; // 以路径为 key 保存起来
+			imageElements[src] = $img;
 		});
 
-		// 定义切换图片的函数：只改变 display，不发网络请求！
 		var currentActiveImg = null;
 
 		function setCursorImage(src)
 		{
-			if (currentActiveImg === imageElements[src]) return; // 如果一样，不操作
-			if (currentActiveImg) currentActiveImg.hide(); // 隐藏上一个
-			currentActiveImg = imageElements[src]; // 更新当前
-			if (currentActiveImg) currentActiveImg.show(); // 显示当前的
+			if (currentActiveImg === imageElements[src]) return;
+			if (currentActiveImg) currentActiveImg.hide();
+			currentActiveImg = imageElements[src];
+			if (currentActiveImg) currentActiveImg.show();
 		}
 
-		// 赋予初始帧
 		setCursorImage(defaultFrames[0]);
 
-		// ==========================================================
-		// 动画控制逻辑
-		// ==========================================================
 		var interactiveSelectors = 'a, button, input[type="submit"], .btn';
 		var isHovering = false;
 		var isClickAnimating = false;
@@ -1609,14 +1485,13 @@ MaiRijiApp.prototype = {
 		var currentFrameIndex = 0;
 		var animationTimer = null;
 
-		// 播放单次点击动画
 		function playClickAnimation(framesToPlay, onCompleteFrames)
 		{
 			if (isClickAnimating) return;
 			isClickAnimating = true;
 			currentFrameIndex = 0;
 
-			setCursorImage(framesToPlay[0]); // 显示第一帧
+			setCursorImage(framesToPlay[0]);
 
 			var frameDuration = 100;
 			var playNextFrame = function (index)
@@ -1643,7 +1518,6 @@ MaiRijiApp.prototype = {
 			}, frameDuration);
 		}
 
-		// 悬停交互
 		$(document).on('mouseenter', interactiveSelectors, function ()
 		{
 			isHovering = true;
@@ -1666,7 +1540,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 点击交互
 		$(document).on('mousedown', function ()
 		{
 			clearTimeout(animationTimer);
@@ -1681,7 +1554,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 循环动画定时器函数
 		function updateLoopImage()
 		{
 			if (isClickAnimating) return;
@@ -1689,7 +1561,6 @@ MaiRijiApp.prototype = {
 			setCursorImage(currentLoopFrames[currentFrameIndex]);
 		}
 
-		// 🌟 启动统一定时器（先清理旧定时器，防止重复叠加）
 		var startCursorTimer = function() {
 			if (self.cursorTimer) clearInterval(self.cursorTimer);
 			self.cursorTimer = setInterval(updateLoopImage, 200);
@@ -1702,10 +1573,8 @@ MaiRijiApp.prototype = {
 			}
 		};
 
-		// 初始启动
 		startCursorTimer();
 
-		// 鼠标跟随
 		$(document).on('mousemove.customCursor', function (e)
 		{
 			$cursor.css({
@@ -1715,39 +1584,18 @@ MaiRijiApp.prototype = {
 			if ($cursor.css('display') === 'none') $cursor.show();
 		});
 
-		// 🌟 离开/回到窗口时的防泄露监听（使用 .off 命名空间防重复绑定）
 		$(document).off('.cursorWindow').on({
 			'mouseleave.cursorWindow': function () {
 				$cursor.hide();
-				stopCursorTimer(); // 离开页面立即停止定时器，节省 CPU
+				stopCursorTimer();
 			},
 			'mouseenter.cursorWindow': function () {
 				if ($cursor.css('display') === 'none') $cursor.show();
-				startCursorTimer(); // 回到页面重新启动
+				startCursorTimer();
 			}
 		});
-
-		// 在 initCustomCursor 逻辑的尾部，加上这两个监听：
-		var cursorInterval = setInterval(updateLoopImage, 200);
-
-		$(document).on('mouseleave', function ()
-		{
-			// 鼠标离开浏览器窗口，隐藏光标并暂停动画
-			$cursor.hide();
-			clearInterval(cursorInterval);
-		});
-
-		$(document).on('mouseenter', function ()
-		{
-			// 鼠标回到浏览器窗口，恢复
-			if ($cursor.css('display') === 'none') $cursor.show();
-			clearInterval(cursorInterval);
-			cursorInterval = setInterval(updateLoopImage, 200);
-		});
 	},
-	// ==========================================
-	// 🔥 渐进式图片加载引擎 (Blur-up)
-	// ==========================================
+
 	loadHighResImages: function ()
 	{
 		$('.progressive-bg').each(function ()
@@ -1757,28 +1605,19 @@ MaiRijiApp.prototype = {
 
 			if (highResUrl)
 			{
-				// 创建一个存在于内存中的“虚拟图片”对象
 				var img = new Image();
 
-				// 当这张内存里的高清图下载完毕时...
 				img.onload = function ()
 				{
-					// 1. 替换背景图为高清图
 					$el.css('background-image', "url('" + highResUrl + "')");
-					// 2. 移除模糊滤镜，触发 CSS 渐变动画
 					$el.removeClass('blur-effect');
 				};
 
-				// 给虚拟图片赋予 URL，浏览器开始在后台悄悄下载
 				img.src = highResUrl;
 			}
 		});
 	},
 
-	// ==========================================
-	// 🛒 购物车核心功能逻辑（支持中英双语无缝切换）
-	// ==========================================
-	// 读取购物车
 	loadCart: function ()
 	{
 		try
@@ -1789,7 +1628,6 @@ MaiRijiApp.prototype = {
 		catch (e) { return []; }
 	},
 
-	// 保存购物车
 	saveCart: function ()
 	{
 		try
@@ -1799,7 +1637,6 @@ MaiRijiApp.prototype = {
 		catch (e) {}
 	},
 
-	// 💡 智能匹配当前语言对应的商品名称
 	getItemDisplayName: function (item)
 	{
 		var products = item.type === 'cake' ? this.cakeProducts : this.breadProducts;
@@ -1841,7 +1678,6 @@ MaiRijiApp.prototype = {
 		this.saveCart();
 		this.updateCartUI();
 
-		// 角标弹跳动画
 		$('#cart-count-badge').addClass('bump');
 		setTimeout(function ()
 		{
@@ -1930,21 +1766,20 @@ MaiRijiApp.prototype = {
 		els.cartBadge.text(totalQty);
 	},
 
-	// 🌟 自动生成 WhatsApp 完美双语格式消息并跳转（带 800 毫秒落叶动画延时）
 	checkoutWhatsApp: function (customerData)
     {
+        var isEnglish = this.getCurrentLanguage() === 'en';
+
         if (!this.cart || this.cart.length === 0)
         {
-            $this.showToast($this.getCurrentLanguage() === 'en' ? 'Your basket is empty!' : '购物篮还是空的哦！');
+            this.showToast(isEnglish ? 'Your basket is empty!' : '购物篮还是空的哦！');
             return;
         }
 
-        var isEnglish = this.getCurrentLanguage() === 'en';
         var totalPrice = 0;
         var totalQty = 0;
         var self = this;
 
-        // 1. 拼接订单标题与客户填写的配送信息
         var msg = isEnglish ?
             "Hello MaiRiji! I would like to place an order:\n\n" :
             "你好，麦日记！我想预定以下商品：\n\n";
@@ -1964,7 +1799,6 @@ MaiRijiApp.prototype = {
 
         msg += isEnglish ? "【Order Details】\n" : "【商品明细】\n";
 
-        // 2. 拼接购物车商品
         $.each(this.cart, function (i, item)
         {
             var lineTotal = (item.price * item.qty).toFixed(2);
@@ -1984,7 +1818,6 @@ MaiRijiApp.prototype = {
             "Please confirm availability and delivery schedule with me. Thank you!" :
             "请与我确认具体配送/自提时间，谢谢！";
 
-        // 3. 直接在 _blank 新页面中打开 WhatsApp（不经过任何空白页）
         var waNumber = "601115277643";
         var finalUrl = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent(msg);
 
@@ -1996,7 +1829,6 @@ MaiRijiApp.prototype = {
 
     openCheckoutModal: function ()
     {
-        // 动态计算明天日期 (T + 1)
         var tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         var yyyy = tomorrow.getFullYear();
@@ -2007,12 +1839,10 @@ MaiRijiApp.prototype = {
         var $dateInput = $('#cust-date');
         $dateInput.attr('min', minDateStr);
         
-        // 如果当前选中的日期小于明天，强制重置为明天
         if (!$dateInput.val() || $dateInput.val() < minDateStr) {
             $dateInput.val(minDateStr);
         }
 
-		// 自动读取上次保存的姓名与地址
         var savedName = localStorage.getItem('mairiji_cust_name');
         var savedAddress = localStorage.getItem('mairiji_cust_address');
         if (savedName && !$('#cust-name').val()) {
@@ -2022,7 +1852,6 @@ MaiRijiApp.prototype = {
             $('#cust-address').val(savedAddress);
         }
 
-        // 关闭侧边购物车，弹出信息 Modal
         this.closeCart();
         $('#checkout-modal-backdrop').addClass('show');
         $('#checkout-modal').addClass('show');
@@ -2042,11 +1871,9 @@ MaiRijiApp.prototype = {
     {
         var isEnglish = this.getCurrentLanguage() === 'en';
         
-        // 显示定位弹窗
         $('#gps-modal-backdrop').addClass('show');
         $('#gps-confirm-modal').addClass('show');
 
-        // 重置表单
         $('#gps-unit').val('');
         $('#gps-street').val('');
         $('#gps-coords').val('');
@@ -2064,10 +1891,11 @@ MaiRijiApp.prototype = {
     startGPSDetection: function ()
     {
         var isEnglish = this.getCurrentLanguage() === 'en';
+        var self = this;
 
         if (!navigator.geolocation)
         {
-            $this.showToast(isEnglish ? "GPS geolocation is not supported." : "您的浏览器不支持 GPS 地理定位。");
+            self.showToast(isEnglish ? "GPS geolocation is not supported." : "您的浏览器不支持 GPS 地理定位。");
             $('#gps-loading-status').html(isEnglish ? "❌ GPS not supported." : "❌ 浏览器不支持 GPS");
             return;
         }
@@ -2080,18 +1908,16 @@ MaiRijiApp.prototype = {
 
                 $('#gps-coords').val(lat + ", " + lng);
 
-                // 🌟 核心修改：在 URL 末尾加入 &accept-language=en，强制 OSM 逆解析输出英文/罗马字母地址
                 var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=" + lat + "&lon=" + lng;
 
                 fetch(reverseUrl, {
-                    headers: { 'Accept-Language': 'en-US,en;q=0.9' } // 强制 Headers 传英文
+                    headers: { 'Accept-Language': 'en-US,en;q=0.9' }
                 })
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     var street = data.display_name || "GPS Detected Area";
                     $('#gps-street').val(street);
 
-                    // 如果自动识别到了门牌号，预填写门牌框
                     if (data.address && data.address.house_number) {
                         $('#gps-unit').val("No. " + data.address.house_number);
                     }
@@ -2114,13 +1940,11 @@ MaiRijiApp.prototype = {
         );
     },
 
-	// 🍞 麦日记通用 Toast 悬浮提示条工具函数
 	showToast: function (msg, duration)
 	{
 		duration = duration || 2500;
 		var $toast = $('#app-toast-msg');
 		
-		// 如果页面上还没有容器，动态生成一个
 		if ($toast.length === 0) {
 			$toast = $('<div id="app-toast-msg"></div>').appendTo('body');
 		}
@@ -2131,5 +1955,452 @@ MaiRijiApp.prototype = {
 		this.toastTimer = setTimeout(function () {
 			$toast.removeClass('show');
 		}, duration);
-	},
+	}
+};
+
+// 🌟 修正版：骑士动画与渲染 (支持 3帧待机 / 3帧奔跑 / 4帧挥刀 / 3帧死亡)
+MaiRijiApp.prototype.initKnightShowcase = function () {
+    var canvas = document.getElementById('tbh-knight-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+
+    // 1. 加载 3 帧待机图片 (Idle Frames)
+    var idleFrames = [];
+    var idleSources = [
+        'assets/img/game/knight/knight-idle-1.png',
+        'assets/img/game/knight/knight-idle-2.png',
+        'assets/img/game/knight/knight-idle-3.png'
+    ];
+    for (var i = 0; i < idleSources.length; i++) {
+        var imgIdle = new Image();
+        imgIdle.src = idleSources[i];
+        idleFrames.push(imgIdle);
+    }
+
+    // 2. 加载 3 帧奔跑图片 (Run Frames)
+    var runFrames = [];
+    var runSources = [
+        'assets/img/game/knight/knight-run-1.png',
+        'assets/img/game/knight/knight-run-2.png',
+        'assets/img/game/knight/knight-run-3.png'
+    ];
+    for (var r = 0; r < runSources.length; r++) {
+        var imgRun = new Image();
+        imgRun.src = runSources[r];
+        runFrames.push(imgRun);
+    }
+
+    // 3. 加载 3 帧死亡图片 (Die Frames)
+    var dieFrames = [];
+    var dieSources = [
+        'assets/img/game/knight/knight-die-1.png', // 第 1 帧：受击摇晃
+        'assets/img/game/knight/knight-die-2.png', // 第 2 帧：向前/后倒下
+        'assets/img/game/knight/knight-die-3.png'  // 第 3 帧：伏地阵亡
+    ];
+    for (var d = 0; d < dieSources.length; d++) {
+        var imgDie = new Image();
+        imgDie.src = dieSources[d];
+        dieFrames.push(imgDie);
+    }
+
+    // 备用单图 (降级容错)
+    var knightFallbackImg = new Image();
+    knightFallbackImg.src = 'assets/img/game/knight/knight.png';
+
+    // 4. 加载 4 帧挥刀图片 (Attack Frames)
+    var attackFrames = [];
+    var attackSources = [
+        'assets/img/game/knight/knight-attack-1.png', // 第 1 帧：前摇蓄力
+        'assets/img/game/knight/knight-attack-2.png', // 第 2 帧：极速斩击 (Hitbox 触发)
+        'assets/img/game/knight/knight-attack-3.png', // 第 3 帧：延展缓冲
+        'assets/img/game/knight/knight-attack-4.png'  // 第 4 帧：平稳收刀
+    ];
+    for (var j = 0; j < attackSources.length; j++) {
+        var imgAttack = new Image();
+        imgAttack.src = attackSources[j];
+        attackFrames.push(imgAttack);
+    }
+
+    // 5. 动画时间轴参数 (Durations in ms)
+    var idleFrameDuration = 250; // 待机每帧 0.25 秒
+    var totalIdleDuration = idleFrameDuration * 3;
+
+    var runFrameDuration = 120; // 奔跑每帧 0.12 秒
+    var totalRunDuration = runFrameDuration * 3;
+
+    var dieDurations = [120, 150, 200]; // 死亡 3 帧节奏 (倒地后停留在第 3 帧)
+    var totalDieDuration = 470;
+
+    var attackDurations = [100, 40, 70, 70]; // 挥刀 4 帧节奏
+    var totalAttackDuration = 280;
+
+    // 6. 状态管理
+    var selectedActionMode = 'idle'; // 'idle' | 'run' | 'attack' | 'die'
+    var isAttacking = false;
+    var currentAttackFrameIndex = 0;
+    var attackStartTime = 0;
+
+    var isDying = false;
+    var currentDieFrameIndex = 0;
+    var dieStartTime = 0;
+
+    var showDebugHitbox = false; // 碰撞框默认 OFF
+    var zoomScale = 1.0; // 缩放比例 (默认 100%)
+
+    // 7. 缩放控制逻辑 (Zoom Logic)
+    function updateZoomUI() {
+        $('#tbh-zoom-text').text(Math.round(zoomScale * 100) + '%');
+    }
+
+    // 鼠标中键滚轮缩放
+    $('#tbh-canvas-wrapper').off('wheel').on('wheel', function (e) {
+        e.preventDefault();
+        if (e.originalEvent.deltaY < 0) {
+            zoomScale = Math.min(2.5, zoomScale + 0.1); // 放大
+        } else {
+            zoomScale = Math.max(0.5, zoomScale - 0.1); // 缩小
+        }
+        updateZoomUI();
+    });
+
+    // 缩放按钮
+    $('#tbh-zoom-in').off('click').on('click', function (e) {
+        e.stopPropagation();
+        zoomScale = Math.min(2.5, zoomScale + 0.2);
+        updateZoomUI();
+    });
+
+    $('#tbh-zoom-out').off('click').on('click', function (e) {
+        e.stopPropagation();
+        zoomScale = Math.max(0.5, zoomScale - 0.2);
+        updateZoomUI();
+    });
+
+    $('#tbh-zoom-reset').off('click').on('click', function (e) {
+        e.stopPropagation();
+        zoomScale = 1.0;
+        updateZoomUI();
+    });
+
+    // 8. 动作模式选择 (Action Switcher)
+    $('.action-btn').off('click').on('click', function (e) {
+        e.stopPropagation();
+        var action = $(this).data('tbh-action');
+        $('.action-btn').removeClass('active');
+        $(this).addClass('active');
+
+        selectedActionMode = action;
+
+        if (action === 'attack') {
+            isAttacking = true;
+            currentAttackFrameIndex = 0;
+            attackStartTime = performance.now();
+        } else if (action === 'die') {
+            isDying = true;
+            currentDieFrameIndex = 0;
+            dieStartTime = performance.now();
+        } else {
+            isAttacking = false;
+            isDying = false;
+            currentAttackFrameIndex = 0;
+            currentDieFrameIndex = 0;
+        }
+    });
+
+    // 碰撞框切换按键
+    var $toggleBtn = $('#tbh-toggle-hitbox-btn');
+    if ($toggleBtn.length) {
+        $toggleBtn.off('click').on('click', function (e) {
+            e.stopPropagation();
+            showDebugHitbox = !showDebugHitbox;
+            
+            var isEnglish = $('html').attr('lang') === 'en';
+            if (showDebugHitbox) {
+                $(this).addClass('active').html('<span class="icon">🎯</span> ' + (isEnglish ? 'Hitbox: ON' : '碰撞框: ON'));
+            } else {
+                $(this).removeClass('active').html('<span class="icon">🎯</span> ' + (isEnglish ? 'Hitbox: OFF' : '碰撞框: OFF'));
+            }
+        });
+    }
+
+    // 点击画布测试挥刀
+    canvas.onclick = function () {
+        if (selectedActionMode !== 'attack') {
+            $('.action-btn').removeClass('active');
+            $('.action-btn[data-tbh-action="attack"]').addClass('active');
+            selectedActionMode = 'attack';
+        }
+        isAttacking = true;
+        currentAttackFrameIndex = 0;
+        attackStartTime = performance.now();
+    };
+
+    // 环境微粒
+    var particles = [];
+    for (var pIdx = 0; pIdx < 20; pIdx++) {
+        particles.push({
+            x: (Math.random() - 0.5) * 200,
+            y: Math.random() * 80,
+            size: 2,
+            speedY: Math.random() * 0.4 + 0.2,
+            alpha: Math.random() * 0.6 + 0.1
+        });
+    }
+
+    var frameCount = 0;
+
+    function render() {
+        var rect = canvas.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            var dpr = window.devicePixelRatio || 1;
+            
+            if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+            }
+
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            
+            ctx.imageSmoothingEnabled = false;
+
+            var width = rect.width;
+            var height = rect.height;
+            var now = performance.now();
+            frameCount += 0.04;
+
+            var centerX = width / 2;
+            var centerY = height / 2 + 10;
+
+            // 1. 夕阳背景光晕
+            var bgRadius = Math.min(width, height) * 0.42;
+            var sunGlow = ctx.createRadialGradient(centerX, centerY - 15, 10, centerX, centerY - 15, bgRadius * 0.85);
+            sunGlow.addColorStop(0, '#fce38a');
+            sunGlow.addColorStop(0.55, '#f2c968');
+            sunGlow.addColorStop(1, 'rgba(242, 201, 104, 0)');
+            
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 15, bgRadius * 0.85, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 2. 升腾微粒
+            ctx.save();
+            ctx.translate(centerX, centerY + 80);
+            for (var p = 0; p < particles.length; p++) {
+                var pt = particles[p];
+                pt.y -= pt.speedY;
+                if (pt.y < -120) {
+                    pt.y = 0;
+                    pt.x = (Math.random() - 0.5) * 180;
+                }
+                ctx.fillStyle = '#f39c42';
+                ctx.globalAlpha = pt.alpha * (1 - pt.y / 120);
+                ctx.fillRect(Math.floor(pt.x), Math.floor(-pt.y), pt.size, pt.size);
+            }
+            ctx.restore();
+
+            // 3. 动画帧计算：待机 (3帧) vs 奔跑 (3帧) vs 挥刀 (4帧) vs 死亡 (3帧)
+            var currentRenderImg = knightFallbackImg;
+            var currentIdleFrameIndex = 0;
+            var currentRunFrameIndex = 0;
+
+            if (selectedActionMode === 'attack') {
+                // --- ⚔️ 挥刀模式 ---
+                if (!isAttacking) {
+                    isAttacking = true;
+                    currentAttackFrameIndex = 0;
+                    attackStartTime = now;
+                }
+
+                var elapsedAttackTime = now - attackStartTime;
+
+                if (elapsedAttackTime < attackDurations[0]) {
+                    currentAttackFrameIndex = 0;
+                } else if (elapsedAttackTime < attackDurations[0] + attackDurations[1]) {
+                    currentAttackFrameIndex = 1;
+                } else if (elapsedAttackTime < attackDurations[0] + attackDurations[1] + attackDurations[2]) {
+                    currentAttackFrameIndex = 2;
+                } else if (elapsedAttackTime < totalAttackDuration) {
+                    currentAttackFrameIndex = 3;
+                } else {
+                    attackStartTime = now;
+                    currentAttackFrameIndex = 0;
+                }
+
+                if (attackFrames[currentAttackFrameIndex] && attackFrames[currentAttackFrameIndex].complete && attackFrames[currentAttackFrameIndex].naturalWidth > 0) {
+                    currentRenderImg = attackFrames[currentAttackFrameIndex];
+                }
+            } else if (selectedActionMode === 'run') {
+                // --- 🏃 奔跑模式 ---
+                var elapsedRunTime = now % totalRunDuration;
+                currentRunFrameIndex = Math.floor(elapsedRunTime / runFrameDuration);
+
+                if (runFrames[currentRunFrameIndex] && runFrames[currentRunFrameIndex].complete && runFrames[currentRunFrameIndex].naturalWidth > 0) {
+                    currentRenderImg = runFrames[currentRunFrameIndex];
+                }
+            } else if (selectedActionMode === 'die') {
+                // --- 💀 死亡模式 (倒地后停留在第 3 帧) ---
+                if (!isDying) {
+                    isDying = true;
+                    currentDieFrameIndex = 0;
+                    dieStartTime = now;
+                }
+
+                var elapsedDieTime = now - dieStartTime;
+
+                if (elapsedDieTime < dieDurations[0]) {
+                    currentDieFrameIndex = 0;
+                } else if (elapsedDieTime < dieDurations[0] + dieDurations[1]) {
+                    currentDieFrameIndex = 1;
+                } else {
+                    currentDieFrameIndex = 2; // 保持倒地帧
+                }
+
+                if (dieFrames[currentDieFrameIndex] && dieFrames[currentDieFrameIndex].complete && dieFrames[currentDieFrameIndex].naturalWidth > 0) {
+                    currentRenderImg = dieFrames[currentDieFrameIndex];
+                }
+            } else {
+                // --- 🛡️ 待机模式 ---
+                var elapsedIdleTime = now % totalIdleDuration;
+                currentIdleFrameIndex = Math.floor(elapsedIdleTime / idleFrameDuration);
+
+                if (idleFrames[currentIdleFrameIndex] && idleFrames[currentIdleFrameIndex].complete && idleFrames[currentIdleFrameIndex].naturalWidth > 0) {
+                    currentRenderImg = idleFrames[currentIdleFrameIndex];
+                }
+            }
+
+            // 4. 等比例渲染
+            if (currentRenderImg.complete && currentRenderImg.naturalWidth > 0) {
+                var imgAspect = currentRenderImg.naturalWidth / currentRenderImg.naturalHeight;
+                var maxBound = Math.floor(Math.min(width, height) * 0.65 * zoomScale);
+                var drawW, drawH;
+
+                if (imgAspect > 1) {
+                    drawW = maxBound;
+                    drawH = Math.floor(maxBound / imgAspect);
+                } else {
+                    drawH = maxBound;
+                    drawW = Math.floor(maxBound * imgAspect);
+                }
+
+                var startX = Math.floor(centerX - drawW / 2);
+                var startY = Math.floor(centerY - drawH / 2);
+
+                // 奔跑模式下微小振动感
+                if (selectedActionMode === 'run') {
+                    var runOffsetY = (currentRunFrameIndex % 2 === 1) ? -2 : 0;
+                    startY += runOffsetY;
+                }
+
+                // 绘制当前动作图片
+                ctx.drawImage(currentRenderImg, startX, startY, drawW, drawH);
+
+                // 5. ⚔️ 碰撞判定框 (调试用)
+                if (showDebugHitbox) {
+                    // A. 【蓝色受击框 Hurtbox】：根据死亡倒地状态动态下压
+                    var hurtX = startX + drawW * 0.35;
+                    var hurtY = startY + drawH * 0.25;
+                    var hurtW = drawW * 0.30;
+                    var hurtH = drawH * 0.65;
+
+                    // 死亡倒地过程受击框贴地
+                    if (selectedActionMode === 'die') {
+                        if (currentDieFrameIndex === 1) {
+                            hurtY = startY + drawH * 0.45;
+                            hurtH = drawH * 0.45;
+                        } else if (currentDieFrameIndex === 2) {
+                            hurtX = startX + drawW * 0.20;
+                            hurtY = startY + drawH * 0.70;
+                            hurtW = drawW * 0.60;
+                            hurtH = drawH * 0.22;
+                        }
+                    }
+
+                    ctx.strokeStyle = 'rgba(0, 180, 255, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(hurtX, hurtY, hurtW, hurtH);
+                    ctx.fillStyle = 'rgba(0, 180, 255, 0.15)';
+                    ctx.fillRect(hurtX, hurtY, hurtW, hurtH);
+
+                    ctx.fillStyle = '#00b4ff';
+                    ctx.font = '10px monospace';
+                    ctx.fillText('Hurtbox (受击框)', hurtX, hurtY - 4);
+
+                    // B. 【红色攻击框 Hitbox】：仅在挥刀第 2 帧（斩击瞬间）弹出
+                    if (selectedActionMode === 'attack' && currentAttackFrameIndex === 1) {
+                        var hitX = startX + drawW * 0.52;
+                        var hitY = startY + drawH * 0.25;
+                        var hitW = drawW * 0.42;
+                        var hitH = drawH * 0.60;
+
+                        ctx.strokeStyle = 'rgba(255, 30, 30, 0.95)';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(hitX, hitY, hitW, hitH);
+                        ctx.fillStyle = 'rgba(255, 30, 30, 0.35)';
+                        ctx.fillRect(hitX, hitY, hitW, hitH);
+
+                        // 右侧斩击刀光弧线
+                        ctx.strokeStyle = '#ffe082';
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.arc(hitX + hitW * 0.2, hitY + hitH * 0.5, hitW * 0.6, -Math.PI * 0.45, Math.PI * 0.45);
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#ff3030';
+                        ctx.font = 'bold 11px monospace';
+                        ctx.fillText('⚡ 右侧 HITBOX (有效伤害!)', hitX, hitY - 6);
+                    }
+                }
+
+                // 6. 顶部 UI 文字与帧状态提示
+                ctx.save();
+                ctx.font = 'bold 22px "Noto Serif SC", "PingFang SC", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                
+                var textX = centerX;
+                var textY = startY - 15;
+
+                ctx.strokeStyle = '#121418';
+                ctx.lineWidth = 4;
+                ctx.strokeText('骑 士', textX, textY);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('骑 士', textX, textY);
+
+                // 底部状态提示
+                ctx.font = '12px "Noto Serif SC", sans-serif';
+                ctx.fillStyle = '#fce38a';
+                
+                var isEnglish = $('html').attr('lang') === 'en';
+                var statusText = '';
+                if (selectedActionMode === 'attack') {
+                    statusText = isEnglish ? 
+                        '⚔️ Attack Mode: Frame ' + (currentAttackFrameIndex + 1) + ' / 4' : 
+                        '⚔️ 挥剑模式：第 ' + (currentAttackFrameIndex + 1) + ' / 4 帧';
+                } else if (selectedActionMode === 'run') {
+                    statusText = isEnglish ? 
+                        '🏃 Run Mode: Frame ' + (currentRunFrameIndex + 1) + ' / 3' : 
+                        '🏃 奔跑模式：第 ' + (currentRunFrameIndex + 1) + ' / 3 帧';
+                } else if (selectedActionMode === 'die') {
+                    statusText = isEnglish ? 
+                        '💀 Death Mode: Frame ' + (currentDieFrameIndex + 1) + ' / 3' + (currentDieFrameIndex === 2 ? ' (Fallen)' : '') : 
+                        '💀 死亡模式：第 ' + (currentDieFrameIndex + 1) + ' / 3 帧' + (currentDieFrameIndex === 2 ? ' (已倒地)' : '');
+                } else {
+                    statusText = isEnglish ? 
+                        '🛡️ Idle Mode: Frame ' + (currentIdleFrameIndex + 1) + ' / 3' : 
+                        '🛡️ 待机模式：第 ' + (currentIdleFrameIndex + 1) + ' / 3 帧呼吸中';
+                }
+                ctx.fillText(statusText, textX, startY + drawH + 25);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        requestAnimationFrame(render);
+    }
+
+    render();
 };

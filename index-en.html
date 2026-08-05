@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <link rel="shortcut icon" href="assets/img/favicon.ico">
+    <link rel="shortcut icon" href="assets/img/logo/favicon.ico">
 
     <title>MaiRiji - Baking Stories and Everyday Joy</title>
 	
-	<link rel="preload" href="assets/img/hero-main-tiny.webp" as="image">
+	<link rel="preload" href="assets/img/banners/hero-main-tiny.webp" as="image">
 
 	<!-- 1. SEO and social sharing information -->    
 	<meta name="description" content="Welcome to MaiRiji, where baking stories, handcrafted bread, and sweet moments come together in a warm and personal way."/>
@@ -86,8 +86,8 @@
     <div class="wrap">
         <div class="logos">
             <a href="index.html" rel="nofollow" id="logo" title="MaiRiji">
-                <img src="assets/img/logo.png" class="big"/>
-                <img src="assets/img/logo-mini-black.png" class="small"/>
+                <img src="assets/img/logo/logo.png" class="big"/>
+                <img src="assets/img/logo/logo-mini-black.png" class="small"/>
             </a>
             <button class="m-burger" aria-label="Toggle navigation menu" aria-expanded="false">
 				<span class="burger-icon">
@@ -99,7 +99,7 @@
         </div>
         <div class="navs">
 			<a href="index.html" rel="nofollow" class="menu-panel-logo" title="MaiRiji">
-				<img src="assets/img/logo-black.png" alt="MaiRiji Logo"/>
+				<img src="assets/img/logo/logo-black.png" alt="MaiRiji Logo"/>
 			</a>
 			<nav role="navigation" class="main-nav">
 					<ul class="menu">
@@ -124,8 +124,8 @@
 		<section class="intro home-intro fixed" id="top">
 			<div class="bg">
 				<div class="bg-inner progressive-bg blur-effect" 
-					 style="background-image: url('assets/img/hero-main-tiny.webp');" 
-					 data-highres="assets/img/hero-main.webp">
+					 style="background-image: url('assets/img/banners/hero-main-tiny.webp');" 
+					 data-highres="assets/img/banners/hero-main.webp">
 				</div>
 			</div>
 			<div class="wrap">
@@ -156,8 +156,8 @@
 
 		<!-- 2. 全宽幅图片分隔 -->
         <section class="full-width-image-divider progressive-bg blur-effect" 
-        		 style="background-image: url('assets/img/bread-banner-tiny.webp');" 
-        		 data-highres="assets/img/bread-banner.webp">
+        		 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
+        		 data-highres="assets/img/banners/bread-banner.webp">
         </section>
 			
 		<!-- ✨✨✨【粘性横向滚动区】✨✨✨ -->
@@ -197,7 +197,7 @@
     <div id="view-menu" class="page-view">
         <section class="intro home-intro fixed" id="menu-top">
             <div class="bg">
-                <div class="bg-inner" style="background-image: url('assets/img/menu-bg.jpg');"></div>
+                <div class="bg-inner" style="background-image: url('assets/img/banners/menu-bg.jpg');"></div>
             </div>
             
             <div class="wrap">
@@ -242,12 +242,12 @@
 		</section>
 
 		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel active" data-banner-view="bread"
-			 style="background-image: url('assets/img/bread-banner-tiny.webp');" 
-			 data-highres="assets/img/bread-banner.webp">
+			 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
+			 data-highres="assets/img/banners/bread-banner.webp">
         </section>
 		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel" data-banner-view="cake"
-			 style="background-image: url('assets/img/cake-banner-tiny.webp');" 
-			 data-highres="assets/img/cake-banner.webp">
+			 style="background-image: url('assets/img/banners/cake-banner-tiny.webp');" 
+			 data-highres="assets/img/banners/cake-banner.webp">
         </section>
 
 		<!-- 产品展示区 -->
@@ -273,6 +273,59 @@
 			</div>
 		</section>
 	</div>
+
+	<!-- 🔵 3. Game/Diary View (View Diary - Task Bar Hero Showcase) -->
+	<div id="view-diary" class="page-view">
+		<section class="tbh-hero-showcase-section">
+			<div class="tbh-bg-glow"></div>
+			
+			<div class="tbh-showcase-container">
+				<div class="tbh-hero-header">
+					<div class="tbh-badge">TASK BAR HERO · HERO SHOWCASE</div>
+					<h1 class="tbh-hero-name">Wheat Knight <span class="tbh-hero-title">KNIGHT</span></h1>
+					<p class="tbh-hero-subtitle">"Shielding the wheat fields, cleaving the dawn with holy light"</p>
+				</div>
+
+				<!-- 🌟 核心控制栏：动作选择 + 缩放控制 + 碰撞框开关 -->
+				<div class="tbh-toolbar">
+					<!-- 1. Actions -->
+					<div class="tbh-btn-group">
+						<span class="tbh-group-label">Actions:</span>
+						<button type="button" class="tbh-btn action-btn active" data-tbh-action="idle">🛡️ Idle</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="run">🏃 Run</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="attack">⚔️ Attack</button>
+						<button type="button" class="tbh-btn action-btn" data-tbh-action="die">💀 Death</button>
+					</div>
+
+					<!-- 2. 缩放控制 -->
+					<div class="tbh-btn-group">
+						<span class="tbh-group-label">Zoom:</span>
+						<button type="button" class="tbh-btn" id="tbh-zoom-out" title="Zoom Out">-</button>
+						<span id="tbh-zoom-text" class="tbh-zoom-readout">100%</span>
+						<button type="button" class="tbh-btn" id="tbh-zoom-in" title="Zoom In">+</button>
+						<button type="button" class="tbh-btn" id="tbh-zoom-reset" title="Reset Zoom">↺</button>
+					</div>
+
+					<!-- 3. 碰撞框开关 -->
+					<button type="button" id="tbh-toggle-hitbox-btn" class="tbh-btn">
+						🎯 Hitbox: OFF
+					</button>
+				</div>
+
+				<!-- Canvas 角色模型渲染区 -->
+				<div class="tbh-canvas-wrapper" id="tbh-canvas-wrapper">
+					<canvas id="tbh-knight-canvas"></canvas>
+				</div>
+
+				<div class="tbh-hero-tags">
+					<span class="tbh-tag"><i class="icon">🛡️</i> Heavy Guardian</span>
+					<span class="tbh-tag"><i class="icon">⚔️</i> Melee Slash</span>
+					<span class="tbh-tag"><i class="icon">🔍</i> Supports Mouse Wheel Zoom</span>
+				</div>
+			</div>
+		</section>
+	</div>
+
 </main>
 <!-- ======================= 页脚 ======================= -->
 <footer role="contentinfo" class="main-footer">
@@ -281,7 +334,7 @@
         <div class="cols">
             <div class="col logo">
                 <div>
-                    <img src="assets/img/logo-black.png" alt="MaiRiji"/>
+                    <img src="assets/img/logo/logo-black.png" alt="MaiRiji"/>
                 </div>
 
                 <!-- 纯极简风 Instagram 快门闪光按钮 (无账号名) -->
@@ -588,7 +641,7 @@
         <div id="gps-loading-status" class="form-tip" style="margin-bottom: 15px; text-align: center;">
             ⌛ Detecting your precise GPS location, please wait...
         </div>
-        <<form id="gps-confirm-form" novalidate>
+        <form id="gps-confirm-form" novalidate>
             <div class="form-group">
                 <label for="gps-unit">House No. / Unit / Floor <span class="required">*</span></label>
                 <input type="text" id="gps-unit" placeholder="e.g. No. 18 or Block B-12-05" required>
