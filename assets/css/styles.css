@@ -397,8 +397,8 @@ footer.main-footer .cols .col.logo div img { width: 100%; height: auto; display:
 
 .logo-socials { list-style: none; padding: 0; margin: 0; text-align: center; margin-top: 20px; }
 
-footer.main-footer a.legals { width: 100%; text-align: center; font-size: 10px; color: black; text-transform: uppercase; letter-spacing: 5px; display: block; opacity: 0.5; transition: 0.3s; }
-footer.main-footer a.legals:hover { opacity: 1; }
+footer.main-footer .legals { width: 100%; text-align: center; font-size: 10px; color: black; text-transform: uppercase; letter-spacing: 5px; display: block; opacity: 0.5; transition: 0.3s; }
+footer.main-footer .legals:hover { opacity: 1; }
 
 @media only screen and (max-width: 768px) {
     footer.main-footer .cols { width: 100%; margin-bottom: 20px; }
@@ -1781,4 +1781,35 @@ body.no-scroll .main-header {
     filter: blur(1px);
     opacity: 0.6;
     transition: filter 0.15s ease, opacity 0.15s ease;
+}
+
+/* ==========================================================================
+   表单错误贴身提醒与输入框抖动效果
+   ========================================================================== */
+
+/* 错误输入框：红边框 + 暖红浅底 + 抖动动画 */
+.checkout-modal .form-group input.input-error,
+.checkout-modal .form-group textarea.input-error {
+    border-color: #d9534f !important;
+    background-color: #fff8f8 !important;
+    box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.2) !important;
+    animation: field-shake 0.4s ease-in-out;
+}
+
+@keyframes field-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* 输入框正下方的贴身红字提醒 */
+.field-error-msg {
+    color: #d9534f;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: fadeIn 0.25s ease-out;
 }

@@ -282,7 +282,7 @@ function MaiRijiApp()
 
 MaiRijiApp.prototype = {
 
-	// 1. [修改] 预加载：同时请求 products.json 和 locales.json
+	// 1. 预加载：同时请求 products.json 和 locales.json
 	preload: function ()
 	{
 		var self = this;
@@ -300,7 +300,7 @@ MaiRijiApp.prototype = {
 		});
 	},
 
-	// 2. [新增] 全局翻译引擎 (Translation Engine)
+	// 2. 全局翻译引擎 (Translation Engine)
 	t: function (keyPath)
 	{
 		if (!this.localesData || !this.localesData[this.currentLang]) return keyPath;
@@ -315,7 +315,7 @@ MaiRijiApp.prototype = {
 		return current;
 	},
 
-	// 3. [新增] 一键更新 DOM 中的所有文字
+	// 3. 一键更新 DOM 中的所有文字
 	updateDOMTranslations: function ()
 	{
 		var self = this;
@@ -341,20 +341,17 @@ MaiRijiApp.prototype = {
 		$('#lang-float .textIcon').text(this.currentLang === 'en' ? '中文' : 'EN');
 	},
 
-	// 4. 🌟 [升级版] 原地无刷新切换语言 (带画面微暗 + 乱码解密特效 + 防连点锁)
+	// 4. 原地无刷新切换语言
 	switchLanguage: function (targetLang)
 	{
 		var self = this;
 
-		// 🎯 【防多按/防重按】500毫秒 CD 冷却锁，如果正在切换中，直接拒绝重复点击
 		if (this.isLangSwitching) return;
 		this.isLangSwitching = true;
 
-		// 切换语言变量并存入浏览器
 		this.currentLang = targetLang || (this.currentLang === 'en' ? 'zh' : 'en');
 		localStorage.setItem(this.config.storageKeys.lang, this.currentLang);
 
-		// 🎯 【特效 1：画面变暗/微模糊】动态生成或显示遮罩
 		var $overlay = $('#lang-switch-overlay');
 		if ($overlay.length === 0)
 		{
@@ -362,19 +359,16 @@ MaiRijiApp.prototype = {
 		}
 		$overlay.addClass('show');
 
-		// 🎯 【特效 2：文字乱码解密】定义字符池
 		var $targets = $('[data-i18n]');
 		var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789麦日记风味烘焙';
 
 		$targets.addClass('text-scrambling');
 
-		// 乱码动画：每 35 毫秒随机替换一次字符，闪烁 4 次
 		var scrambleCount = 0;
 		var scrambleInterval = setInterval(function ()
 		{
 			$targets.each(function () {
 				var $el = $(this);
-				// 如果内部包含HTML标签（如<br>），跳过乱码闪烁，避免破坏结构
 				if ($el.children().length > 0 || $el.html().indexOf('<') !== -1) return;
 				
 				var scrambled = '';
@@ -391,16 +385,13 @@ MaiRijiApp.prototype = {
 			}
 		}, 35);
 
-		// 🎯 【特效 3：220毫秒后还原为正式语言文字】
 		setTimeout(function ()
 		{
-			// 还原文字
 			self.updateDOMTranslations();
 			self.renderProducts();
 			self.updateCartUI();
 			self.loadHighResImages();
 
-			// 悬浮按钮提示更新
 			var existingVIP = localStorage.getItem(self.config.storageKeys.custName);
 			if (existingVIP)
 			{
@@ -411,7 +402,6 @@ MaiRijiApp.prototype = {
 				$('#open-vip-btn').attr('data-label', self.t('nav.vip'));
 			}
 
-			// 如果详情页开着，重新渲染详情
 			if (self.$els.detailPanel.hasClass('open'))
 			{
 				var currentType = self.$els.detailPanel.data('type');
@@ -422,11 +412,9 @@ MaiRijiApp.prototype = {
 				}
 			}
 
-			// 移除乱码状态与遮罩
 			$targets.removeClass('text-scrambling');
 			$overlay.removeClass('show');
 
-			// 250毫秒后解锁，允许下一次点击
 			setTimeout(function ()
 			{
 				self.isLangSwitching = false;
@@ -435,13 +423,13 @@ MaiRijiApp.prototype = {
 		}, 220);
 	},
 
-	// 5. [修改] 读取当前语言
+	// 5. 读取当前语言
 	getCurrentLanguage: function ()
 	{
 		return this.currentLang;
 	},
 
-	// 6. [修改] 初始化
+	// 6. 初始化
 	init: function ()
 	{
 		var $this = this;
@@ -467,7 +455,6 @@ MaiRijiApp.prototype = {
 			cartBadge: $('#cart-count-badge')
 		};
 
-		// --- 🌟 关键：启动时翻译页面 ---
 		this.updateDOMTranslations();
 
 		this.renderProducts();
@@ -481,7 +468,6 @@ MaiRijiApp.prototype = {
 		this.cart = this.loadCart();
 		this.updateCartUI();
 
-		// 检查本地是否有 VIP 档案，更新右下角悬浮按钮的悬停提示文字
 		var existingVIP = localStorage.getItem(this.config.storageKeys.custName);
 		if (existingVIP)
 		{
@@ -493,7 +479,7 @@ MaiRijiApp.prototype = {
 		}
 	},
 
-	// 7. [修改] 渲染商品 (基于 JSON 数据)
+	// 7. 渲染商品 (基于 JSON 数据)
 	renderProducts: function ()
 	{
 		var langKey = this.getCurrentLanguage();
@@ -509,7 +495,6 @@ MaiRijiApp.prototype = {
 			this.cakeProducts = [];
 		}
 
-		// 这里调用 t() 函数去获取菜单标题
 		this.renderProductGroup('bread', this.breadProducts, this.t('menu.bread_title'));
 		this.renderProductGroup('cake', this.cakeProducts, this.t('menu.cake_title'));
 	},
@@ -717,7 +702,7 @@ MaiRijiApp.prototype = {
 		$('#lang-float').off('click').on('click', function (e)
 		{
 			e.preventDefault();
-			$this.switchLanguage(); // 触发原地切换语言
+			$this.switchLanguage();
 		});
 
 		if (!this.isMobile())
@@ -755,8 +740,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 🌟 [新增] 性能优化：IntersectionObserver (可视区监听)
-		// 避免在用户看底部菜单时，还在后台疯狂计算首屏大图的视差矩阵，降低设备发热与掉帧
 		$this.activeObservers = {
 			horizontal: true,
 			parallax: true
@@ -764,14 +747,12 @@ MaiRijiApp.prototype = {
 
 		if ('IntersectionObserver' in window)
 		{
-			// rootMargin: '500px' 表示在元素进入屏幕前 500px 就提前唤醒计算，防止突然闪现，保证丝滑
 			var observerOptions = {
 				root: null,
 				rootMargin: '500px 0px',
 				threshold: 0
 			};
 
-			// 1. 监听横向滚动区域
 			var hScrollEl = document.querySelector('.horizontal-scroll-wrapper');
 			if (hScrollEl)
 			{
@@ -782,7 +763,6 @@ MaiRijiApp.prototype = {
 				hObserver.observe(hScrollEl);
 			}
 
-			// 2. 监听所有包含视差滚动的背景图区域
 			var pTargets = document.querySelectorAll('section.intro, header.intro, .full-width-image-divider');
 			if (pTargets.length > 0)
 			{
@@ -808,7 +788,6 @@ MaiRijiApp.prototype = {
 			}
 		}
 
-		// 🌟 带有防抖与视口判断的超级滚动监听
 		var ticking = false;
 		$(window).on('scroll', function ()
 		{
@@ -818,7 +797,6 @@ MaiRijiApp.prototype = {
 				{
 					var scrollTop = $(window).scrollTop();
 
-					// [性能提升区] 只有目标区域在可视范围内，才去执行极其消耗性能的 JS 重绘
 					if ($this.activeObservers.horizontal)
 					{
 						$this.handleHorizontalScroll(scrollTop);
@@ -956,16 +934,26 @@ MaiRijiApp.prototype = {
 			$this.closeCheckoutModal();
 		});
 
+		// 监听用户输入，修改时自动消除红框
+		$(document).on('input', '#checkout-form input, #checkout-form textarea', function() {
+			$this.clearFieldError($(this));
+		});
+
 		$('#checkout-form').off('submit').on('submit', function (e)
 		{
 			e.preventDefault();
 			var $btn = $(this).find('.wheat-btn');
 			var name = $('#cust-name').val().trim();
-			var phone = $('#cust-phone').val().trim(); // 🌟 获取电话
+			var phone = $('#cust-phone').val().trim();
 			var address = $('#cust-address').val().trim();
 			var date = $('#cust-date').val();
 			var zoneVal = $('#cust-delivery-zone').val();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
+
+			// 清除之前的错误高亮
+			$this.clearFieldError($('#cust-name'));
+			$this.clearFieldError($('#cust-phone'));
+			$this.clearFieldError($('#cust-address'));
 
 			if (zoneVal === 'other')
 			{
@@ -973,12 +961,29 @@ MaiRijiApp.prototype = {
 				return;
 			}
 
-			if (!name || !phone || (zoneVal !== 'pickup' && !address) || !date)
-			{
-				$this.showToast(isEnglish ? 'Please fill in required fields.' : '请填写完整联系姓名、电话、配送地址和期望日期。');
+			// 基础必填校验
+			if (!name) {
+				$this.showFieldError($('#cust-name'), isEnglish ? 'Please enter your name' : '请填写联系姓名');
+				return;
+			}
+			if (!phone) {
+				$this.showFieldError($('#cust-phone'), isEnglish ? 'Please enter your phone number' : '请填写联系电话');
+				return;
+			}
+			
+			if (!$this.isValidPhone(phone)) {
+				$this.showFieldError($('#cust-phone'), isEnglish ? 
+					'Invalid phone format (e.g. 011-2956 9555 or 012-345 6789)' : 
+					'电话号码格式不正确，请检查位数是否有多打或少打');
 				return;
 			}
 
+			if (zoneVal !== 'pickup' && !address) {
+				$this.showFieldError($('#cust-address'), isEnglish ? 'Please enter delivery address' : '请填写详细配送地址');
+				return;
+			}
+
+			// 🌟 正确定义配送区域描述文本，避免 ReferenceError
 			var zoneLabels = {
 				tj_sepat: isEnglish ? "Tanjong Sepat Delivery" : "Tanjong Sepat 地区送货",
 				banting: isEnglish ? "Banting Area (Arrangement Needed)" : "Banting 地区（需沟通安排）",
@@ -986,12 +991,12 @@ MaiRijiApp.prototype = {
 			};
 			var deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
 
-			// 将本次填写的姓名、电话自动记忆到本地
+			// 保存个人信息到本地
 			if (name) localStorage.setItem($this.config.storageKeys.custName, name);
 			if (phone) localStorage.setItem($this.config.storageKeys.custPhone, phone);
 			if (address && zoneVal !== 'pickup') localStorage.setItem($this.config.storageKeys.custAddress, address);
 
-			// 🌟 [新增静默同步] 在后台默默把新顾客/老顾客的结账信息发给 Google 表格数据库
+			// 后台 Google Sheets 静默同步
 			if ($this.config.googleSheetUrl && $this.config.googleSheetUrl.indexOf("http") === 0)
 			{
 				fetch($this.config.googleSheetUrl,
@@ -1092,10 +1097,11 @@ MaiRijiApp.prototype = {
 				return;
 			}
 
-			var googleMapsUrl = "https://maps.google.com/?q=" + coords;
+			var cleanCoords = coords.replace(/\s+/g, ''); // 确保无空格
+			var googleMapsUrl = "https://maps.google.com/?q=" + cleanCoords;
 			var finalAddressText = (isEnglish ? "Unit/House No: " : "门牌单位：") + unit + "\n" +
 				(isEnglish ? "Street/Area: " : "详细区域：") + street + "\n" +
-				"📍 Google Maps: " + googleMapsUrl;
+				"Google Maps: " + googleMapsUrl;
 
 			$('#cust-address').val(finalAddressText);
 
@@ -1136,12 +1142,10 @@ MaiRijiApp.prototype = {
 			$content.stop().slideToggle(250);
 		});
 
-		// 🌟 1. 监听地址输入框：一旦用户手动修改地址，立即清除“系统自动填充”标记
 		$(document).on('input', '#cust-address', function() {
 			$(this).removeAttr('data-is-auto-filled');
 		});
 
-		// 🌟 2. 优化后的配送区域切换逻辑
 		$(document).on('change', '#cust-delivery-zone', function () {
 			var val = $(this).val();
 			var isEnglish = $this.getCurrentLanguage() === 'en';
@@ -1157,7 +1161,6 @@ MaiRijiApp.prototype = {
 				$notice.slideUp(200);
 				$pickupInfo.slideDown(200);
 				
-				// 标记为“系统自动填入”
 				$addressInput.val(pickupAddress + " (店面自提)").attr('data-is-auto-filled', 'true');
 			} else if (val === 'other') {
 				$addressGroup.slideUp(200);
@@ -1167,7 +1170,6 @@ MaiRijiApp.prototype = {
 					"⚠️ 抱歉！我们目前仅提供 <strong>Tanjong Sepat</strong> 配送及 <strong>Banting</strong> 地区安排配送。其他区域欢迎选择<strong>【到店自提】</strong>哦！"
 				).slideDown(200);
 				
-				// 只有当是系统自动填入的自提地址时才清空
 				if ($addressInput.attr('data-is-auto-filled') === 'true') {
 					$addressInput.val('').removeAttr('data-is-auto-filled');
 				}
@@ -1176,7 +1178,6 @@ MaiRijiApp.prototype = {
 				$notice.slideUp(200);
 				$pickupInfo.slideUp(200);
 				
-				// 切换回送货模式：如果之前是系统自动填入的，还原为用户的历史保存地址或清空
 				if ($addressInput.attr('data-is-auto-filled') === 'true') {
 					var savedAddress = localStorage.getItem($this.config.storageKeys.custAddress) || '';
 					$addressInput.val(savedAddress).removeAttr('data-is-auto-filled');
@@ -1191,14 +1192,7 @@ MaiRijiApp.prototype = {
 			$('body').removeClass('no-scroll');
 		});
 
-		// ==========================================
-		// 🌟 会员/VIP 档案注册逻辑 (Google Sheets)
-		// ==========================================
-		var GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby1Qm6k1oiw4zqqIS5WWFUKBGnWuW-CdvctB4DvHFPMFm4YcGsL_O3S8oNgB6IMzFVL5Q/exec";
-
-		// ==========================================
-		// 🌟 会员 VIP 点击逻辑：未登录弹注册框，已登录弹资料卡
-		// ==========================================
+		// VIP 点击逻辑
 		$('#open-vip-btn').off('click').on('click', function (e)
 		{
 			e.preventDefault();
@@ -1207,12 +1201,10 @@ MaiRijiApp.prototype = {
 			var savedPhone = localStorage.getItem($this.config.storageKeys.custPhone);
 			var savedAddress = localStorage.getItem($this.config.storageKeys.custAddress);
 
-			// 关掉手机侧边菜单（如果在菜单里点击）
 			if ($('body').hasClass('menuOpen')) $('body').removeClass('menuOpen');
 
 			if (savedName)
 			{
-				// 🎯 情况 A：已登录 —— 填充数据并打开【VIP 资料卡弹窗】
 				$('#profile-display-name').text(savedName);
 				$('#profile-display-phone').text(savedPhone || (isEn ? "Not provided" : "未填写"));
 				$('#profile-display-address').text(savedAddress || (isEn ? "No default address saved" : "暂无保存的默认地址"));
@@ -1223,14 +1215,12 @@ MaiRijiApp.prototype = {
 			}
 			else
 			{
-				// 🎯 情况 B：未登录 —— 打开【注册弹窗】
 				$('#vip-modal-backdrop').addClass('show');
 				$('#vip-register-modal').addClass('show');
 				$('body').addClass('no-scroll');
 			}
 		});
 
-		// 关闭【VIP 资料卡弹窗】
 		$('#close-vip-profile-modal, #vip-profile-close-btn, #vip-profile-backdrop').on('click', function ()
 		{
 			$('#vip-profile-backdrop').removeClass('show');
@@ -1241,17 +1231,14 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 点击【退出登录 / 清除档案】按钮
 		$('#vip-logout-btn').on('click', function ()
 		{
 			var isEn = $this.getCurrentLanguage() === 'en';
 
-			// 清除本地缓存
 			localStorage.removeItem($this.config.storageKeys.custName);
 			localStorage.removeItem($this.config.storageKeys.custPhone);
 			localStorage.removeItem($this.config.storageKeys.custAddress);
 
-			// 关闭资料卡弹窗
 			$('#vip-profile-backdrop').removeClass('show');
 			$('#vip-profile-modal').removeClass('show');
 			if (!$('#product-detail-panel').hasClass('open') && !$('#cart-drawer-panel').hasClass('open'))
@@ -1259,14 +1246,12 @@ MaiRijiApp.prototype = {
 				$('body').removeClass('no-scroll');
 			}
 
-			// 重置右下角悬浮按钮显示
 			$('#open-vip-btn span').text(isEn ? "VIP Profile" : "VIP 档案");
 			$('#open-vip-btn').attr('data-label', isEn ? "VIP Profile" : "VIP 档案");
 
 			$this.showToast(isEn ? "Signed out & profile cleared." : "已成功退出并清除档案。");
 		});
 
-		// 关闭注册弹窗
 		$('#close-vip-modal, #vip-modal-backdrop').on('click', function ()
 		{
 			$('#vip-modal-backdrop').removeClass('show');
@@ -1277,7 +1262,6 @@ MaiRijiApp.prototype = {
 			}
 		});
 
-		// 提交注册表单
 		$('#vip-register-form').off('submit').on('submit', function (e)
 		{
 			e.preventDefault();
@@ -1292,11 +1276,15 @@ MaiRijiApp.prototype = {
 				return;
 			}
 
-			// 按钮变为 Loading 状态
+			if (!$this.isValidPhone(phone))
+			{
+				$this.showToast(isEn ? "Please enter a valid phone number (e.g. 01115277643 or 0123456789)." : "手机号码格式不正确，请检查位数是否有多打或少打。");
+				return;
+			}
+
 			$btn.css('opacity', '0.7').css('pointer-events', 'none');
 			$btn.find('.btn-txt.default').text(isEn ? "Saving..." : "档案生成中...");
 
-			// 发送数据给 Google Sheets (只发姓名和电话)
 			fetch($this.config.googleSheetUrl,
 				{
 					method: "POST",
@@ -1336,7 +1324,6 @@ MaiRijiApp.prototype = {
 
 	openProductDetail: function (type, id)
 	{
-		// 记录当前打开的商品，方便切换语言时重新渲染
 		this.$els.detailPanel.data('type', type);
 		this.$els.detailPanel.data('id', id);
 
@@ -1527,7 +1514,6 @@ MaiRijiApp.prototype = {
 		}
 	},
 
-	// --- 核心逻辑：SPA 页面切换转场 (修复对空 $bg[0] 访问导致的异常) ---
 	handlePageTransition: function ($link)
 	{
 		var self = this;
@@ -1559,7 +1545,6 @@ MaiRijiApp.prototype = {
 				$('#product-detail-panel').removeClass('open');
 				$('body').removeClass('no-scroll');
 
-				// 🌟 【核心修复 1】：添加 length > 0 安全校验，避免未找到 .bg-inner 时报错中断转场
 				var $bg = (targetId === 'view-home') ? $('.home-intro .bg-inner') : $('#' + targetId + ' .bg-inner');
 				if ($bg.length > 0)
 				{
@@ -2023,9 +2008,8 @@ MaiRijiApp.prototype = {
 		var totalQty = 0;
 		var self = this;
 
-		// 🌟 检查本地是否有 VIP 纪录，有的话直接打上 VIP 标签！
 		var isVIP = !!localStorage.getItem(this.config.storageKeys.custName);
-		var vipBadge = isVIP ? (isEnglish ? " 👑[VIP Member]" : " 👑[VIP会员]") : "";
+		var vipBadge = isVIP ? (isEnglish ? " [VIP Member]" : " [VIP会员]") : "";
 
 		var msg = isEnglish ?
 			"Hello MaiRiji! I would like to place an order:\n\n" :
@@ -2040,11 +2024,11 @@ MaiRijiApp.prototype = {
 			}
 			if (customerData.name)
 			{
-				msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + vipBadge + "\n"; // 👑 尊贵标签
+				msg += (isEnglish ? "Name: " : "姓名：") + customerData.name + vipBadge + "\n";
 			}
 			if (customerData.phone)
 			{
-				msg += (isEnglish ? "Contact Phone: " : "联系电话：") + customerData.phone + "\n"; // 🌟 电话信息
+				msg += (isEnglish ? "Contact Phone: " : "联系电话：") + customerData.phone + "\n";
 			}
 			msg += (isEnglish ? "Address/Note: \n" : "地址/说明：\n") + customerData.address + "\n";
 			msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
@@ -2098,19 +2082,17 @@ MaiRijiApp.prototype = {
 			$dateInput.val(minDateStr);
 		}
 
-		// 🌟 读取保存的姓名、手机号和地址
 		var savedName = localStorage.getItem(this.config.storageKeys.custName);
 		var savedPhone = localStorage.getItem(this.config.storageKeys.custPhone);
 		var savedAddress = localStorage.getItem(this.config.storageKeys.custAddress);
 
-		// 🌟 只要有保存记录，且输入框是空的，就自动填上去！
 		if (savedName && !$('#cust-name').val())
 		{
 			$('#cust-name').val(savedName);
 		}
 		if (savedPhone && !$('#cust-phone').val())
 		{
-			$('#cust-phone').val(savedPhone); // 👈 预填电话
+			$('#cust-phone').val(savedPhone);
 		}
 		if (savedAddress && !$('#cust-address').val())
 		{
@@ -2172,7 +2154,7 @@ MaiRijiApp.prototype = {
 				var lat = position.coords.latitude.toFixed(6);
 				var lng = position.coords.longitude.toFixed(6);
 
-				$('#gps-coords').val(lat + ", " + lng);
+				$('#gps-coords').val(lat + "," + lng);
 
 				var reverseUrl = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=" + lat + "&lon=" + lng;
 
@@ -2237,5 +2219,37 @@ MaiRijiApp.prototype = {
 		{
 			$toast.removeClass('show');
 		}, duration);
-	}
+	},
+
+	// 校验手机号码（严格规则：0111 + 7位数字，或 010/012~019 + 7位数字）
+	isValidPhone: function (phone) {
+		if (!phone) return false;
+		
+		var cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
+
+		if (cleaned.indexOf('601') === 0) {
+			cleaned = '0' + cleaned.substring(2);
+		}
+
+		// 0111 + 7位数字（共11位） 或 010, 012~019 + 7位数字（共10位）
+		var phonePattern = /^(0111\d{7}|01[02-9]\d{7})$/;
+
+		return phonePattern.test(cleaned);
+	},
+
+	// 显示贴身字段错误提醒
+	showFieldError: function ($input, msg) {
+		var $group = $input.closest('.form-group');
+		$group.find('.field-error-msg').remove();
+		
+		$input.addClass('input-error').focus();
+		$group.append('<div class="field-error-msg">⚠️ ' + msg + '</div>');
+	},
+
+	// 清除字段错误状态
+	clearFieldError: function ($input) {
+		var $group = $input.closest('.form-group');
+		$input.removeClass('input-error');
+		$group.find('.field-error-msg').remove();
+	},
 };
