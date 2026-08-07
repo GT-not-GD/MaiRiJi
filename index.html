@@ -7,7 +7,7 @@
 
     <title>麦日记 - 烘焙与生活的美好点滴</title>
 	
-	<link rel="preload" href="assets/img/banners/hero-main-tiny.webp" as="image">
+	<link rel="preload" href="assets/img/banners/hero-main.webp" as="image">
 
 	<!-- 1. SEO 和社交媒体分享信息 -->    
 	<meta name="description" content="欢迎来到麦日记。日记里记录了关于烘焙的灵感、故事和生活点滴，探索面粉与温度的艺术。"/>
@@ -110,6 +110,28 @@
 				</ul>
 			</nav>
 		</div>
+
+        <!-- 🌟 右侧独立功能按钮组：绝对定位置于导览栏最右端，绝不挤压 4 个主菜单的对称排版 -->
+        <div class="header-actions">
+            <button id="open-vip-btn" class="nav-action-btn vip-button" data-label="VIP 档案" title="VIP Profile">
+                <svg class="svgIcon" viewBox="0 0 448 512" aria-hidden="true" focusable="false">
+                    <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 23.5 48 52.8 48h342.4c29.3 0 52.8-21.5 52.8-48v-41.6c0-74.2-60.2-134.4-132.8-134.4z"></path>
+                </svg>
+            </button>
+            <button id="cart-float" class="nav-action-btn cart-button" data-label="购物车" title="View Cart">
+                <span class="textIcon">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                </span>
+                <span id="cart-count-badge" class="cart-badge">0</span>
+            </button>
+            <button id="lang-float" class="nav-action-btn lang-button" data-label="切换语言" title="Switch Language">
+                <span class="textIcon">EN</span>
+            </button>
+        </div>
     </div>
 </header>
 
@@ -122,10 +144,9 @@
 		<!-- ======================= 首屏 ======================= -->
 		<section class="intro home-intro fixed" id="top">
 			<div class="bg">
-				<div class="bg-inner progressive-bg blur-effect" 
-					 style="background-image: url('assets/img/banners/hero-main-tiny.webp');" 
-					 data-highres="assets/img/banners/hero-main.webp">
-				</div>
+				<div class="bg-inner progressive-bg shimmer-glass" 
+                    data-highres="assets/img/banners/hero-main.webp">
+                </div>
 			</div>
 			<div class="wrap">
 				<div class="inner">
@@ -154,9 +175,8 @@
 		</section>
 
 		<!-- 2. 全宽幅图片分隔 -->
-        <section class="full-width-image-divider progressive-bg blur-effect" 
-        		 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
-        		 data-highres="assets/img/banners/bread-banner.webp">
+        <section class="full-width-image-divider progressive-bg shimmer-glass" 
+                data-highres="assets/img/banners/bread-banner.webp">
         </section>
 			
 		<!-- ✨✨✨【粘性横向滚动区】✨✨✨ -->
@@ -172,97 +192,50 @@
 					</div>
 				</div>
 
-				<!-- 日记摘录 -->
-				<section id="home-diary" class="text-section-centered">
-					<div class="wrap with-inner">
-						<div class="centered-content" style="max-width: 800px;">
-							<p data-i18n="diary.quote" style="font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; color: #555; line-height: 1.6;">
-								“今天午后，阳光正好。我尝试在面团里加入了昨天新买的桂花干，烤箱运作时，整个屋子都弥漫着秋天的香气。那一刻我明白，烘焙于我而言，更像是一场温柔的创作。”
-							</p>
-							<p data-i18n="diary.author" style="text-align: right; margin-top: 30px; font-family: 'Kalam', cursive; font-size: 18px; color: #888;">
-								—— 麦日记，十一月三日
-							</p>
-							<div style="margin-top: 40px;">
-								<a href="#" class="button nav-link" data-target="view-diary"><span data-i18n="diary.read_more">阅读更多日记</span></a>
-							</div>
-						</div>
-					</div>
-				</section>
 			</section>
 		</div>
 	</div> <!-- 首页结束 -->
 
 	<!-- 🟠 2. 菜单视图 (Menu View) -->
     <div id="view-menu" class="page-view">
-        <section class="intro home-intro fixed" id="menu-top">
-            <div class="bg">
-                <div class="bg-inner" style="background-image: url('assets/img/banners/menu-bg.jpg');"></div>
-            </div>
-            
-            <div class="wrap">
-                <div class="inner">
-					<div class="menu-hero-panel active" data-hero-view="bread">
-						<h1 data-i18n="hero.menu_bread_title" style="text-align: right; margin-right: 5%; margin-bottom: 15px;">
-							品味每一口发酵的<br>时间与风味
-						</h1>
-						<p style="text-align: right; margin-right: 5%; margin-top: 15px;">
-							<a href="#menu-start" class="button scroll-link"><span data-i18n="hero.view_bread">浏览欧包</span></a>
-						</p>
-					</div>
-					<div class="menu-hero-panel" data-hero-view="cake">
-						<h1 data-i18n="hero.menu_cake_title" style="text-align: right; margin-right: 5%; margin-bottom: 15px;">
-							为甜蜜时刻准备一份<br>精致蛋糕
-						</h1>
-						<p style="text-align: right; margin-right: 5%; margin-top: 15px;">
-							<a href="#menu-start" class="button scroll-link"><span data-i18n="hero.view_cake">浏览蛋糕</span></a>
-						</p>
-					</div>
-				</div>
-            </div>
-            
-            <a href="#menu-start" class="down"><img src="assets/img/scroll-down.png"/></a>
-        </section>
+		<div class="menu-hero-banner-container">
+			<section class="full-width-image-divider progressive-bg shimmer-glass menu-banner-panel active" data-banner-view="bread"
+                data-highres="assets/img/banners/bread-banner.webp">
+                <div class="menu-banner-overlay">
+                    <div class="menu-banner-text-box">
+                        <h1 data-i18n="nav.menu">烘焙菜单</h1>
+                        <p>A Slow Fermentation of Time & Flavor</p>
+                    </div>
+                </div>
+            </section>
 
-		<section id="menu-start" class="pbig text-section-centered scrollTrigger post-fixed" style="background-color: #fbf9f4; position: relative; z-index: 20;">
-			<div class="wrap with-inner">
-				<div class="centered-content">
-					<div class="menu-intro-panel active" data-intro-view="bread">
-						<h3 data-i18n="menu.bread_intro_title">时间的馈赠：我们的酸种欧包</h3>
-						<p data-i18n="menu.bread_intro_p1">我们相信，最好的风味源自最纯粹的食材与最耐心的守候。每一颗欧包，都始于我们亲手培育的天然酵母，经过超过18小时的低温长时间发酵，让麦香与风味物质得以缓慢、充分地孕育。</p>
-						<p data-i18n="menu.bread_intro_p2">这不仅赋予了面包深邃、微酸的独特风味，更让面包体变得湿润、柔软且易于消化。这是我们对传统的致敬，也是献给您的、来自时间的馈赠。</p>
-					</div>
-					<div class="menu-intro-panel" data-intro-view="cake">
-						<h3 data-i18n="menu.cake_intro_title">甜蜜时刻：我们的蛋糕</h3>
-						<p data-i18n="menu.cake_intro_p1">每一款蛋糕都以柔软的口感、细腻的奶香和精致的装饰为核心，像一段被认真准备的甜蜜时刻。我们用新鲜奶油、优质原料与细致手法，让每一次分享都更有仪式感。</p>
-						<p data-i18n="menu.cake_intro_p2">无论是生日、庆祝还是日常小小惊喜，这里的蛋糕都希望把幸福和温柔一口一口地送到你手中。</p>
-					</div>
-				</div>
-			</div>
-		</section>
+			<section class="full-width-image-divider progressive-bg shimmer-glass menu-banner-panel" data-banner-view="cake"
+                data-highres="assets/img/banners/cake-banner.webp">
+                <div class="menu-banner-overlay">
+                    <div class="menu-banner-text-box">
+                        <h1 data-i18n="nav.menu">烘焙菜单</h1>
+                        <p>Sweet Crafted Moments for Celebration</p>
+                    </div>
+                </div>
+            </section>
+		</div>
 
-		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel active" data-banner-view="bread"
-			 style="background-image: url('assets/img/banners/bread-banner-tiny.webp');" 
-			 data-highres="assets/img/banners/bread-banner.webp">
-        </section>
-		<section class="full-width-image-divider progressive-bg blur-effect menu-banner-panel" data-banner-view="cake"
-			 style="background-image: url('assets/img/banners/cake-banner-tiny.webp');" 
-			 data-highres="assets/img/banners/cake-banner.webp">
-        </section>
-
-		<!-- 产品展示区 -->
-		<section class="product-showcase-section" style="padding: 50px 0 80px; background-color: #fbf9f4; position: relative; z-index: 10;">
+		<!-- 🌟 菜单主体区：恢复 25px 顶距，保留上面的完美白边！ -->
+		<section class="product-showcase-section scrollTrigger" style="padding: 25px 0 80px; position: relative; z-index: 10;">
 			<div id="bakery-menu-container" class="page-width page-width-desktop">
 				<div class="menu-switcher">
 					<button class="menu-switcher-btn active" data-view="bread" data-i18n="menu.tab_bread">Bread / 欧包</button>
 					<button class="menu-switcher-btn" data-view="cake" data-i18n="menu.tab_cake">Cake / 蛋糕</button>
 				</div>
 				<h2 class="menu-title" id="menu-section-title">Sourdough / 酸种欧包</h2>
+				
 				<div class="menu-view active" data-view-panel="bread">
 					<div class="slider-mobile-gutter">
 						<ul id="product-list" class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
 						</ul>
 					</div>
 				</div>
+				
 				<div class="menu-view" data-view-panel="cake">
 					<div class="slider-mobile-gutter">
 						<ul id="cake-product-list" class="grid grid--2-col product-grid grid--3-col-tablet grid--one-third-max grid--3-col-desktop grid--quarter-max slider slider--tablet grid--peek" role="list">
@@ -303,7 +276,52 @@
 			</div>
 		</section>
 	</div>
-</main>
+
+	<!-- 🌟 麦日记 · 服务指南与快捷链接 (全站通用，固定位于所有页面 Footer 正上方) -->
+	<section class="home-quick-links-section pbig">
+		<div class="wrap with-inner">
+			<div class="quick-links-header text-section-centered">
+				<span class="sub-title" data-i18n="guides.subtitle">CUSTOMER CARE & GUIDES</span>
+				<h3 data-i18n="guides.title">烘焙指南与服务解答</h3>
+			</div>
+			
+			<div class="quick-links-grid">
+				<!-- 卡片 1：配送与自提 -->
+				<div class="quick-link-card" data-guide-tab="delivery">
+					<div class="card-icon">🛵</div>
+					<h4 data-i18n="guides.card1_title">配送与自提说明</h4>
+					<p data-i18n="guides.card1_desc">Tanjong Sepat 本地配送 & 到店自提说明，Banting 地区安排。</p>
+					<span class="card-arrow-link"><span data-i18n="guides.card1_btn">了解配送规则</span> <span>→</span></span>
+				</div>
+
+				<!-- 卡片 2：保存与复酥 -->
+				<div class="quick-link-card" data-guide-tab="care">
+					<div class="card-icon">🌾</div>
+					<h4 data-i18n="guides.card2_title">保存与复酥指南</h4>
+					<p data-i18n="guides.card2_desc">酸种欧包与精致甜点的正确常温/冷冻保存与加热复酥方式。</p>
+					<span class="card-arrow-link"><span data-i18n="guides.card2_btn">查看保存建议</span> <span>→</span></span>
+				</div>
+
+				<!-- 卡片 3：常见问题 FAQ -->
+				<div class="quick-link-card" data-guide-tab="faq">
+					<div class="card-icon">❓</div>
+					<h4 data-i18n="guides.card3_title">常见问题 FAQ</h4>
+					<p data-i18n="guides.card3_desc">18小时低温慢发酵、预定下单流程与排单答疑。</p>
+					<span class="card-arrow-link"><span data-i18n="guides.card3_btn">阅读常见解答</span> <span>→</span></span>
+				</div>
+
+				<!-- 卡片 4：联系客服 -->
+				<div class="quick-link-card" data-guide-tab="contact">
+					<div class="card-icon">💬</div>
+					<h4 data-i18n="guides.card4_title">预定与专属客服</h4>
+					<p data-i18n="guides.card4_desc">有特殊需求或企业送礼定制？随时与我们二次沟通。</p>
+					<span class="card-arrow-link"><span data-i18n="guides.card4_btn">WhatsApp 联系</span> <span>→</span></span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+</main> <!-- 页面内容容器结束 -->
 
 <!-- ======================= 页脚 ======================= -->
 <footer role="contentinfo" class="main-footer">
@@ -338,141 +356,137 @@
 
 <!-- ======================= 产品详情面板 (Slide-up Panel) ======================= -->
 <div id="product-detail-panel">
+    <!-- 玻璃感关闭按钮 -->
     <button class="close-detail-btn" title="关闭">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
     </button>
     
     <div class="detail-scroll-area">
-        <div class="detail-hero" id="detail-hero-img"></div>
-        <div class="detail-content wrap">
-            <div class="detail-header">
-                <h2 id="detail-title">面包名称</h2>
-                <div class="detail-price" id="detail-price">RM 0.00</div>
+        <div class="detail-main-layout">
+            <!-- 👈 左列：媒体图片区 (主图 + 画廊缩略图) -->
+            <div class="detail-media-col">
+                <div class="detail-hero" id="detail-hero-img"></div>
+                <div class="detail-gallery" id="detail-gallery"></div>
             </div>
-            <div class="detail-desc">
-                <p id="detail-text">这里是面包的故事和描述...</p>
-            </div>
-			<!-- 🌟 折叠手风琴区域：成分表、保存建议、加热建议 -->
-			<div class="detail-accordions">
-				<div class="accordion-item">
-					<button type="button" class="accordion-header" aria-expanded="false">
-						<span data-i18n="detail.acc_ingredients">配料成分</span>
-						<div class="accordion-icon-badge">
-							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
-						</div>
-					</button>
-					<div class="accordion-content">
-						<div class="accordion-content-inner">
-							<p id="detail-ingredients">-</p>
-						</div>
-					</div>
-				</div>
 
-				<div class="accordion-item">
-					<button type="button" class="accordion-header">
-						<span data-i18n="detail.acc_allergens">过敏原提示</span>
-						<div class="accordion-icon-badge">
-							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
-						</div>
-					</button>
-					<div class="accordion-content">
-						<div class="accordion-content-inner allergen-box">
-							<p id="detail-allergens">-</p>
-						</div>
-					</div>
-				</div>
+            <!-- 👉 右列：商品信息与动态操作区 -->
+            <div class="detail-info-col">
+                <!-- 🌟 动态标签区 (JS 根据品类自动渲染) -->
+                <div class="detail-tags" id="detail-tags"></div>
 
-				<div class="accordion-item">
-					<button type="button" class="accordion-header" aria-expanded="false">
-						<span data-i18n="detail.acc_storage">保存建议</span>
-						<div class="accordion-icon-badge">
-							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
-						</div>
-					</button>
-					<div class="accordion-content">
-						<div class="accordion-content-inner">
-							<p id="detail-storage">-</p>
-						</div>
-					</div>
-				</div>
+                <div class="detail-header">
+                    <h2 id="detail-title">面包名称</h2>
+                    <div class="detail-price" id="detail-price">RM 0.00</div>
+                </div>
 
-				<div class="accordion-item">
-					<button type="button" class="accordion-header" aria-expanded="false">
-						<span id="detail-reheat-title" data-i18n="detail.acc_reheat">加热建议</span>
-						<div class="accordion-icon-badge">
-							<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
-						</div>
-					</button>
-					<div class="accordion-content">
-						<div class="accordion-content-inner">
-							<p id="detail-reheat">-</p>
-						</div>
-					</div>
-				</div>
-			</div>
-            <div class="detail-gallery grid grid--2-col" id="detail-gallery">
+                <div class="detail-desc">
+                    <p id="detail-text">这里是面包的故事和描述...</p>
+                </div>
+
+                <!-- 🌟 动态加购/询问操作区 -->
+                <div class="detail-inpage-action" id="inpage-action-anchor">
+                    <!-- 数量选择器 (未上线商品会自动隐藏) -->
+                    <div class="qty-selector" id="detail-qty-selector">
+                        <button type="button" class="qty-btn" id="detail-qty-minus">-</button>
+                        <span class="qty-val" id="detail-qty-val">1</span>
+                        <button type="button" class="qty-btn" id="detail-qty-plus">+</button>
+                    </div>
+                    <!-- 操作按钮 -->
+                    <button id="detail-order-btn" class="wheat-btn detail-add-btn">
+                        <span class="btn-text-wrapper">
+                            <span class="btn-txt default" data-i18n="detail.add_to_cart">加进购物篮</span>
+                            <span class="btn-txt hover">Add to Basket</span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- 折叠手风琴区域 -->
+                <div class="detail-accordions">
+                    <div class="accordion-item">
+                        <button type="button" class="accordion-header" aria-expanded="false">
+                            <span data-i18n="detail.acc_ingredients">配料成分</span>
+                            <div class="accordion-icon-badge">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <p id="detail-ingredients">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button type="button" class="accordion-header">
+                            <span data-i18n="detail.acc_allergens">过敏原提示</span>
+                            <div class="accordion-icon-badge">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner allergen-box">
+                                <p id="detail-allergens">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button type="button" class="accordion-header" aria-expanded="false">
+                            <span data-i18n="detail.acc_storage">保存建议</span>
+                            <div class="accordion-icon-badge">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <p id="detail-storage">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button type="button" class="accordion-header" aria-expanded="false">
+                            <span id="detail-reheat-title" data-i18n="detail.acc_reheat">加热建议</span>
+                            <div class="accordion-icon-badge">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <p id="detail-reheat">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 底部悬浮下单栏 -->
-	<div class="detail-footer">
-		<button id="detail-order-btn" class="button">
-			<span style="display: inline-flex; align-items: center; gap: 8px;">
-				<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-					<line x1="3" y1="6" x2="21" y2="6"></line>
-					<path d="M16 10a4 4 0 0 1-8 0"></path>
-				</svg>
-				<span data-i18n="detail.add_to_cart">加进购物篮</span>
-			</span>
-		</button>
-	</div>
+    <!-- 🌟 吸底悬浮栏 (同步适配未上线状态) -->
+    <div class="detail-sticky-bar" id="detail-sticky-bar">
+        <div class="sticky-bar-info">
+            <span class="sticky-bar-title" id="sticky-title">面包名称</span>
+            <span class="sticky-bar-price" id="sticky-price">RM 0.00</span>
+        </div>
+        <button id="detail-order-btn-sticky" class="wheat-btn detail-add-btn-sticky">
+            <span class="btn-text-wrapper">
+                <span class="btn-txt default" data-i18n="detail.add_to_cart">加进购物篮</span>
+                <span class="btn-txt hover">Add to Basket</span>
+            </span>
+        </button>
+    </div>
 </div>
-
-<!-- Floating controls -->
-<div class="floating-controls" aria-hidden="false">
-	<button id="open-vip-btn" class="floating-button vip-button" data-label="VIP 档案" title="VIP Profile">
-		<svg class="svgIcon" viewBox="0 0 448 512" aria-hidden="true" focusable="false">
-			<path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 23.5 48 52.8 48h342.4c29.3 0 52.8-21.5 52.8-48v-41.6c0-74.2-60.2-134.4-132.8-134.4z"></path>
-		</svg>
-	</button>
-	<button id="cart-float" class="floating-button cart-button" data-label="购物车" title="View Cart">
-		<span class="textIcon">
-			<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-				<line x1="3" y1="6" x2="21" y2="6"></line>
-				<path d="M16 10a4 4 0 0 1-8 0"></path>
-			</svg>
-		</span>
-		<span id="cart-count-badge" class="cart-badge">0</span>
-	</button>
-	<button id="back-to-top" class="floating-button" data-label="回到顶部" title="回到顶部">
-		<svg class="svgIcon" viewBox="0 0 384 512" aria-hidden="true" focusable="false">
-			<path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
-		</svg>
-	</button>
-	<button id="lang-float" class="floating-button lang-button" data-label="切换语言" title="Switch Language">
-    	<span class="textIcon">EN</span>
-	</button>
-</div>
-
-<script>
-	(function(){
-		$('#back-to-top').on('click', function(e){ e.preventDefault(); $('html, body').animate({ scrollTop: 0 }, 600); });
-	})();
-</script>
 
 <!-- ======================= 脚本 ======================= -->
 <script type='text/javascript' src='assets/js/vendors.js'></script>
@@ -482,15 +496,10 @@
     $(document).ready(function() {
         app = new MaiRijiApp();
         app.preload();
-    });
 
-    $(window).on('load', function () {
         setTimeout(function(){
             $('#global-loader').addClass('fade-out');
-            setTimeout(function() {
-                app.loadHighResImages();
-            }, 1000); 
-        }, 500); 
+        }, 400);
     });
 </script>
 
@@ -757,6 +766,63 @@
             </button>
         </div>
 
+    </div>
+</div>
+
+<!-- ======================= 📖 服务指南与 FAQ 弹窗 ======================= -->
+<div id="guide-modal-backdrop" class="modal-backdrop"></div>
+<div id="guide-modal" class="checkout-modal guide-modal">
+    <div class="modal-header">
+        <h3 id="guide-modal-title" data-i18n="guides.modal_title">服务指南与常见问题</h3>
+        <button class="close-modal-btn" id="close-guide-modal" title="关闭">&times;</button>
+    </div>
+    <div class="modal-body">
+        <!-- 切换 Tab 按钮组 -->
+        <div class="guide-tabs">
+            <button class="guide-tab-btn active" data-tab="delivery" data-i18n="guides.tab_delivery">🛵 配送自提</button>
+            <button class="guide-tab-btn" data-tab="care" data-i18n="guides.tab_care">🌾 保存加热</button>
+            <button class="guide-tab-btn" data-tab="faq" data-i18n="guides.tab_faq">❓ 常见 FAQ</button>
+        </div>
+
+        <!-- Tab 1: 配送自提 -->
+        <div class="guide-tab-content active" id="guide-tab-delivery">
+            <div class="guide-box">
+                <h5 data-i18n="guides.del_box1_title">🏡 1. Tanjong Sepat 本地送货 & 到店自提</h5>
+                <p data-i18n="guides.del_box1_desc">麦日记工坊位于 Tanjong Sepat。本地提供送货上门与店面自提服务。</p>
+                <p style="margin-top: 4px;"><strong data-i18n="guides.del_box1_addr">自提地址：</strong> 65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat</p>
+            </div>
+            <div class="guide-box">
+                <h5 data-i18n="guides.del_box2_title">🚚 2. Banting 及其他区域</h5>
+                <p data-i18n="guides.del_box2_desc">Banting 地区需事先沟通安排配送。其他较远区域暂时仅支持到店自提。</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: 保存加热 -->
+        <div class="guide-tab-content" id="guide-tab-care">
+            <div class="guide-box">
+                <h5 data-i18n="guides.care_bread_title">🌾 酸种欧包 (Sourdough Bread)</h5>
+                <p>• <strong data-i18n="guides.care_bread_rt">常温：</strong> <span data-i18n="guides.care_bread_rt_desc">密封避光可保存 2-3 天。</span></p>
+                <p>• <strong data-i18n="guides.care_bread_fz">冷冻：</strong> <span data-i18n="guides.care_bread_fz_desc">切片密封冷冻可保存 3-4 周（⚠️ 切勿直接冷藏，冷藏会加速水分流失与淀粉老化）。</span></p>
+                <p>• <strong data-i18n="guides.care_bread_rh">复酥：</strong> <span data-i18n="guides.care_bread_rh_desc">表面轻喷水雾，预热 180°C 烤箱/空气炸锅烘烤 3-5 分钟恢复外脆内软。</span></p>
+            </div>
+            <div class="guide-box">
+                <h5 data-i18n="guides.care_cake_title">🍰 精致蛋糕与甜点 (Cakes)</h5>
+                <p>• <strong data-i18n="guides.care_cake_rf">冷藏：</strong> <span data-i18n="guides.care_cake_rf_desc">2°C - 6°C 冷藏保存，建议 2 天内食用完毕。</span></p>
+                <p>• <strong data-i18n="guides.care_cake_sg">食用建议：</strong> <span data-i18n="guides.care_cake_sg_desc">冷藏取出后室温静置 10-15 分钟口感更丝滑。</span></p>
+            </div>
+        </div>
+
+        <!-- Tab 3: 常见 FAQ -->
+        <div class="guide-tab-content" id="guide-tab-faq">
+            <div class="guide-box">
+                <h5 data-i18n="guides.faq_q1">⏱️ 1. 为什么要提前至少 1 天预定？</h5>
+                <p data-i18n="guides.faq_a1">我们的酸种欧包采用传统纯手作与天然酵母发酵，需经过 18 小时以上的低温慢发酵排单。因此不接受突发即时订单，请提前预定以便为您准备面团。</p>
+            </div>
+            <div class="guide-box">
+                <h5 data-i18n="guides.faq_q2">📱 2. 如何确认我的订单？</h5>
+                <p data-i18n="guides.faq_a2">在网站选好商品并提交信息后，系统会自动为您跳转生成 WhatsApp 预定信息。我们将与您进行二次确认并安排排单。</p>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -118,7 +118,6 @@ WnkLaxElement.prototype = {
     disable: function () {
         this.enabled = false;
     },
-    // 【DOM 读操作集中点】只在初始化/Resize 时调用
     onResize: function () {
         this.wH = $(window).height();
         this.wW = $(window).width();
@@ -214,7 +213,6 @@ function MaiRijiApp() {
     this.cursorTimer = null;
     this.currentLang = localStorage.getItem(this.config.storageKeys.lang) || 'zh';
     
-    // ⚡【性能优化点 1】存储横向滚动与视口的几何尺寸，避免滚动中重复计算 Reflow
     this.scrollMetrics = {
         winHeight: 0,
         winWidth: 0,
@@ -343,7 +341,6 @@ MaiRijiApp.prototype = {
     },
 
     init: function () {
-        // ⚡【性能优化点 2】集中全局 DOM 选择器，避免重复遍历 DOM 树
         this.$els = {
             body: $('body'),
             mainHeader: $('.main-header'),
@@ -364,14 +361,12 @@ MaiRijiApp.prototype = {
             cartList: $('#cart-items-list'),
             cartTotalPrice: $('#cart-total-price'),
             cartBadge: $('#cart-count-badge'),
-            // 菜单分类 DOM 缓存
             menuSwitcherBtn: $('.menu-switcher-btn'),
             menuView: $('.menu-view'),
             menuHeroPanel: $('.menu-hero-panel'),
             menuIntroPanel: $('.menu-intro-panel'),
             menuBannerPanel: $('.menu-banner-panel'),
             menuTitle: $('.menu-title'),
-            // 滚动与视差 DOM 缓存
             scrollWrapper: $('.horizontal-scroll-wrapper'),
             savoriaTrack: $('.savoria-track'),
             savoriaCards: $('.savoria-card'),
@@ -383,7 +378,6 @@ MaiRijiApp.prototype = {
         this.updateDOMTranslations();
         this.renderProducts();
         this.renderSavoriaCards('bread');
-        this.forceLoadTinyImages();
 
         $('.home-intro .bg-inner').addClass('play-zoom');
         this.bindEvents();
@@ -392,7 +386,6 @@ MaiRijiApp.prototype = {
         this.cart = this.loadCart();
         this.updateCartUI();
 
-        // 计算首次滚动的尺寸缓存
         this.updateScrollMetrics();
 
         const existingVIP = localStorage.getItem(this.config.storageKeys.custName);
@@ -403,7 +396,6 @@ MaiRijiApp.prototype = {
         }
     },
 
-    // ⚡【性能优化点 3】集中读取几何尺寸，实现读写分离
     updateScrollMetrics: function () {
         if (this.isMobile() || !this.$els.scrollWrapper || this.$els.scrollWrapper.length === 0) return;
 
@@ -432,45 +424,6 @@ MaiRijiApp.prototype = {
         this.renderProductGroup('cake', this.cakeProducts, this.t('menu.cake_title'));
     },
 
-    renderSavoriaCards: function (folder = 'bread') {
-        const isEnglish = this.getCurrentLanguage() === 'en';
-
-        const photoBuckets = {
-            bread: ['1', '2', '3', '4', '5', '6', '7']
-        };
-
-        const availablePhotos = photoBuckets[folder] || photoBuckets.bread;
-        const selectedPhotos = this.shuffleArray(availablePhotos.slice()).slice(0, 7);
-
-        let html = '';
-
-        selectedPhotos.forEach((photoName, index) => {
-            const dirClass = index % 2 === 0 ? 'up' : 'down';
-            const displayLabels = isEnglish ? ['Signature', '', 'Fresh', '', 'Sweet', '', ''] : ['Signature / 招牌', '', 'Fresh / 新鲜', '', 'Sweet / 甜点', '', ''];
-            const displayLabel = displayLabels[index] || '';
-            const tinyUrl = `assets/img/${folder}/${photoName}-tiny.webp`;
-            const highResUrl = `assets/img/${folder}/${photoName}.webp`;
-
-            new Image().src = tinyUrl;
-
-            const overlayHtml = displayLabel ? `<div class="card-overlay"><span>${displayLabel}</span></div>` : '';
-            html += `
-            <div class="savoria-card ${dirClass}">
-                <div class="img-holder progressive-bg blur-effect" 
-                     style="background-image: url('${tinyUrl}');" 
-                     data-highres="${highResUrl}"></div>
-                ${overlayHtml}
-            </div>
-            `;
-        });
-
-        $('#savoria-track-container').prepend(html);
-        $('#savoria-mobile-clones').html(html);
-
-        // 重新获取动态卡片的 DOM 缓存
-        this.$els.savoriaCards = $('.savoria-card');
-    },
-
     shuffleArray: function (array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -481,26 +434,15 @@ MaiRijiApp.prototype = {
         return array;
     },
 
-    forceLoadTinyImages: function () {
-        $('.progressive-bg').each((_, el) => {
-            const bgStr = el.style.backgroundImage;
-            if (bgStr && bgStr !== 'none') {
-                const url = bgStr.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '');
-                new Image().src = url;
-            }
-        });
-    },
-
+    // 1. 🌟 渲染商品卡片（使用流光骨架屏）
     renderProductGroup: function (type, products, title) {
         const isEnglish = this.getCurrentLanguage() === 'en';
         let html = '';
         const folder = type === 'cake' ? 'cake' : 'bread';
 
         products.forEach((item) => {
-            const tinyUrlNormal = `assets/img/${folder}/${item.img}-tiny.webp`;
-            const tinyUrlHover = `assets/img/${folder}/${item.img}-hover-tiny.webp`;
-            new Image().src = tinyUrlNormal;
-            new Image().src = tinyUrlHover;
+            const highResNormal = `assets/img/${folder}/${item.img}.webp`;
+            const highResHover = `assets/img/${folder}/${item.img}-hover.webp`;
 
             const isComingSoon = item.status === 'coming_soon';
             const badgeHtml = isComingSoon ?
@@ -516,17 +458,17 @@ MaiRijiApp.prototype = {
                             <div class="photo-area" style="background-color: ${type === 'cake' ? '#fdf7ef' : 'var(--bg-cream)'};"></div>
                         </div>
 
+                        <!-- 悬停图：初始加载时展示玻璃流光 -->
                         <div class="polaroid card-middle-hover">
-                            <div class="photo-area progressive-bg blur-effect" 
-                                 style="background-image: url('assets/img/${folder}/${item.img}-hover-tiny.webp');"
-                                 data-highres="assets/img/${folder}/${item.img}-hover.webp">
+                            <div class="photo-area progressive-bg shimmer-glass" 
+                                 data-highres="${highResHover}">
                             </div>
                         </div>
 
+                        <!-- 主封面图：初始加载时展示玻璃流光 -->
                         <div class="polaroid card-front">
-                            <div class="photo-area progressive-bg blur-effect" 
-                                 style="background-image: url('assets/img/${folder}/${item.img}-tiny.webp');"
-                                 data-highres="assets/img/${folder}/${item.img}.webp">
+                            <div class="photo-area progressive-bg shimmer-glass" 
+                                 data-highres="${highResNormal}">
                             </div>
                         </div>
                     </div>
@@ -548,17 +490,110 @@ MaiRijiApp.prototype = {
         } else {
             $('#cake-product-list').html(html);
         }
+
+        this.loadHighResImages();
+    },
+
+    // 2. 🌟 渲染横向视差卡片
+    renderSavoriaCards: function (folder = 'bread') {
+        const isEnglish = this.getCurrentLanguage() === 'en';
+
+        const photoBuckets = {
+            bread: ['1', '2', '3', '4', '5', '6', '7']
+        };
+
+        const availablePhotos = photoBuckets[folder] || photoBuckets.bread;
+        const selectedPhotos = this.shuffleArray(availablePhotos.slice()).slice(0, 7);
+
+        let html = '';
+
+        selectedPhotos.forEach((photoName, index) => {
+            const dirClass = index % 2 === 0 ? 'up' : 'down';
+            const displayLabels = isEnglish ? ['Signature', '', 'Fresh', '', 'Sweet', '', ''] : ['Signature / 招牌', '', 'Fresh / 新鲜', '', 'Sweet / 甜点', '', ''];
+            const displayLabel = displayLabels[index] || '';
+            const highResUrl = `assets/img/${folder}/${photoName}.webp`;
+
+            const overlayHtml = displayLabel ? `<div class="card-overlay"><span>${displayLabel}</span></div>` : '';
+            html += `
+            <div class="savoria-card ${dirClass}">
+                <div class="img-holder progressive-bg shimmer-glass" 
+                     data-highres="${highResUrl}"></div>
+                ${overlayHtml}
+            </div>
+            `;
+        });
+
+        $('#savoria-track-container').prepend(html);
+        $('#savoria-mobile-clones').html(html);
+
+        this.$els.savoriaCards = $('.savoria-card');
+        this.loadHighResImages();
+    },
+
+    // 3. 🌟 智能视口懒加载器：未滚到的图片绝不下载，滚近视口 300px 时才按需加载！
+    loadHighResImages: function () {
+        const observerOptions = {
+            root: null,
+            rootMargin: '300px 0px', // 提前 300 像素预加载，用户完全感觉不到延迟
+            threshold: 0.01
+        };
+
+        // 优先使用现代浏览器的 IntersectionObserver 视口观察器
+        if ('IntersectionObserver' in window) {
+            if (!this.lazyImageObserver) {
+                this.lazyImageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const $el = $(entry.target);
+                            this.fetchSingleImage($el);
+                            observer.unobserve(entry.target); // 加载完成后解除观察，省内存
+                        }
+                    });
+                }, observerOptions);
+            }
+
+            $('.progressive-bg, .shimmer-glass').each((_, el) => {
+                const $el = $(el);
+                if ($el.data('highres') && !$el.data('loaded')) {
+                    this.lazyImageObserver.observe(el);
+                }
+            });
+        } else {
+            // 降级兼容极老旧浏览器
+            $('.progressive-bg, .shimmer-glass').each((_, el) => {
+                this.fetchSingleImage($(el));
+            });
+        }
+    },
+
+    // ⚡ 独立下载单张图片并移除骨架屏流光 (含 404 容错)
+    fetchSingleImage: function ($el) {
+        const highResUrl = $el.data('highres');
+        if (highResUrl && !$el.data('loaded')) {
+            $el.data('loaded', true);
+            const img = new Image();
+
+            // 图片成功下载：换上真图，移除流光
+            img.onload = () => {
+                $el.css('background-image', `url('${highResUrl}')`);
+                $el.removeClass('blur-effect shimmer-glass');
+            };
+
+            // 🌟 容错：如果路径报错/文件丢失，也强制移除流光，避免卡死成灰块
+            img.onerror = () => {
+                $el.removeClass('blur-effect shimmer-glass');
+            };
+
+            img.src = highResUrl;
+        }
     },
 
     switchMenuView: function (view, animate) {
         const isEnglish = this.getCurrentLanguage() === 'en';
 
-        // ⚡【性能优化点 4】利用链式缓存减少 DOM 查找
         const doSwitch = () => {
             this.$els.menuSwitcherBtn.removeClass('active').filter(`[data-view="${view}"]`).addClass('active');
             this.$els.menuView.removeClass('active').filter(`[data-view-panel="${view}"]`).addClass('active');
-            this.$els.menuHeroPanel.removeClass('active').filter(`[data-hero-view="${view}"]`).addClass('active');
-            this.$els.menuIntroPanel.removeClass('active').filter(`[data-intro-view="${view}"]`).addClass('active');
             this.$els.menuBannerPanel.removeClass('active').filter(`[data-banner-view="${view}"]`).addClass('active');
 
             this.$els.menuTitle.text(view === 'cake' ? (isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕') : (isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包'));
@@ -692,7 +727,6 @@ MaiRijiApp.prototype = {
             }
         });
 
-        // ⚡【性能优化点 5】Resize 时统一更新几何尺寸缓存
         $(window).on('resize', () => {
             this.updateScrollMetrics();
 
@@ -740,11 +774,7 @@ MaiRijiApp.prototype = {
 
         $(document).on('click', '.close-detail-btn', (e) => {
             e.preventDefault();
-            this.$els.detailPanel.removeClass('open');
-
-            if (!this.$els.cartDrawer.hasClass('open')) {
-                this.$els.body.removeClass('no-scroll');
-            }
+            this.closeProductDetail();
         });
 
         this.openCart = () => {
@@ -950,19 +980,29 @@ MaiRijiApp.prototype = {
                 } else if (this.$els.cartDrawer.hasClass('open')) {
                     this.closeCart();
                 } else if (this.$els.detailPanel.hasClass('open')) {
-                    this.$els.detailPanel.removeClass('open');
-                    this.$els.body.removeClass('no-scroll');
+                    this.closeProductDetail(); // 🌟 修复：ESC 关闭也恢复正确滚动位置
                 }
             }
         });
 
         $(document).on('click', '.accordion-header', (e) => {
             const $btn = $(e.currentTarget);
+            const $parent = $btn.closest('.detail-accordions');
             const $content = $btn.next('.accordion-content');
+            const isActive = $btn.hasClass('active');
 
-            const isExpanded = $btn.toggleClass('active').hasClass('active');
-            $btn.attr('aria-expanded', isExpanded);
-            $content.stop().slideToggle(250);
+            // 1. 关闭同组内其他所有的手风琴板块
+            $parent.find('.accordion-header').not($btn).removeClass('active').attr('aria-expanded', 'false');
+            $parent.find('.accordion-content').not($content).stop(true, true).slideUp(250);
+
+            // 2. 切换当前点击板块的状态（如果本来是打开的则合上，如果是关着的则展开）
+            if (isActive) {
+                $btn.removeClass('active').attr('aria-expanded', 'false');
+                $content.stop(true, true).slideUp(250);
+            } else {
+                $btn.addClass('active').attr('aria-expanded', 'true');
+                $content.stop(true, true).slideDown(250);
+            }
         });
 
         $(document).on('input', '#cust-address', (e) => {
@@ -1118,9 +1158,48 @@ MaiRijiApp.prototype = {
                 this.showToast(isEn ? "Network error, please try again." : "网络波动，请稍后再试。");
             });
         });
+
+        // 📖 Quick Links 服务指南卡片点击处理
+        $(document).on('click', '.quick-link-card', (e) => {
+            const tab = $(e.currentTarget).data('guide-tab');
+            if (tab === 'contact') {
+                const waUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent('你好，麦日记！我想咨询关于预定与客制化烘焙的问题。')}`;
+                window.open(waUrl, '_blank');
+                return;
+            }
+
+            // 激活对应的 Tab
+            $('.guide-tab-btn').removeClass('active').filter(`[data-tab="${tab}"]`).addClass('active');
+            $('.guide-tab-content').removeClass('active').filter(`#guide-tab-${tab}`).addClass('active');
+
+            // 打开弹窗
+            $('#guide-modal-backdrop').addClass('show');
+            $('#guide-modal').addClass('show');
+            this.$els.body.addClass('no-scroll');
+        });
+
+        // 弹窗内部 Tab 切换
+        $(document).on('click', '.guide-tab-btn', (e) => {
+            const $btn = $(e.currentTarget);
+            const tab = $btn.data('tab');
+            $('.guide-tab-btn').removeClass('active');
+            $btn.addClass('active');
+            $('.guide-tab-content').removeClass('active').filter(`#guide-tab-${tab}`).addClass('active');
+        });
+
+        // 关闭弹窗
+        $('#close-guide-modal, #guide-modal-backdrop').on('click', () => {
+            $('#guide-modal-backdrop').removeClass('show');
+            $('#guide-modal').removeClass('show');
+            if (!this.$els.detailPanel.hasClass('open') && !this.$els.cartDrawer.hasClass('open')) {
+                this.$els.body.removeClass('no-scroll');
+            }
+        });
     },
 
     openProductDetail: function (type, id) {
+        this.savedMainScrollPos = window.pageYOffset || document.documentElement.scrollTop;
+
         this.$els.detailPanel.data('type', type);
         this.$els.detailPanel.data('id', id);
 
@@ -1132,11 +1211,105 @@ MaiRijiApp.prototype = {
         if (!item) return;
 
         const folder = type === 'cake' ? 'cake' : 'bread';
+        const isComingSoon = item.status === 'coming_soon';
 
+        // 1. 动态标签
+        let tagsHtml = '';
+        if (type === 'cake') {
+            tagsHtml = isEnglish ?
+                `<span class="detail-tag-badge">🍰 Freshly Chilled</span><span class="detail-tag-badge">Artisanal Cake</span>` :
+                `<span class="detail-tag-badge">🍰 动物奶油</span><span class="detail-tag-badge">需冷藏保存</span>`;
+        } else {
+            tagsHtml = isEnglish ?
+                `<span class="detail-tag-badge">🌾 18H+ Fermentation</span><span class="detail-tag-badge">Sourdough Starter</span>` :
+                `<span class="detail-tag-badge">🌾 18H+ 低温慢发酵</span><span class="detail-tag-badge">酸种酵母</span>`;
+        }
+        $('#detail-tags').html(tagsHtml);
+
+        // 2. 标题与描述
         els.detailTitle.text(item.name);
-        els.detailPrice.text(`RM ${item.price}`);
         els.detailText.html(item.desc);
+        $('#sticky-title').text(item.name);
 
+        // 3. 处理 coming_soon 状态
+        const $qtySelector = $('#detail-qty-selector');
+        const $inpageBtn = $('#detail-order-btn');
+        const $stickyBtn = $('#detail-order-btn-sticky');
+
+        if (isComingSoon) {
+            const comingSoonText = isEnglish ? 'Coming Soon' : '敬请期待';
+            els.detailPrice.text(comingSoonText);
+            $('#sticky-price').text(comingSoonText);
+
+            $qtySelector.hide();
+
+            const inqText = isEnglish ?
+                `Hello MaiRiji! I saw ${item.name} on your website and am super interested. When will it be available?` :
+                `你好，麦日记！我在网站看到了【${item.name}】，非常感兴趣！请问大约什么时候会上市上架呢？`;
+            const inqUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(inqText)}`;
+
+            const inqBtnInnerHtml = `
+                <span class="btn-text-wrapper">
+                    <span class="btn-txt default">${isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间'}</span>
+                    <span class="btn-txt hover">WhatsApp Us!</span>
+                </span>
+            `;
+
+            $inpageBtn.html(inqBtnInnerHtml);
+            $stickyBtn.html(inqBtnInnerHtml);
+
+            const handleInquire = (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                window.open(inqUrl, '_blank');
+            };
+
+            $inpageBtn.off('click').on('click', handleInquire);
+            $stickyBtn.off('click').on('click', handleInquire);
+
+        } else {
+            els.detailPrice.text(`RM ${item.price}`);
+            $('#sticky-price').text(`RM ${item.price}`);
+
+            $qtySelector.show();
+
+            const addBtnInnerHtml = `
+                <span class="btn-text-wrapper">
+                    <span class="btn-txt default">${isEnglish ? 'Add to Basket' : '加进购物篮'}</span>
+                    <span class="btn-txt hover">Add to Basket</span>
+                </span>
+            `;
+
+            $inpageBtn.html(addBtnInnerHtml);
+            $stickyBtn.html(addBtnInnerHtml);
+
+            this.detailQty = 1;
+            $('#detail-qty-val').text(1);
+
+            $('#detail-qty-minus').off('click').on('click', () => {
+                if (this.detailQty > 1) {
+                    this.detailQty--;
+                    $('#detail-qty-val').text(this.detailQty);
+                }
+            });
+            $('#detail-qty-plus').off('click').on('click', () => {
+                this.detailQty++;
+                $('#detail-qty-val').text(this.detailQty);
+            });
+
+            const handleAddToCart = (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                this.addToCart(item, type, this.detailQty);
+                this.closeProductDetail();
+                this.openCart();
+            };
+
+            $inpageBtn.off('click').on('click', handleAddToCart);
+            $stickyBtn.off('click').on('click', handleAddToCart);
+        }
+
+        // 4. 重置手风琴
         els.detailPanel.find('.accordion-header').removeClass('active').attr('aria-expanded', 'false');
         els.detailPanel.find('.accordion-content').hide();
 
@@ -1161,48 +1334,73 @@ MaiRijiApp.prototype = {
                 "1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。");
         }
 
-        const heroUrl = `assets/img/${folder}/${item.img}.webp`;
-        els.detailHeroImg.css('background-image', `url('${heroUrl}')`);
+        // 5. 设置主图与画廊
+        const mainHeroUrl = `assets/img/${folder}/${item.img}.webp`;
+        els.detailHeroImg.css('background-image', `url('${mainHeroUrl}')`);
 
-        let galleryHtml = '';
+        let galleryHtml = `<img src="${mainHeroUrl}" class="active" alt="${item.name}">`;
         if (item.gallery && item.gallery.length > 0) {
             item.gallery.forEach(imgName => {
-                galleryHtml += `<img src="assets/img/${folder}/${imgName}.webp" alt="${item.name}">`;
+                const galleryImgUrl = `assets/img/${folder}/${imgName}.webp`;
+                if (galleryImgUrl !== mainHeroUrl) {
+                    galleryHtml += `<img src="${galleryImgUrl}" alt="${item.name}">`;
+                }
             });
         }
         els.detailGallery.html(galleryHtml);
 
-        const $orderBtn = els.detailOrderBtn;
-        if (item.status === 'coming_soon') {
-            const inqText = isEnglish ?
-                `Hello MaiRiji! I saw ${item.name} on your website and am super interested. When will it be available?` :
-                `你好，麦日记！我在网站看到了【${item.name}】，非常感兴趣！请问大约什么时候会上市上架呢？`;
-            const inqUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(inqText)}`;
+        // 点击缩略小图切换大图
+        els.detailGallery.off('click', 'img').on('click', 'img', function () {
+            const newSrc = $(this).attr('src');
+            els.detailHeroImg.css('background-image', `url('${newSrc}')`);
+            els.detailGallery.find('img').removeClass('active');
+            $(this).addClass('active');
+        });
 
-            $orderBtn.removeClass('button').addClass('wheat-btn').attr('data-link', inqUrl)
-                .html(`<span class="btn-text-wrapper"><span class="btn-txt default">${isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间'}</span><span class="btn-txt hover">WhatsApp Us!</span></span>`)
-                .off('click').on('click', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    window.open(inqUrl, '_blank');
-                });
-        } else {
-            $orderBtn.removeClass('wheat-btn').addClass('button').removeAttr('data-link')
-                .html(`<span style="display: inline-flex; align-items: center; gap: 8px;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>${isEnglish ? 'Add to Basket' : '加进购物篮'}</span>`)
-                .off('click').on('click', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    this.addToCart(item, type, 1);
-                    els.detailPanel.removeClass('open');
-                    this.openCart();
-                });
-        }
+        // 6. 吸底栏智能显隐与滚动监听（只要页面内的加购按钮不在视口内，立刻弹出）
+        const $stickyBar = $('#detail-sticky-bar').removeClass('show');
+        const $scrollArea = $('.detail-scroll-area');
+
+        const checkStickyVisibility = () => {
+            const $anchor = $('#inpage-action-anchor');
+            if ($anchor.length === 0) return;
+
+            const rect = $anchor[0].getBoundingClientRect();
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+            // 判断页面内的“加进购物篮”操作区是否在当前视口视野内
+            const isInViewport = (rect.top < viewportHeight) && (rect.bottom > 0);
+
+            // 只要不在视野内（不论是在下方还没滚出来，还是向上滚出去了），立刻显示吸底悬浮栏
+            if (!isInViewport) {
+                $stickyBar.addClass('show');
+            } else {
+                $stickyBar.removeClass('show');
+            }
+        };
+
+        // 绑定滚动监听
+        $scrollArea.off('scroll.stickyBtn').on('scroll.stickyBtn', checkStickyVisibility);
+
+        // 🌟 打开详情弹窗时立刻检测一次，并在面板滑出动画结束后二次确认
+        checkStickyVisibility();
+        setTimeout(checkStickyVisibility, 350);
 
         els.detailPanel.addClass('open');
         els.body.addClass('no-scroll');
         els.detailPanel.find('.detail-scroll-area').scrollTop(0);
     },
 
+    closeProductDetail: function () {
+        this.$els.detailPanel.removeClass('open');
+        this.$els.body.removeClass('no-scroll');
+        
+        if (typeof this.savedMainScrollPos !== 'undefined') {
+            window.scrollTo(0, this.savedMainScrollPos);
+        }
+    },
+
+    // 🌟 导航栏吸顶与缩小监听
     initStickyNav: function () {
         if (typeof Waypoint !== 'undefined' && Waypoint.destroyAll) {
             Waypoint.destroyAll();
@@ -1211,30 +1409,50 @@ MaiRijiApp.prototype = {
         this.$els.mainHeader.removeClass('small');
         $('.home-intro .inner').removeClass('scroll-hide');
 
-        const $activeTrigger = $('.page-view.active-view .scrollTrigger');
+        const isHome = $('#view-home').hasClass('active-view');
+        const isMenu = $('#view-menu').hasClass('active-view');
 
-        if ($activeTrigger.length > 0 && typeof Waypoint !== 'undefined') {
-            $activeTrigger.waypoint({
-                handler: (dir) => {
-                    if (dir === 'down') {
-                        this.$els.mainHeader.addClass('small');
-                        $('.home-intro .inner').addClass('scroll-hide');
-                    } else {
-                        this.$els.mainHeader.removeClass('small');
-                        $('.home-intro .inner').removeClass('scroll-hide');
-                    }
-                },
-                offset: this.$els.mainHeader.height() + 15
-            });
+        if (isHome) {
+            const $homeTrigger = $('#home-start');
+            if ($homeTrigger.length > 0 && typeof Waypoint !== 'undefined') {
+                $homeTrigger.waypoint({
+                    handler: (dir) => {
+                        if (dir === 'down') {
+                            this.$els.mainHeader.addClass('small');
+                            $('.home-intro .inner').addClass('scroll-hide');
+                        } else {
+                            this.$els.mainHeader.removeClass('small');
+                            $('.home-intro .inner').removeClass('scroll-hide');
+                        }
+                    },
+                    offset: this.$els.mainHeader.height() + 15
+                });
+            }
+        } else if (isMenu) {
+            const $menuTrigger = $('.product-showcase-section');
+            if ($menuTrigger.length > 0 && typeof Waypoint !== 'undefined') {
+                $menuTrigger.waypoint({
+                    handler: (dir) => {
+                        if (dir === 'down') {
+                            this.$els.mainHeader.addClass('small');
+                        } else {
+                            this.$els.mainHeader.removeClass('small');
+                        }
+                    },
+                    offset: 200
+                });
+            }
+        }
+
+        if (typeof Waypoint !== 'undefined' && Waypoint.refreshAll) {
             Waypoint.refreshAll();
         }
     },
 
-    // ⚡【性能优化点 6】彻底消除重排（Reflow）：完全使用 pre-calculated 的几何参数计算滚动
     handleHorizontalScroll: function (scrollTop) {
         if (this.isMobile()) return;
 
-        const { winHeight, wrapperTop, wrapperHeight, trackWidth, winWidth, contentWrapHeight } = this.scrollMetrics;
+        const { winHeight, wrapperTop, wrapperHeight, trackWidth, winWidth } = this.scrollMetrics;
         if (!wrapperHeight) return;
 
         const effectiveHeight = wrapperHeight - winHeight;
@@ -1242,38 +1460,22 @@ MaiRijiApp.prototype = {
 
         if (scrollDist >= 0 && scrollDist <= effectiveHeight) {
             const progress = scrollDist / effectiveHeight;
-            const splitPoint = 0.75;
-
             const maxTranslateX = trackWidth - winWidth + (winWidth * 0.3);
-            const maxTranslateY = Math.max(0, contentWrapHeight - winHeight);
 
-            if (progress <= splitPoint) {
-                const hProg = progress / splitPoint;
-                this.$els.savoriaTrack.css('transform', `translateX(${-maxTranslateX * hProg}px)`);
+            // 100% 专注顺畅的横向卡片滚动
+            this.$els.savoriaTrack.css('transform', `translateX(${-maxTranslateX * progress}px)`);
 
-                this.$els.savoriaCards.each((i, el) => {
-                    const isOdd = i % 2 !== 0;
-                    const val = Math.sin(hProg * Math.PI * 2 + (isOdd ? Math.PI : 0)) * 30;
-                    $(el).css('transform', `translateY(${val}px)`);
-                });
-
-                this.$els.homeDiary.removeClass('is-visible');
-                this.$els.savoriaContentWrap.css('transform', 'translateY(0px)');
-            } else {
-                const vProg = (progress - splitPoint) / (1 - splitPoint);
-                this.$els.savoriaTrack.css('transform', `translateX(${-maxTranslateX}px)`);
-                this.$els.homeDiary.addClass('is-visible');
-
-                this.$els.savoriaContentWrap.css('transform', `translateY(${-maxTranslateY * vProg}px)`);
-            }
+            this.$els.savoriaCards.each((i, el) => {
+                const isOdd = i % 2 !== 0;
+                const val = Math.sin(progress * Math.PI * 2 + (isOdd ? Math.PI : 0)) * 30;
+                $(el).css('transform', `translateY(${val}px)`);
+            });
         } else if (scrollDist < 0) {
             this.$els.savoriaTrack.css('transform', 'translateX(0px)');
             this.$els.savoriaCards.css('transform', 'translateY(0px)');
-            this.$els.homeDiary.removeClass('is-visible');
         }
     },
 
-    // ⚡【性能优化点 7】转场动画优化：只在动画启动前调用 1 次 onResize()，避免连续 60 帧触发 Reflow
     handlePageTransition: function ($link) {
         const targetId = $link.data('target');
 
@@ -1310,14 +1512,12 @@ MaiRijiApp.prototype = {
 
                 this.initStickyNav();
 
-                // ⚡ 先统一 Read 1 次 DOM 尺寸
                 if (this.wax && this.wax.elements) {
                     for (let i = 0; i < this.wax.elements.length; i++) {
                         this.wax.elements[i].onResize();
                     }
                 }
 
-                // ⚡ 之后的 60 帧动画循环里仅执行 Write 操作 (GPU 合成)
                 let frames = 60;
                 const stabilize = () => {
                     if (this.wax && this.wax.elements) {
@@ -1347,8 +1547,7 @@ MaiRijiApp.prototype = {
     },
 
     onLoad: function () {
-        if (this.isMobile()) return;
-
+        // 删除了手机端拦截，允许移动端加载 parallax 视差特效
         this.wax.addElement($('.page-intro .bg, .home-intro .bg, header.intro .bg'), null, {
             deltaY: 1.2,
             mode: 'translate'
@@ -1534,24 +1733,6 @@ MaiRijiApp.prototype = {
             'mouseenter.cursorWindow': () => {
                 if ($cursor.css('display') === 'none') $cursor.show();
                 startCursorTimer();
-            }
-        });
-    },
-
-    loadHighResImages: function () {
-        $('.progressive-bg').each((_, el) => {
-            const $el = $(el);
-            const highResUrl = $el.data('highres');
-
-            if (highResUrl) {
-                const img = new Image();
-
-                img.onload = () => {
-                    $el.css('background-image', `url('${highResUrl}')`);
-                    $el.removeClass('blur-effect');
-                };
-
-                img.src = highResUrl;
             }
         });
     },
