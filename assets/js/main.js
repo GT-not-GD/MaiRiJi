@@ -24,8 +24,11 @@ WnkLaxController.prototype = {
         this.onFrame();
     },
     stop: function () {
-        window.cancelAnimationFrame(this.requestID);
-        this.requestId = null;
+        if (this.requestID) {
+            window.cancelAnimationFrame(this.requestID);
+            this.requestID = null;
+        }
+        this.enabled = false;
     }
 };
 
@@ -74,20 +77,19 @@ WnkLaxElement.prototype = {
         return tweenDelta;
     },
     move: function (x, y) {
-        let property;
+        let property = '';
         let value = '';
         if (this.settings.mode === 'translate') {
             property = 'transform';
             value = "translateZ(0)";
             if (x !== 0) value += ` translateX(${x}px) `;
             if (y !== 0) value += ` translateY(${y}px) `;
-        }
-        if (this.settings.mode === 'bg') {
+        } else if (this.settings.mode === 'bg') {
             property = 'background-position';
             value += (x !== 0) ? `${x}px ` : `${this._getBgPosFor('x')} `;
             value += (y !== 0) ? `${y}px` : this._getBgPosFor('y');
         }
-        if (value.length > 0) {
+        if (property && value.length > 0) {
             this.el.css(property, value);
         }
     },
@@ -117,8 +119,9 @@ WnkLaxElement.prototype = {
         return (window.pageYOffset - origin);
     },
     _getBgPosFor: function (axe) {
-        const pos = this.el.css('background-position').split(' ');
-        return axe === 'x' ? pos[0] : pos[1];
+        const bgPos = this.el.css('background-position');
+        const pos = bgPos ? bgPos.split(' ') : ['0px', '0px'];
+        return axe === 'x' ? (pos[0] || '0px') : (pos[1] || '0px');
     }
 };
 
@@ -181,6 +184,7 @@ function MaiRijiApp() {
     };
     this.cursorTimer = null;
     this.currentLang = localStorage.getItem(this.config.storageKeys.lang) || 'zh';
+    this.pushedStateCount = 0;
     
     this.scrollMetrics = {
         winHeight: 0,
@@ -204,6 +208,7 @@ MaiRijiApp.prototype = {
             this.init();
         }).fail(() => {
             console.error("加载数据失败，请确保在服务器环境下运行。");
+            this.init(); // 兜底保障
         });
     },
 
@@ -222,7 +227,6 @@ MaiRijiApp.prototype = {
     updateDOMTranslations: function () {
         $('html').attr('lang', this.currentLang === 'en' ? 'en' : 'zh-CN');
 
-        // 🌟 第一步新增：动态同步网页标题与 SEO 描述
         const pageTitle = this.t('meta.title');
         const pageDesc = this.t('meta.description');
         if (pageTitle) document.title = pageTitle;
@@ -353,17 +357,14 @@ MaiRijiApp.prototype = {
         this.updateCartUI();
 
         this.updateScrollMetrics();
-
         this.updateVIPBtnUI();
     },
 
-    // 🌟 新增：向浏览器写入历史记录（用于侧滑返回拦截）
     pushModalState: function (stateName) {
         history.pushState({ modal: stateName }, '', window.location.pathname + window.location.search);
         this.pushedStateCount = (this.pushedStateCount || 0) + 1;
     },
 
-    // 🌟 新增：当用户主动点击关闭按钮时，退回历史状态
     popModalStateIfNeeded: function (fromPopState) {
         if (!fromPopState && this.pushedStateCount > 0) {
             this.pushedStateCount--;
@@ -389,8 +390,8 @@ MaiRijiApp.prototype = {
         const langKey = this.getCurrentLanguage();
 
         if (this.productsData && this.productsData[langKey]) {
-            this.breadProducts = this.productsData[langKey].bread;
-            this.cakeProducts = this.productsData[langKey].cake;
+            this.breadProducts = this.productsData[langKey].bread || [];
+            this.cakeProducts = this.productsData[langKey].cake || [];
         } else {
             this.breadProducts = [];
             this.cakeProducts = [];
@@ -401,16 +402,14 @@ MaiRijiApp.prototype = {
     },
 
     shuffleArray: function (array) {
-        for (let i = array.length - 1; i > 0; i--) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            const temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        return array;
+        return arr;
     },
 
-    // 1. 🌟 渲染商品卡片（使用流光骨架屏）
     renderProductGroup: function (type, products, title) {
         const isEnglish = this.getCurrentLanguage() === 'en';
         let html = '';
@@ -434,14 +433,12 @@ MaiRijiApp.prototype = {
                             <div class="photo-area" style="background-color: ${type === 'cake' ? '#fdf7ef' : 'var(--bg-cream)'};"></div>
                         </div>
 
-                        <!-- 悬停图：初始加载时展示玻璃流光 -->
                         <div class="polaroid card-middle-hover">
                             <div class="photo-area progressive-bg shimmer-glass" 
                                  data-highres="${highResHover}">
                             </div>
                         </div>
 
-                        <!-- 主封面图：初始加载时展示玻璃流光 -->
                         <div class="polaroid card-front">
                             <div class="photo-area progressive-bg shimmer-glass" 
                                  data-highres="${highResNormal}">
@@ -470,16 +467,11 @@ MaiRijiApp.prototype = {
         this.loadHighResImages();
     },
 
-    // 2. 🌟 渲染横向视差卡片
     renderSavoriaCards: function (folder = 'bread') {
         const isEnglish = this.getCurrentLanguage() === 'en';
-
-        const photoBuckets = {
-            bread: ['1', '2', '3', '4', '5', '6', '7']
-        };
-
+        const photoBuckets = { bread: ['1', '2', '3', '4', '5', '6', '7'] };
         const availablePhotos = photoBuckets[folder] || photoBuckets.bread;
-        const selectedPhotos = this.shuffleArray(availablePhotos.slice()).slice(0, 7);
+        const selectedPhotos = this.shuffleArray(availablePhotos).slice(0, 7);
 
         let html = '';
 
@@ -506,15 +498,13 @@ MaiRijiApp.prototype = {
         this.loadHighResImages();
     },
 
-    // 3. 🌟 智能视口懒加载器：未滚到的图片绝不下载，滚近视口 300px 时才按需加载！
     loadHighResImages: function () {
         const observerOptions = {
             root: null,
-            rootMargin: '300px 0px', // 提前 300 像素预加载，用户完全感觉不到延迟
+            rootMargin: '300px 0px',
             threshold: 0.01
         };
 
-        // 优先使用现代浏览器的 IntersectionObserver 视口观察器
         if ('IntersectionObserver' in window) {
             if (!this.lazyImageObserver) {
                 this.lazyImageObserver = new IntersectionObserver((entries, observer) => {
@@ -522,7 +512,7 @@ MaiRijiApp.prototype = {
                         if (entry.isIntersecting) {
                             const $el = $(entry.target);
                             this.fetchSingleImage($el);
-                            observer.unobserve(entry.target); // 加载完成后解除观察，省内存
+                            observer.unobserve(entry.target);
                         }
                     });
                 }, observerOptions);
@@ -535,29 +525,30 @@ MaiRijiApp.prototype = {
                 }
             });
         } else {
-            // 降级兼容极老旧浏览器
             $('.progressive-bg, .shimmer-glass').each((_, el) => {
                 this.fetchSingleImage($(el));
             });
         }
     },
 
-    // ⚡ 独立下载单张图片并移除骨架屏流光 (含 404 容错)
     fetchSingleImage: function ($el) {
         const highResUrl = $el.data('highres');
         if (highResUrl && !$el.data('loaded')) {
             $el.data('loaded', true);
             const img = new Image();
 
-            // 图片成功下载：换上真图，移除流光
             img.onload = () => {
                 $el.css('background-image', `url('${highResUrl}')`);
                 $el.removeClass('blur-effect shimmer-glass');
             };
 
-            // 🌟 容错：如果路径报错/文件丢失，也强制移除流光，避免卡死成灰块
             img.onerror = () => {
                 $el.removeClass('blur-effect shimmer-glass');
+                $el.css({
+                    'background-image': "url('assets/img/logo/logo-mini-black.png')",
+                    'background-size': '40% auto',
+                    'background-color': '#f2eae1'
+                });
             };
 
             img.src = highResUrl;
@@ -565,8 +556,6 @@ MaiRijiApp.prototype = {
     },
 
     switchMenuView: function (view, animate) {
-        const isEnglish = this.getCurrentLanguage() === 'en';
-
         const doSwitch = () => {
             this.$els.menuSwitcherBtn.removeClass('active').filter(`[data-view="${view}"]`).addClass('active');
             this.$els.menuView.removeClass('active').filter(`[data-view-panel="${view}"]`).addClass('active');
@@ -619,7 +608,6 @@ MaiRijiApp.prototype = {
             loader.load();
         }
 
-        // 在 bindEvents 中的 .m-burger 点击事件里：
         $('.m-burger').on('click', (e) => {
             const $this = $(e.currentTarget);
             const isOpen = this.$els.body.toggleClass('menuOpen').hasClass('menuOpen');
@@ -651,17 +639,10 @@ MaiRijiApp.prototype = {
             }
         });
 
-        this.activeObservers = {
-            horizontal: true,
-            parallax: true
-        };
+        this.activeObservers = { horizontal: true, parallax: true };
 
         if ('IntersectionObserver' in window) {
-            const observerOptions = {
-                root: null,
-                rootMargin: '500px 0px',
-                threshold: 0
-            };
+            const observerOptions = { root: null, rootMargin: '500px 0px', threshold: 0 };
 
             const hScrollEl = document.querySelector('.horizontal-scroll-wrapper');
             if (hScrollEl) {
@@ -685,9 +666,7 @@ MaiRijiApp.prototype = {
                     this.activeObservers.parallax = isAnyVisible;
                 }, observerOptions);
 
-                pTargets.forEach((el) => {
-                    pObserver.observe(el);
-                });
+                pTargets.forEach((el) => pObserver.observe(el));
             }
         }
 
@@ -762,7 +741,7 @@ MaiRijiApp.prototype = {
         });
 
         this.openCart = () => {
-            this.pushModalState('cart-drawer'); // 🌟 打开购物车入栈
+            this.pushModalState('cart-drawer');
             this.$els.cartDrawer.addClass('open');
             this.$els.cartBackdrop.addClass('show');
             this.$els.body.addClass('no-scroll');
@@ -774,7 +753,7 @@ MaiRijiApp.prototype = {
             if (!this.$els.detailPanel.hasClass('open')) {
                 this.$els.body.removeClass('no-scroll');
             }
-            this.popModalStateIfNeeded(fromPopState); // 🌟 主动关闭出栈
+            this.popModalStateIfNeeded(fromPopState);
         };
 
         $('#cart-float, .open-cart-btn').on('click', (e) => {
@@ -965,7 +944,7 @@ MaiRijiApp.prototype = {
                 } else if (this.$els.cartDrawer.hasClass('open')) {
                     this.closeCart();
                 } else if (this.$els.detailPanel.hasClass('open')) {
-                    this.closeProductDetail(); // 🌟 修复：ESC 关闭也恢复正确滚动位置
+                    this.closeProductDetail();
                 }
             }
         });
@@ -976,11 +955,9 @@ MaiRijiApp.prototype = {
             const $content = $btn.next('.accordion-content');
             const isActive = $btn.hasClass('active');
 
-            // 1. 关闭同组内其他所有的手风琴板块
             $parent.find('.accordion-header').not($btn).removeClass('active').attr('aria-expanded', 'false');
             $parent.find('.accordion-content').not($content).stop(true, true).slideUp(250);
 
-            // 2. 切换当前点击板块的状态（如果本来是打开的则合上，如果是关着的则展开）
             if (isActive) {
                 $btn.removeClass('active').attr('aria-expanded', 'false');
                 $content.stop(true, true).slideUp(250);
@@ -994,7 +971,6 @@ MaiRijiApp.prototype = {
             $(e.currentTarget).removeAttr('data-is-auto-filled');
         });
 
-        // 🌟 监听配送区域切换，自适应填充自提地址（已修复多语言硬编码问题）
         $(document).on('change', '#cust-delivery-zone', (e) => {
             const val = $(e.currentTarget).val();
             const isEnglish = this.getCurrentLanguage() === 'en';
@@ -1116,7 +1092,7 @@ MaiRijiApp.prototype = {
                 return;
             }
 
-            $btn.css('opacity', '0.7').css('pointer-events', 'none');
+            $btn.css({'opacity': '0.7', 'pointer-events': 'none'});
             $btn.find('.btn-txt.default').text(isEn ? "Saving..." : "档案生成中...");
 
             fetch(this.config.googleSheetUrl, {
@@ -1131,20 +1107,19 @@ MaiRijiApp.prototype = {
 
                 this.showToast(isEn ? `Successfully joined! Welcome, ${name}` : `注册成功！麦日记欢迎您，${name}`);
 
-                $btn.css('opacity', '1').css('pointer-events', 'auto');
+                $btn.css({'opacity': '1', 'pointer-events': 'auto'});
                 $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
                 $('#close-vip-modal').trigger('click');
 
                 this.updateVIPBtnUI();
             })
             .catch(() => {
-                $btn.css('opacity', '1').css('pointer-events', 'auto');
+                $btn.css({'opacity': '1', 'pointer-events': 'auto'});
                 $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
                 this.showToast(isEn ? "Network error, please try again." : "网络波动，请稍后再试。");
             });
         });
 
-        // 📖 Quick Links 服务指南卡片点击处理
         $(document).on('click', '.quick-link-card', (e) => {
             const tab = $(e.currentTarget).data('guide-tab');
             if (tab === 'contact') {
@@ -1158,17 +1133,14 @@ MaiRijiApp.prototype = {
                 return;
             }
 
-            // 激活对应的 Tab
             $('.guide-tab-btn').removeClass('active').filter(`[data-tab="${tab}"]`).addClass('active');
             $('.guide-tab-content').removeClass('active').filter(`#guide-tab-${tab}`).addClass('active');
 
-            // 打开弹窗
             $('#guide-modal-backdrop').addClass('show');
             $('#guide-modal').addClass('show');
             this.$els.body.addClass('no-scroll');
         });
 
-        // 弹窗内部 Tab 切换
         $(document).on('click', '.guide-tab-btn', (e) => {
             const $btn = $(e.currentTarget);
             const tab = $btn.data('tab');
@@ -1177,7 +1149,6 @@ MaiRijiApp.prototype = {
             $('.guide-tab-content').removeClass('active').filter(`#guide-tab-${tab}`).addClass('active');
         });
 
-        // 关闭弹窗
         $('#close-guide-modal, #guide-modal-backdrop').on('click', () => {
             $('#guide-modal-backdrop').removeClass('show');
             $('#guide-modal').removeClass('show');
@@ -1186,11 +1157,9 @@ MaiRijiApp.prototype = {
             }
         });
 
-        // 📖 2.5D 日记舞台小动物点击交互
         $(document).on('click', '.stage-pet', (e) => {
             const $pet = $(e.currentTarget);
             const entryId = $pet.data('entry');
-            const isEn = this.getCurrentLanguage() === 'en';
 
             $pet.addClass('clicked');
             setTimeout(() => $pet.removeClass('clicked'), 500);
@@ -1209,7 +1178,6 @@ MaiRijiApp.prototype = {
             this.$els.body.addClass('no-scroll');
         });
 
-        // 关闭日记阅读弹窗
         $('#close-diary-modal, #close-diary-btn, #diary-modal-backdrop').on('click', () => {
             $('#diary-modal-backdrop').removeClass('show');
             $('#diary-read-modal').removeClass('show');
@@ -1218,8 +1186,31 @@ MaiRijiApp.prototype = {
             }
         });
 
-        $(window).off('popstate.modalHandler').on('popstate.modalHandler', (e) => {
-            // 如果是程序主动 history.back() 触发的，忽略这次拦截
+        // 统一响应式触发：针对商品详情页动作按钮进行处理
+        $(document).on('click', '#detail-order-btn, #detail-order-btn-sticky', (e) => {
+            e.preventDefault();
+            const type = this.$els.detailPanel.data('type');
+            const id = this.$els.detailPanel.data('id');
+            const products = type === 'cake' ? this.cakeProducts : this.breadProducts;
+            const item = products.find(p => p.id === id);
+            
+            if (!item) return;
+
+            if (item.status === 'coming_soon') {
+                const isEnglish = this.getCurrentLanguage() === 'en';
+                const inqText = isEnglish ?
+                    `Hello MaiRiji! I saw ${item.name} on your website and am super interested. When will it be available?` :
+                    `你好，麦日记！我在网站看到了【${item.name}】，非常感兴趣！请问大约什么时候会上市上架呢？`;
+                const inqUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(inqText)}`;
+                window.open(inqUrl, '_blank');
+            } else {
+                this.addToCart(item, type, this.detailQty || 1);
+                this.closeProductDetail();
+                this.openCart();
+            }
+        });
+
+        $(window).off('popstate.modalHandler').on('popstate.modalHandler', () => {
             if (this.isProgrammaticPop) {
                 this.isProgrammaticPop = false;
                 return;
@@ -1229,7 +1220,6 @@ MaiRijiApp.prototype = {
                 this.pushedStateCount--;
             }
 
-            // 🌟 1. 最高优先级：关闭所有当前打开的浮层/弹窗（从最上层逐层检测）
             if ($('#gps-confirm-modal').hasClass('show')) {
                 this.closeGPSModal(true);
             } 
@@ -1266,14 +1256,12 @@ MaiRijiApp.prototype = {
                 this.$els.body.removeClass('menuOpen');
                 $('.m-burger').attr('aria-expanded', 'false');
             } 
-            // 🌟 2. 次优先：若没有任何弹窗打开，且不在【首页】，侧滑返回直接回到【首页】
             else if (!$('#view-home').hasClass('active-view')) {
                 const $homeLink = $('.nav-link[data-target="view-home"]');
                 if ($homeLink.length > 0) {
                     this.handlePageTransition($homeLink, true);
                 }
             }
-            // 🌟 3. 根入口：如果在【首页】且【无任何弹窗】，不做任何拦截，浏览器自动正常后退/退出网站！
         });
     },
 
@@ -1293,18 +1281,15 @@ MaiRijiApp.prototype = {
         const folder = type === 'cake' ? 'cake' : 'bread';
         const isComingSoon = item.status === 'coming_soon';
 
-        // 1. 动态标签
         const tagsHtml = type === 'cake' ?
             `<span class="detail-tag-badge">🍰 ${this.t('detail.tag_cake_1')}</span><span class="detail-tag-badge">${this.t('detail.tag_cake_2')}</span>` :
             `<span class="detail-tag-badge">🌾 ${this.t('detail.tag_bread_1')}</span><span class="detail-tag-badge">${this.t('detail.tag_bread_2')}</span>`;
         $('#detail-tags').html(tagsHtml);
 
-        // 2. 标题与描述
         els.detailTitle.text(item.name);
         els.detailText.html(item.desc);
         $('#sticky-title').text(item.name);
 
-        // 3. 处理 coming_soon 状态
         const $qtySelector = $('#detail-qty-selector');
         const $inpageBtn = $('#detail-order-btn');
         const $stickyBtn = $('#detail-order-btn-sticky');
@@ -1316,11 +1301,6 @@ MaiRijiApp.prototype = {
 
             $qtySelector.hide();
 
-            const inqText = isEnglish ?
-                `Hello MaiRiji! I saw ${item.name} on your website and am super interested. When will it be available?` :
-                `你好，麦日记！我在网站看到了【${item.name}】，非常感兴趣！请问大约什么时候会上市上架呢？`;
-            const inqUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(inqText)}`;
-
             const inqBtnInnerHtml = `
                 <span class="btn-text-wrapper">
                     <span class="btn-txt default">${isEnglish ? 'Inquire Release Date' : '询问预售 / 上市时间'}</span>
@@ -1330,15 +1310,6 @@ MaiRijiApp.prototype = {
 
             $inpageBtn.html(inqBtnInnerHtml);
             $stickyBtn.html(inqBtnInnerHtml);
-
-            const handleInquire = (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                window.open(inqUrl, '_blank');
-            };
-
-            $inpageBtn.off('click').on('click', handleInquire);
-            $stickyBtn.off('click').on('click', handleInquire);
 
         } else {
             els.detailPrice.text(`RM ${item.price}`);
@@ -1369,20 +1340,8 @@ MaiRijiApp.prototype = {
                 this.detailQty++;
                 $('#detail-qty-val').text(this.detailQty);
             });
-
-            const handleAddToCart = (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                this.addToCart(item, type, this.detailQty);
-                this.closeProductDetail();
-                this.openCart();
-            };
-
-            $inpageBtn.off('click').on('click', handleAddToCart);
-            $stickyBtn.off('click').on('click', handleAddToCart);
         }
 
-        // 4. 重置手风琴
         els.detailPanel.find('.accordion-header').removeClass('active').attr('aria-expanded', 'false');
         els.detailPanel.find('.accordion-content').hide();
 
@@ -1399,7 +1358,6 @@ MaiRijiApp.prototype = {
             els.detailReheat.text(this.t('detail.reheat_bread'));
         }
 
-        // 5. 设置主图与画廊
         const mainHeroUrl = `assets/img/${folder}/${item.img}.webp`;
         els.detailHeroImg.css('background-image', `url('${mainHeroUrl}')`);
 
@@ -1414,7 +1372,6 @@ MaiRijiApp.prototype = {
         }
         els.detailGallery.html(galleryHtml);
 
-        // 点击缩略小图切换大图
         els.detailGallery.off('click', 'img').on('click', 'img', function () {
             const newSrc = $(this).attr('src');
             els.detailHeroImg.css('background-image', `url('${newSrc}')`);
@@ -1422,7 +1379,6 @@ MaiRijiApp.prototype = {
             $(this).addClass('active');
         });
 
-        // 6. 吸底栏智能显隐与滚动监听（只要页面内的加购按钮不在视口内，立刻弹出）
         const $stickyBar = $('#detail-sticky-bar').removeClass('show');
         const $scrollArea = $('.detail-scroll-area');
 
@@ -1433,10 +1389,8 @@ MaiRijiApp.prototype = {
             const rect = $anchor[0].getBoundingClientRect();
             const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
 
-            // 判断页面内的“加进购物篮”操作区是否在当前视口视野内
             const isInViewport = (rect.top < viewportHeight) && (rect.bottom > 0);
 
-            // 只要不在视野内（不论是在下方还没滚出来，还是向上滚出去了），立刻显示吸底悬浮栏
             if (!isInViewport) {
                 $stickyBar.addClass('show');
             } else {
@@ -1444,19 +1398,12 @@ MaiRijiApp.prototype = {
             }
         };
 
-        // 绑定滚动监听
         $scrollArea.off('scroll.stickyBtn').on('scroll.stickyBtn', checkStickyVisibility);
 
-        // 🌟 打开详情弹窗时立刻检测一次，并在面板滑出动画结束后二次确认
         checkStickyVisibility();
         setTimeout(checkStickyVisibility, 350);
 
-        els.detailPanel.addClass('open');
-        els.body.addClass('no-scroll');
-        els.detailPanel.find('.detail-scroll-area').scrollTop(0);
-
-        // 🌟 新增：打开详情页时，向浏览器写入历史记录状态（支持手机侧滑返回关闭）
-        this.pushModalState('product-detail'); // 🌟 入栈
+        this.pushModalState('product-detail');
         els.detailPanel.addClass('open');
         els.body.addClass('no-scroll');
         els.detailPanel.find('.detail-scroll-area').scrollTop(0);
@@ -1470,10 +1417,9 @@ MaiRijiApp.prototype = {
         if (typeof this.savedMainScrollPos !== 'undefined') {
             window.scrollTo(0, this.savedMainScrollPos);
         }
-        this.popModalStateIfNeeded(fromPopState); // 🌟 出栈
+        this.popModalStateIfNeeded(fromPopState);
     },
 
-    // 🌟 导航栏吸顶与缩小监听
     initStickyNav: function () {
         if (typeof Waypoint !== 'undefined' && Waypoint.destroyAll) {
             Waypoint.destroyAll();
@@ -1522,13 +1468,11 @@ MaiRijiApp.prototype = {
                 $diaryTrigger.waypoint({
                     handler: (dir) => {
                         if (dir === 'down') {
-                            this.$els.mainHeader.addClass('small'); // 下滑缩小
+                            this.$els.mainHeader.addClass('small');
                         } else {
-                            this.$els.mainHeader.removeClass('small'); // 上滑恢复大导航栏
+                            this.$els.mainHeader.removeClass('small');
                         }
                     },
-                    // 🎯 具体的触发高度设定位置（单位：像素）
-                    // 120 表示：当日记卡片上边缘滑动到距离屏幕顶部剩 120px 时触发缩小
                     offset: 150
                 });
             }
@@ -1552,12 +1496,11 @@ MaiRijiApp.prototype = {
             const progress = scrollDist / effectiveHeight;
             const maxTranslateX = trackWidth - winWidth + (winWidth * 0.3);
 
-            // 使用原生 style 修改
             if (this.$els.savoriaTrack[0]) {
                 this.$els.savoriaTrack[0].style.transform = `translateX(${-maxTranslateX * progress}px)`;
             }
 
-            const cards = this.$els.savoriaCards.get(); // 获取原生 DOM 数组
+            const cards = this.$els.savoriaCards.get();
             for (let i = 0; i < cards.length; i++) {
                 const isOdd = i % 2 !== 0;
                 const val = Math.sin(progress * Math.PI * 2 + (isOdd ? Math.PI : 0)) * 30;
@@ -1570,7 +1513,6 @@ MaiRijiApp.prototype = {
         const targetId = $link.data('target');
         if (!targetId || $(`#${targetId}`).length === 0) return;
 
-        // 🌟 新增：如果从首页切换到其他子页面（如菜单、日记），写入历史记录，方便侧滑返回首页
         if (!fromPopState && targetId !== 'view-home' && $('#view-home').hasClass('active-view')) {
             this.pushModalState(`view-${targetId}`);
         }
@@ -1616,7 +1558,6 @@ MaiRijiApp.prototype = {
     },
 
     onLoad: function () {
-        // 删除了手机端拦截，允许移动端加载 parallax 视差特效
         this.wax.addElement($('.page-intro .bg, .home-intro .bg, header.intro .bg'), null, {
             deltaY: 1.2,
             mode: 'translate'
@@ -1648,8 +1589,6 @@ MaiRijiApp.prototype = {
             this.$els.body.append($cursor);
         }
 
-        // 🌟 静态样式全交由 styles.css 处理，删除此处大量 .css({...}) 注入！
-
         const defaultFrames = [
             'assets/img/cursor/cursor1.png', 'assets/img/cursor/cursor2.png', 'assets/img/cursor/cursor3.png'
         ];
@@ -1669,7 +1608,6 @@ MaiRijiApp.prototype = {
         const allFrames = [...defaultFrames, ...pointerFrames, ...normalClickFrames, ...pointerClickFrames];
         const uniqueFrames = Array.from(new Set(allFrames));
 
-        // 🌟 极其干净的 img 元素初始化（图片样式同样交给 CSS）
         uniqueFrames.forEach((src) => {
             const $img = $('<img>').attr('src', src);
             $cursor.append($img);
@@ -1695,7 +1633,7 @@ MaiRijiApp.prototype = {
         let animationTimer = null;
 
         const updateLoopImage = () => {
-            if (isClickAnimating) return;
+            if (isClickAnimating || document.hidden) return;
             currentFrameIndex = (currentFrameIndex + 1) % currentLoopFrames.length;
             setCursorImage(currentLoopFrames[currentFrameIndex]);
         };
@@ -1918,7 +1856,6 @@ MaiRijiApp.prototype = {
         $('#open-vip-btn').attr('data-label', label);
     },
 
-    // 🌟 生成并跳转 WhatsApp 订单文本（已完美多语言化）
     checkoutWhatsApp: function (customerData) {
         const isEnglish = this.getCurrentLanguage() === 'en';
 
@@ -2072,9 +2009,7 @@ MaiRijiApp.prototype = {
                 const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&lat=${lat}&lon=${lng}`;
 
                 fetch(reverseUrl, {
-                    headers: {
-                        'Accept-Language': 'en-US,en;q=0.9'
-                    }
+                    headers: { 'Accept-Language': 'en-US,en;q=0.9' }
                 })
                 .then(res => res.json())
                 .then((data) => {
@@ -2123,16 +2058,12 @@ MaiRijiApp.prototype = {
 
     isValidPhone: function (phone) {
         if (!phone) return false;
-        
-        // 1. 清理输入的空格、连字符 -、括号 () 及 + 号
         let cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
 
-        // 2. 统一将 601x 国际格式转换为本地 01x 格式
         if (cleaned.indexOf('601') === 0) {
             cleaned = '0' + cleaned.substring(2);
         }
 
-        // 3. 马来西亚标准手机号：以 01 开头，后接 8 位或 9 位数字（总长度 10 位或 11 位）
         const phonePattern = /^01[0-9]{8,9}$/;
         return phonePattern.test(cleaned);
     },
@@ -2150,6 +2081,4 @@ MaiRijiApp.prototype = {
         $input.removeClass('input-error');
         $group.find('.field-error-msg').remove();
     }
-
-
 };
