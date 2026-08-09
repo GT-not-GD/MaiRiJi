@@ -373,8 +373,8 @@ slider-component { position: relative; display: block; }
 .menu-switcher-btn.active { background: var(--accent-caramel); color: #fff; border-color: var(--accent-caramel); box-shadow: 0 8px 20px rgba(var(--rgb-accent-caramel), 0.18); }
 .menu-view { display: none; }
 .menu-view.active { display: block; }
-.menu-hero-panel, .menu-intro-panel, .menu-banner-panel { display: none; }
-.menu-hero-panel.active, .menu-intro-panel.active, .menu-banner-panel.active { display: block; }
+.menu-banner-panel { display: none; }
+.menu-banner-panel.active { display: block; }
 
 /* ==========================================================================
    8. 页脚 (Footer)
@@ -442,13 +442,6 @@ footer.main-footer .legals:hover { opacity: 1; }
     .savoria-card { width: 220px !important; height: 320px !important; flex-shrink: 0; margin: 0; transform: none !important; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     .savoria-card .img-holder { filter: brightness(1); transform: none; }
     .card-overlay { opacity: 1; transform: translateY(0); padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); box-sizing: border-box; }
-}
-
-#ambiance-section #home-diary { margin-top: 10vh; opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; width: 100%; }
-#ambiance-section #home-diary.is-visible { opacity: 1; transform: translateY(0); }
-
-@media only screen and (max-width: 768px) {
-  #home-diary { opacity: 1 !important; transform: none !important; margin-top: 40px; padding-bottom: 20px; }
 }
 
 /* ==========================================================================
@@ -732,8 +725,28 @@ footer.main-footer .legals:hover { opacity: 1; }
    ========================================================================== */
 @media only screen and (min-width: 769px) {
     html.custom-cursor-active, html.custom-cursor-active * { cursor: none !important; }
-    #custom-cursor { position: fixed; top: 0; left: 0; width: 36px; height: 36px; pointer-events: none; z-index: 2147483647 !important; display: none; }
-    #custom-cursor img { width: 100%; height: 100%; display: block; }
+    #custom-cursor { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 36px; 
+        height: 36px; 
+        pointer-events: none; 
+        z-index: 2147483647 !important; 
+        display: none; 
+        margin: 0;
+        padding: 0;
+        isolation: isolate;
+        will-change: transform;
+    }
+    #custom-cursor img { 
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%; 
+        height: 100%; 
+        display: none; 
+    }
 }
 
 .progressive-bg { background-size: cover; background-position: center; background-repeat: no-repeat; transition: filter 0.8s ease-out, transform 0.8s ease-out; }
@@ -1116,6 +1129,13 @@ body.no-scroll .floating-controls {
 .detail-add-btn-sticky .icon-2 path,
 .detail-add-btn-sticky .icon-3 path {
     fill: var(--bg-cream) !important;
+}
+
+/* 锁定麦穗 SVG 自适应比例，防止被拉伸 */
+.icon-1 svg, .icon-2 svg, .icon-3 svg {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* 悬停微动 */
@@ -1674,5 +1694,180 @@ body.no-scroll .floating-controls {
 }
 .guide-box p:last-child {
     margin-bottom: 0;
+}
+
+/* ==========================================================================
+   🍞 2.5D 治愈系日记舞台样式 (极致满屏沉浸·无白边版)
+   ========================================================================== */
+
+/* 🌟 日记页面全屏背景：100% 撑满屏幕高度，彻底挤掉底部白边 */
+#view-diary section {
+    background: linear-gradient(180deg, #f8efe1 0%, #ebd3be 50%, #e5c8b2 100%) !important;
+    min-height: 100vh;        /* 强制撑满至少 100% 屏幕高度 */
+    min-height: 100dvh;       /* 适配手机端全屏高度 */
+    padding: 165px 0 140px !important; /* 顶距 165px 让画面往下移，底距 140px 把白边挤出首屏 */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.5s ease;
+}
+
+/* 舞台外包裹层：让舞台在容器内稍微再向下微调 */
+.diary-stage-wrapper {
+    width: 100%;
+    max-width: 1140px;
+    margin: 20px auto 0; /* 再次向下微调 20px */
+    position: relative;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 2.5D 舞台容器：加上精致的白色高光立体边框与柔和落地阴影 */
+.diary-stage-container {
+    position: relative;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    /* 白色半透明高光边框 + 浓郁烘焙棕落地阴影 */
+    border: 3px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 22px 55px rgba(90, 58, 34, 0.22), 0 6px 18px rgba(0, 0, 0, 0.06);
+    background-color: #faf6ee;
+}
+
+.stage-bg {
+    width: 100%;
+    height: auto;
+    display: block;
+    user-select: none;
+}
+
+/* === 宠物位置与定位（匹配背景图） === */
+.stage-pet {
+    position: absolute;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 🐻 牛角包熊：中央偏右处 */
+.pet-croissant-bear {
+    top: 48%;
+    left: 60%;  
+    width: 13%;
+}
+
+/* 🐱 吐司猫咪：下方食谱书旁 */
+.pet-toast-cat {
+    top: 60%;
+    left: 45%;
+    width: 12%;
+}
+
+/* 🐰 肉桂卷兔：左侧酵母罐旁 */
+.pet-cinnamon-bunny {
+    top: 45%;
+    left: 30%;
+    width: 11%;
+}
+
+.pet-avatar-box {
+    position: relative;
+    width: 100%;
+}
+
+.pet-avatar-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18));
+    animation: petBreathe 3.5s ease-in-out infinite;
+}
+
+/* 睡觉呼吸缩放动效 */
+@keyframes petBreathe {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.05) translateY(-3px); }
+}
+
+/* 悬停微动与提亮 */
+.stage-pet:hover {
+    transform: scale(1.15) translateY(-6px);
+    z-index: 25;
+}
+
+.stage-pet.clicked {
+    animation: petBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes petBounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25) translateY(-10px); }
+    100% { transform: scale(1.15) translateY(-6px); }
+}
+
+/* 睡觉“Zzz...”呼噜气泡 */
+.sleep-bubble {
+    position: absolute;
+    top: -12px;
+    right: -8px;
+    font-family: 'Kalam', cursive;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--accent-caramel);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-input);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    animation: bubbleFloat 2.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes bubbleFloat {
+    0%, 100% { transform: translateY(0) scale(0.95); opacity: 0.7; }
+    50% { transform: translateY(-5px) scale(1.08); opacity: 1; }
+}
+
+/* 名字小标签 */
+.pet-name-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-brown-dark);
+    background: rgba(251, 249, 244, 0.95);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 4px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    white-space: nowrap;
+    opacity: 0.9;
+    transition: opacity 0.25s ease;
+}
+
+.stage-pet:hover .pet-name-tag {
+    opacity: 1;
+    background: var(--accent-caramel);
+    color: #ffffff;
+    border-color: var(--accent-caramel);
+}
+
+/* 手机端智能缩放与适配 */
+@media screen and (max-width: 768px) {
+    #view-diary section {
+        padding: 110px 0 80px !important;
+        min-height: auto;
+    }
+    .diary-stage-wrapper { margin-top: 10px; }
+    .pet-croissant-bear { width: 16%; top: 46%; left: 40%; }
+    .pet-toast-cat { width: 15%; top: 58%; left: 26%; }
+    .pet-cinnamon-bunny { width: 14%; top: 51%; left: 15%; }
+    .sleep-bubble { font-size: 10px; padding: 1px 5px; top: -10px; }
+    .pet-name-tag { font-size: 9.5px; padding: 1px 5px; }
 }
 

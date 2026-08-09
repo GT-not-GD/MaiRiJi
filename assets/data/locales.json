@@ -1,5 +1,9 @@
 {
   "zh": {
+    "meta": {
+      "title": "麦日记 - 烘焙与生活的美好点滴",
+      "description": "欢迎来到麦日记。日记里记录了关于烘焙的灵感、故事和生活点滴，探索面粉与温度的艺术。"
+    },
     "nav": {
       "home": "首页",
       "menu": "菜单",
@@ -29,11 +33,7 @@
     },
     "hero": {
       "home_title": "记录每一次烘焙的<br>温度与故事",
-      "explore_menu": "探索风味",
-      "menu_bread_title": "品味每一口发酵的<br>时间与风味",
-      "menu_cake_title": "为甜蜜时刻准备一份<br>精致蛋糕",
-      "view_bread": "浏览欧包",
-      "view_cake": "浏览蛋糕"
+      "explore_menu": "探索风味"
     },
     "philosophy": {
       "title": "我们的烘焙哲学",
@@ -44,23 +44,16 @@
       "title": "氛围与风味",
       "subtitle": "The Ambiance & Flavor"
     },
-    "diary": {
-      "quote": "“今天午后，阳光正好。我尝试在面团里加入了昨天新买的桂花干，烤箱运作时，整个屋子都弥漫着秋天的香气。那一刻我明白，烘焙于我而言，更像是一场温柔的创作。”",
-      "author": "—— 麦日记，十一月三日",
-      "read_more": "阅读更多日记"
+    "about_page": {
+      "title": "关于我",
+      "p1": "欢迎来到麦日记。这里记录了关于烘焙的灵感、故事与手作生活。"
     },
     "menu": {
-      "bread_intro_title": "时间的馈赠：我们的酸种欧包",
-      "bread_intro_p1": "我们相信，最好的风味源自最纯粹的食材与最耐心的守候。每一颗欧包，都始于我们亲手培育的天然酵母，经过超过18小时的低温长时间发酵，让麦香与风味物质得以缓慢、充分地孕育。",
-      "bread_intro_p2": "这不仅赋予了面包深邃、微酸的独特风味，更让面包体变得湿润、柔软且易于消化。这是我们对传统的致敬，也是献给您的、来自时间的馈赠。",
-      "cake_intro_title": "甜蜜时刻：我们的蛋糕",
-      "cake_intro_p1": "每一款蛋糕都以柔软的口感、细腻的奶香和精致的装饰为核心，像一段被认真准备的甜蜜时刻。我们用新鲜奶油、优质原料与细致手法，让每一次分享都更有仪式感。",
-      "cake_intro_p2": "无论是生日、庆祝还是日常小小惊喜，这里的蛋糕都希望把幸福和温柔一口一口地送到你手中。",
+      "banner_title": "烘焙菜单",
       "tab_bread": "Bread / 欧包",
       "tab_cake": "Cake / 蛋糕",
       "bread_title": "Sourdough / 酸种欧包",
-      "cake_title": "Cake / 蛋糕",
-      "coming_soon": "敬请期待"
+      "cake_title": "Cake / 蛋糕"
     },
     "guides": {
       "subtitle": "CUSTOMER CARE & GUIDES",
@@ -118,7 +111,11 @@
       "acc_storage": "保存建议",
       "acc_reheat": "加热建议",
       "serving_suggestion": "食用建议",
-      "storage_bread": "• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流线与淀粉老化）。",
+      "tag_cake_1": "动物奶油",
+      "tag_cake_2": "需冷藏保存",
+      "tag_bread_1": "18H+ 低温慢发酵",
+      "tag_bread_2": "酸种酵母",
+      "storage_bread": "• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流失与淀粉老化）。",
       "storage_cake": "需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。",
       "reheat_bread": "1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。",
       "reheat_cake": "冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。"
@@ -145,18 +142,54 @@
       "submit_btn_default": "确认并发送 WhatsApp 订单",
       "submit_btn_hover": "Send Order!"
     },
+    "gps": {
+      "modal_title": "📍 确认 GPS 定位地址",
+      "loading": "⌛ 正在获取您的精准 GPS 位置，请稍候...",
+      "unit_label": "门牌号 / 楼层单位",
+      "unit_ph": "如：No. 18 或 Block B-12-05",
+      "street_label": "街道 / 社区 / 城市",
+      "street_ph": "自动获取中...",
+      "coords_label": "GPS 经纬度坐标",
+      "submit_default": "确认并使用此地址",
+      "submit_hover": "确认地址!"
+    },
+    "thankyou": {
+      "title": "感谢您的预定！",
+      "desc": "订单已跳转至 WhatsApp。<br>我们将尽快与您确认发酵排单及具体送货/自提时间，期待为您带来手作烘焙的温暖风味！",
+      "btn_default": "继续浏览 / 完成",
+      "btn_hover": "完成!"
+    },
+    "contact": {
+      "wa_msg": "你好，麦日记！我想咨询关于预定与客制化烘焙的问题。"
+    },
     "toast": {
       "empty_cart": "购物篮还是空的哦！",
       "other_zone_err": "其他区域暂无配送服务，请选择【到店自提】哦！",
       "fill_required": "请填写完整配送地址和期望日期。",
-      "fill_unit": "请补充填写门牌号或楼层单位。",
-      "invalid_phone": "电话号码格式不正确，请检查位数是否有多打或少打。"
+      "fill_unit": "请补充填写门牌号或楼层单位。"
     },
     "footer": {
       "copyright": "© 2025 麦日记. 保留所有权利."
+    },
+    "diary_stage": {
+      "hint": "✨ 点击桌上的小动物，偷看它们的烘焙日记",
+      "pet1_name": "牛角包熊 · 麦麦",
+      "pet2_name": "吐司猫咪 · 朵朵",
+      "pet3_name": "肉桂卷兔 · 糯糯",
+      "entry1_title": "十一月三日 · 酥皮与温暖秋阳",
+      "entry1_content": "今天午后，阳光落在开酥台面上。看着发酵箱里的面团慢慢鼓起，像极了睡在麦堆里的牛角包熊。烘焙不仅是精确的配方，更是让时间慢下来的温存魔法。",
+      "entry2_title": "十一月十日 · 刚出炉的柔软呼噜",
+      "entry2_content": "刚出炉的生吐司带着浓郁的生乳香气。猫咪趴在温热的布巾旁打呼噜，整个屋子都漫溢着面粉与黄油受热后散发的幸福味道。",
+      "entry3_title": "十一月十七日 · 肉桂与秋日的甜梦",
+      "entry3_content": "在面团里揉入了肉桂干花，烤箱运转时，微甜的香气漫出窗外。那一刻我明白，烘焙更像是一场温柔的创作，希望能带给你一整天的好心情。",
+      "close_btn": "合上日记"
     }
   },
   "en": {
+    "meta": {
+      "title": "MaiRiji - Handcrafted Bakery & Stories",
+      "description": "Welcome to MaiRiji. A bakery diary capturing baking inspirations, slow-fermentation sourdough, and daily warm moments."
+    },
     "nav": {
       "home": "Home",
       "menu": "Menu",
@@ -186,11 +219,7 @@
     },
     "hero": {
       "home_title": "Every bake tells a story<br>of warmth and craft",
-      "explore_menu": "Explore Menu",
-      "menu_bread_title": "A slow fermentation of time<br>and flavor in every bite",
-      "menu_cake_title": "A beautifully crafted cake<br>for your sweetest moments",
-      "view_bread": "View Sourdough",
-      "view_cake": "View Cakes"
+      "explore_menu": "Explore Menu"
     },
     "philosophy": {
       "title": "Our Baking Philosophy",
@@ -201,23 +230,16 @@
       "title": "Atmosphere & Flavor",
       "subtitle": "The Ambiance & Flavor"
     },
-    "diary": {
-      "quote": "“On a quiet afternoon, sunlight filled the room as the oven warmed. The scent of dried osmanthus drifted through the kitchen, and I remembered why baking feels so gentle and alive.”",
-      "author": "—— MaiRiji, 3 November",
-      "read_more": "Read More"
+    "about_page": {
+      "title": "About Us",
+      "p1": "Welcome to MaiRiji. This is a space dedicated to baking inspirations, handcrafted stories, and mindful living."
     },
     "menu": {
-      "bread_intro_title": "A gift of time: our sourdough",
-      "bread_intro_p1": "We believe the best flavors come from the purest ingredients and the most patient care. Each loaf begins with naturally cultivated starter and a long fermentation of over 18 hours, allowing aroma and character to develop slowly and fully.",
-      "bread_intro_p2": "This gives our bread its deep, gentle acidity and a soft, moist crumb. It is our tribute to tradition and a gift from time to your table.",
-      "cake_intro_title": "Sweet moments: our cakes",
-      "cake_intro_p1": "Every cake is built around a soft texture, rich creaminess, and thoughtful decoration, turning each celebration into a memorable moment. We use fresh cream, quality ingredients, and careful craftsmanship to make every sharing feel special.",
-      "cake_intro_p2": "Whether it is a birthday, a celebration, or simply a small surprise, our cakes are made to bring joy and tenderness to your table.",
+      "banner_title": "Bakery Menu",
       "tab_bread": "Bread / Sourdough",
       "tab_cake": "Cake / Desserts",
       "bread_title": "Sourdough / Bread",
-      "cake_title": "Cake / Desserts",
-      "coming_soon": "Coming Soon"
+      "cake_title": "Cake / Desserts"
     },
     "guides": {
       "subtitle": "CUSTOMER CARE & GUIDES",
@@ -275,6 +297,10 @@
       "acc_storage": "Storage Suggestions",
       "acc_reheat": "Reheating Suggestions",
       "serving_suggestion": "Serving Suggestion",
+      "tag_cake_1": "Freshly Chilled",
+      "tag_cake_2": "Artisanal Cake",
+      "tag_bread_1": "18H+ Fermentation",
+      "tag_bread_2": "Sourdough Starter",
       "storage_bread": "• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread).",
       "storage_cake": "Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture.",
       "reheat_bread": "1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy.",
@@ -302,6 +328,26 @@
       "submit_btn_default": "Confirm Order via WhatsApp",
       "submit_btn_hover": "Send Order!"
     },
+    "gps": {
+      "modal_title": "📍 Confirm GPS Address",
+      "loading": "⌛ Detecting your precise GPS location, please wait...",
+      "unit_label": "House / Unit Number",
+      "unit_ph": "e.g. No. 18 or Block B-12-05",
+      "street_label": "Street / Area / City",
+      "street_ph": "Detecting street...",
+      "coords_label": "GPS Coordinates",
+      "submit_default": "Confirm & Use This Address",
+      "submit_hover": "Confirm Address!"
+    },
+    "thankyou": {
+      "title": "Thank You for Your Order!",
+      "desc": "Your order has been redirected to WhatsApp.<br>We will confirm your baking schedule and delivery/pickup time with you shortly. Looking forward to serving you!",
+      "btn_default": "Continue Browsing",
+      "btn_hover": "Done!"
+    },
+    "contact": {
+      "wa_msg": "Hello MaiRiji! I would like to inquire about custom orders and pre-orders."
+    },
     "toast": {
       "empty_cart": "Your basket is empty!",
       "other_zone_err": "Delivery is unavailable for other areas. Please select Self-Pickup.",
@@ -310,6 +356,19 @@
     },
     "footer": {
       "copyright": "© 2025 MaiRiji. All rights reserved."
+    },
+    "diary_stage": {
+      "hint": "✨ Tap the sleeping pets to read their baking diary",
+      "pet1_name": "Croissant Bear · MaiMai",
+      "pet2_name": "Toast Cat · DuoDuo",
+      "pet3_name": "Cinnamon Bunny · NuoNuo",
+      "entry1_title": "Nov 3 · Flaky Pastry & Warm Sunlight",
+      "entry1_content": "Sunlight streamed across the wooden table as the dough slowly puffed up in the prover, just like a sleeping croissant bear. Baking is not only about precise recipes, but also a gentle art of letting time slow down.",
+      "entry2_title": "Nov 10 · Warm Purrs & Fresh Loaves",
+      "entry2_content": "The freshly baked milk bread released a rich creamy aroma. The cat purred softly beside the warm cloth, filling the entire kitchen with the cozy scent of warm butter and wheat.",
+      "entry3_title": "Nov 17 · Cinnamon & Autumn Sweet Dreams",
+      "entry3_content": "I folded cinnamon and dried flowers into the dough today. As the oven warmed up, a gentle sweet aroma drifted through the kitchen, bringing warmth and quiet joy to the afternoon.",
+      "close_btn": "Close Diary"
     }
   }
 }

@@ -14,22 +14,6 @@ WnkLaxController.prototype = {
         const element = new WnkLaxElement(el, parent, opts);
         this.elements.push(element);
     },
-    removeElement: function (el) {
-        for (let i = 0; i < this.elements.length; i++) {
-            if (this.elements[i].el.get(0) === el.get(0)) {
-                this.elements[i].destroy();
-                this.elements.splice(i, 1); 
-                break; 
-            }
-        }
-    },
-    removeAll: function () {
-        this.stop();
-        for (let i = 0; i < this.elements.length; i++) {
-            this.elements[i].destroy();
-        }
-        this.elements = null;
-    },
     onFrame: function () {
         for (let i = 0; i < this.elements.length; i++) {
             this.elements[i].onFrame();
@@ -54,8 +38,6 @@ function WnkLaxElement(el, parent, opts) {
         accX: 1.0,
         accY: 1.0,
         mode: 'translate',
-        axe: 'v',
-        max: false,
     };
     this.settings = $.extend({}, this.defaults, opts);
     this.y = 0;
@@ -115,9 +97,6 @@ WnkLaxElement.prototype = {
             this.onFrame();
         }
     },
-    disable: function () {
-        this.enabled = false;
-    },
     onResize: function () {
         this.wH = $(window).height();
         this.wW = $(window).width();
@@ -128,14 +107,7 @@ WnkLaxElement.prototype = {
             this.originY = this.el.offset().top - window.pageYOffset;
         } else {
             this.originY = this.el.offset().top;
-            this.originX = this.el.offset().left;
         }
-    },
-    destroy: function () {
-        this.disable();
-        this.el = null;
-        this.parent = null;
-        this.settings = null;
     },
     getScrollTop: function () {
         if (this.originY > (this.wH / 2)) {
@@ -187,9 +159,6 @@ WnkMediaLoader.prototype = {
             $(this.parent).trigger(this.eventName);
         }
     },
-    destroy: function () {
-        this.$imgs.off('load.WnkMediaLoader error.WnkMediaLoader').off('loadeddata.WnkMediaLoader');
-    }
 };
 
 /* ================================================================= */
@@ -253,6 +222,12 @@ MaiRijiApp.prototype = {
     updateDOMTranslations: function () {
         $('html').attr('lang', this.currentLang === 'en' ? 'en' : 'zh-CN');
 
+        // 🌟 第一步新增：动态同步网页标题与 SEO 描述
+        const pageTitle = this.t('meta.title');
+        const pageDesc = this.t('meta.description');
+        if (pageTitle) document.title = pageTitle;
+        if (pageDesc) $('meta[name="description"]').attr('content', pageDesc);
+
         $('[data-i18n]').each((_, el) => {
             const key = $(el).data('i18n');
             const translated = this.t(key);
@@ -310,13 +285,7 @@ MaiRijiApp.prototype = {
             this.renderProducts();
             this.updateCartUI();
             this.loadHighResImages();
-
-            const existingVIP = localStorage.getItem(this.config.storageKeys.custName);
-            if (existingVIP) {
-                $('#open-vip-btn').attr('data-label', `Hi, ${existingVIP}`);
-            } else {
-                $('#open-vip-btn').attr('data-label', this.t('nav.vip'));
-            }
+            this.updateVIPBtnUI();
 
             if (this.$els.detailPanel.hasClass('open')) {
                 const currentType = this.$els.detailPanel.data('type');
@@ -363,15 +332,12 @@ MaiRijiApp.prototype = {
             cartBadge: $('#cart-count-badge'),
             menuSwitcherBtn: $('.menu-switcher-btn'),
             menuView: $('.menu-view'),
-            menuHeroPanel: $('.menu-hero-panel'),
-            menuIntroPanel: $('.menu-intro-panel'),
             menuBannerPanel: $('.menu-banner-panel'),
             menuTitle: $('.menu-title'),
             scrollWrapper: $('.horizontal-scroll-wrapper'),
             savoriaTrack: $('.savoria-track'),
             savoriaCards: $('.savoria-card'),
             savoriaContentWrap: $('.savoria-sticky-viewport > .wrap'),
-            homeDiary: $('#home-diary'),
             toastTransition: $('#toast-transition')
         };
 
@@ -388,12 +354,7 @@ MaiRijiApp.prototype = {
 
         this.updateScrollMetrics();
 
-        const existingVIP = localStorage.getItem(this.config.storageKeys.custName);
-        if (existingVIP) {
-            $('#open-vip-btn').attr('data-label', `Hi, ${existingVIP}`);
-        } else {
-            $('#open-vip-btn').attr('data-label', this.t('nav.vip'));
-        }
+        this.updateVIPBtnUI();
     },
 
     updateScrollMetrics: function () {
@@ -596,7 +557,7 @@ MaiRijiApp.prototype = {
             this.$els.menuView.removeClass('active').filter(`[data-view-panel="${view}"]`).addClass('active');
             this.$els.menuBannerPanel.removeClass('active').filter(`[data-banner-view="${view}"]`).addClass('active');
 
-            this.$els.menuTitle.text(view === 'cake' ? (isEnglish ? 'Cake / Desserts' : 'Cake / 蛋糕') : (isEnglish ? 'Sourdough / Bread' : 'Sourdough / 酸种欧包'));
+            this.$els.menuTitle.text(view === 'cake' ? this.t('menu.cake_title') : this.t('menu.bread_title'));
 
             try {
                 this.initStickyNav();
@@ -1009,6 +970,7 @@ MaiRijiApp.prototype = {
             $(e.currentTarget).removeAttr('data-is-auto-filled');
         });
 
+        // 🌟 监听配送区域切换，自适应填充自提地址（已修复多语言硬编码问题）
         $(document).on('change', '#cust-delivery-zone', (e) => {
             const val = $(e.currentTarget).val();
             const isEnglish = this.getCurrentLanguage() === 'en';
@@ -1018,13 +980,14 @@ MaiRijiApp.prototype = {
             const $addressInput = $('#cust-address');
 
             const pickupAddress = "65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat";
+            const pickupLabel = isEnglish ? "(Self-Pickup)" : "(店面自提)";
 
             if (val === 'pickup') {
                 $addressGroup.slideUp(200);
                 $notice.slideUp(200);
                 $pickupInfo.slideDown(200);
                 
-                $addressInput.val(`${pickupAddress} (店面自提)`).attr('data-is-auto-filled', 'true');
+                $addressInput.val(`${pickupAddress} ${pickupLabel}`).attr('data-is-auto-filled', 'true');
             } else if (val === 'other') {
                 $addressGroup.slideUp(200);
                 $pickupInfo.slideUp(200);
@@ -1099,8 +1062,7 @@ MaiRijiApp.prototype = {
                 this.$els.body.removeClass('no-scroll');
             }
 
-            $('#open-vip-btn span').text(isEn ? "VIP Profile" : "VIP 档案");
-            $('#open-vip-btn').attr('data-label', isEn ? "VIP Profile" : "VIP 档案");
+            this.updateVIPBtnUI();
 
             this.showToast(isEn ? "Signed out & profile cleared." : "已成功退出并清除档案。");
         });
@@ -1149,8 +1111,7 @@ MaiRijiApp.prototype = {
                 $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
                 $('#close-vip-modal').trigger('click');
 
-                $('#open-vip-btn span').text(isEn ? `Hi, ${name}` : `Hi, ${name}`);
-                $('#open-vip-btn').attr('data-label', `Hi, ${name}`);
+                this.updateVIPBtnUI();
             })
             .catch(() => {
                 $btn.css('opacity', '1').css('pointer-events', 'auto');
@@ -1163,7 +1124,12 @@ MaiRijiApp.prototype = {
         $(document).on('click', '.quick-link-card', (e) => {
             const tab = $(e.currentTarget).data('guide-tab');
             if (tab === 'contact') {
-                const waUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent('你好，麦日记！我想咨询关于预定与客制化烘焙的问题。')}`;
+                const isEn = this.getCurrentLanguage() === 'en';
+                const waMessage = this.t('contact.wa_msg') || (isEn ? 
+                    "Hello MaiRiji! I would like to inquire about custom orders and pre-orders." : 
+                    "你好，麦日记！我想咨询关于预定与客制化烘焙的问题。");
+                
+                const waUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(waMessage)}`;
                 window.open(waUrl, '_blank');
                 return;
             }
@@ -1195,6 +1161,54 @@ MaiRijiApp.prototype = {
                 this.$els.body.removeClass('no-scroll');
             }
         });
+
+        // 📖 2.5D 日记舞台小动物点击交互
+        $(document).on('click', '.stage-pet', (e) => {
+            const $pet = $(e.currentTarget);
+            const entryId = $pet.data('entry');
+            const isEn = this.getCurrentLanguage() === 'en';
+
+            $pet.addClass('clicked');
+            setTimeout(() => $pet.removeClass('clicked'), 500);
+
+            const icons = { '1': '🥐', '2': '🍞', '3': '🍥' };
+            
+            const title = this.t(`diary_stage.entry${entryId}_title`);
+            const content = this.t(`diary_stage.entry${entryId}_content`);
+
+            $('#diary-read-icon').text(icons[entryId] || '📖');
+            $('#diary-read-title').text(title);
+            $('#diary-read-content').text(content);
+
+            $('#diary-modal-backdrop').addClass('show');
+            $('#diary-read-modal').addClass('show');
+            this.$els.body.addClass('no-scroll');
+        });
+
+        // 关闭日记阅读弹窗
+        $('#close-diary-modal, #close-diary-btn, #diary-modal-backdrop').on('click', () => {
+            $('#diary-modal-backdrop').removeClass('show');
+            $('#diary-read-modal').removeClass('show');
+            if (!this.$els.detailPanel.hasClass('open') && !this.$els.cartDrawer.hasClass('open')) {
+                this.$els.body.removeClass('no-scroll');
+            }
+        });
+
+        // 🌟 新增：监听手机侧滑/浏览器后退按键手势
+        $(window).off('popstate.modalHandler').on('popstate.modalHandler', (e) => {
+            // 如果商品详情页打开着，侧滑时仅关闭详情页
+            if (this.$els.detailPanel.hasClass('open')) {
+                this.closeProductDetail(true); // true 表示是由侧滑返回事件触发的关闭
+            } 
+            // （可选）如果购物车抽屉打开着，侧滑时关闭购物车
+            else if (this.$els.cartDrawer.hasClass('open')) {
+                this.closeCart(true);
+            }
+            // （可选）如果弹窗打开着，侧滑时关闭弹窗
+            else if ($('.checkout-modal.show').length > 0) {
+                this.closeCheckoutModal();
+            }
+        });
     },
 
     openProductDetail: function (type, id) {
@@ -1214,16 +1228,9 @@ MaiRijiApp.prototype = {
         const isComingSoon = item.status === 'coming_soon';
 
         // 1. 动态标签
-        let tagsHtml = '';
-        if (type === 'cake') {
-            tagsHtml = isEnglish ?
-                `<span class="detail-tag-badge">🍰 Freshly Chilled</span><span class="detail-tag-badge">Artisanal Cake</span>` :
-                `<span class="detail-tag-badge">🍰 动物奶油</span><span class="detail-tag-badge">需冷藏保存</span>`;
-        } else {
-            tagsHtml = isEnglish ?
-                `<span class="detail-tag-badge">🌾 18H+ Fermentation</span><span class="detail-tag-badge">Sourdough Starter</span>` :
-                `<span class="detail-tag-badge">🌾 18H+ 低温慢发酵</span><span class="detail-tag-badge">酸种酵母</span>`;
-        }
+        const tagsHtml = type === 'cake' ?
+            `<span class="detail-tag-badge">🍰 ${this.t('detail.tag_cake_1')}</span><span class="detail-tag-badge">${this.t('detail.tag_cake_2')}</span>` :
+            `<span class="detail-tag-badge">🌾 ${this.t('detail.tag_bread_1')}</span><span class="detail-tag-badge">${this.t('detail.tag_bread_2')}</span>`;
         $('#detail-tags').html(tagsHtml);
 
         // 2. 标题与描述
@@ -1317,21 +1324,13 @@ MaiRijiApp.prototype = {
         els.detailAllergens.text(item.allergens || (isEnglish ? "Contains Gluten (Wheat)." : "含有麸质（小麦）。"));
 
         if (type === 'cake') {
-            els.detailStorage.text(isEnglish ?
-                "Keep refrigerated (2°C - 6°C). Consume within 2 days for optimal freshness and texture." :
-                "需冷藏保存（2°C - 6°C）。建议 2 天内食用完毕，以享受最佳口感与奶香。");
-            els.detailReheatTitle.text(isEnglish ? "Serving Suggestion" : "食用建议");
-            els.detailReheat.text(isEnglish ?
-                "Take out from fridge and let it rest at room temperature for 10-15 minutes before serving for a softer, silkier texture." :
-                "冷藏取出后，建议室温静置 10-15 分钟回温后再食用，乳酪慕斯口感将更加丝滑顺柔。");
+            els.detailStorage.text(this.t('detail.storage_cake'));
+            els.detailReheatTitle.text(this.t('detail.serving_suggestion'));
+            els.detailReheat.text(this.t('detail.reheat_cake'));
         } else {
-            els.detailStorage.text(isEnglish ?
-                "• Room Temperature: Keep sealed for 2-3 days.\n• Freezer: Slice and freeze sealed for up to 4 weeks.\n(Avoid refrigeration as it dries out the bread)." :
-                "• 常温密封：可保存 2-3 天。\n• 切片密封冷冻：可保存 3-4 周。\n（⚠️ 请勿直接冷藏，冷藏会加速水分流线与淀粉老化）。");
-            els.detailReheatTitle.text(isEnglish ? "Reheating Suggestions" : "加热复酥建议");
-            els.detailReheat.text(isEnglish ?
-                "1. Mist: Lightly spray water on the bread surface.\n2. Oven/Air Fryer: Preheat to 180°C and bake for 3-5 minutes.\n3. Pan Fry: Toast sliced bread in a dry pan on medium heat until crispy." :
-                "1. 喷水：表面轻喷少量水雾。\n2. 烤箱/空气炸锅：预热 180°C 烘烤 3-5 分钟。\n3. 平底锅：中火无油干煎切片至两面复酥金黄即可。");
+            els.detailStorage.text(this.t('detail.storage_bread'));
+            els.detailReheatTitle.text(this.t('detail.acc_reheat'));
+            els.detailReheat.text(this.t('detail.reheat_bread'));
         }
 
         // 5. 设置主图与画廊
@@ -1389,14 +1388,36 @@ MaiRijiApp.prototype = {
         els.detailPanel.addClass('open');
         els.body.addClass('no-scroll');
         els.detailPanel.find('.detail-scroll-area').scrollTop(0);
+
+        // 🌟 新增：打开详情页时，向浏览器写入历史记录状态（支持手机侧滑返回关闭）
+        if (!this.isDetailStatePushed) {
+            history.pushState({ modal: 'product-detail' }, '', '#product-detail');
+            this.isDetailStatePushed = true;
+        }
+
+        els.detailPanel.addClass('open');
+        els.body.addClass('no-scroll');
+        els.detailPanel.find('.detail-scroll-area').scrollTop(0);
     },
 
-    closeProductDetail: function () {
+    closeProductDetail: function (fromPopState = false) {
         this.$els.detailPanel.removeClass('open');
-        this.$els.body.removeClass('no-scroll');
+        if (!this.$els.cartDrawer.hasClass('open')) {
+            this.$els.body.removeClass('no-scroll');
+        }
         
         if (typeof this.savedMainScrollPos !== 'undefined') {
             window.scrollTo(0, this.savedMainScrollPos);
+        }
+
+        // 🌟 新增：如果是用户主动点击 X 关闭（非右滑返回触发），手动退回历史状态，保持 URL 干净
+        if (!fromPopState && this.isDetailStatePushed) {
+            this.isDetailStatePushed = false;
+            if (window.location.hash === '#product-detail') {
+                history.back();
+            }
+        } else {
+            this.isDetailStatePushed = false;
         }
     },
 
@@ -1411,6 +1432,7 @@ MaiRijiApp.prototype = {
 
         const isHome = $('#view-home').hasClass('active-view');
         const isMenu = $('#view-menu').hasClass('active-view');
+        const isDiary = $('#view-diary').hasClass('active-view');
 
         if (isHome) {
             const $homeTrigger = $('#home-start');
@@ -1442,6 +1464,22 @@ MaiRijiApp.prototype = {
                     offset: 200
                 });
             }
+        } else if (isDiary) {
+            const $diaryTrigger = $('#view-diary .diary-stage-wrapper');
+            if ($diaryTrigger.length > 0 && typeof Waypoint !== 'undefined') {
+                $diaryTrigger.waypoint({
+                    handler: (dir) => {
+                        if (dir === 'down') {
+                            this.$els.mainHeader.addClass('small'); // 下滑缩小
+                        } else {
+                            this.$els.mainHeader.removeClass('small'); // 上滑恢复大导航栏
+                        }
+                    },
+                    // 🎯 具体的触发高度设定位置（单位：像素）
+                    // 120 表示：当日记卡片上边缘滑动到距离屏幕顶部剩 120px 时触发缩小
+                    offset: 150
+                });
+            }
         }
 
         if (typeof Waypoint !== 'undefined' && Waypoint.refreshAll) {
@@ -1462,17 +1500,17 @@ MaiRijiApp.prototype = {
             const progress = scrollDist / effectiveHeight;
             const maxTranslateX = trackWidth - winWidth + (winWidth * 0.3);
 
-            // 100% 专注顺畅的横向卡片滚动
-            this.$els.savoriaTrack.css('transform', `translateX(${-maxTranslateX * progress}px)`);
+            // 使用原生 style 修改
+            if (this.$els.savoriaTrack[0]) {
+                this.$els.savoriaTrack[0].style.transform = `translateX(${-maxTranslateX * progress}px)`;
+            }
 
-            this.$els.savoriaCards.each((i, el) => {
+            const cards = this.$els.savoriaCards.get(); // 获取原生 DOM 数组
+            for (let i = 0; i < cards.length; i++) {
                 const isOdd = i % 2 !== 0;
                 const val = Math.sin(progress * Math.PI * 2 + (isOdd ? Math.PI : 0)) * 30;
-                $(el).css('transform', `translateY(${val}px)`);
-            });
-        } else if (scrollDist < 0) {
-            this.$els.savoriaTrack.css('transform', 'translateX(0px)');
-            this.$els.savoriaCards.css('transform', 'translateY(0px)');
+                cards[i].style.transform = `translateY(${val}px)`;
+            }
         }
     },
 
@@ -1579,20 +1617,7 @@ MaiRijiApp.prototype = {
             this.$els.body.append($cursor);
         }
 
-        $cursor.css({
-            'position': 'fixed',
-            'top': '0',
-            'left': '0',
-            'z-index': '2147483647',
-            'pointer-events': 'none',
-            'transform': 'translate3d(0, 0, 0)',
-            'isolation': 'isolate',
-            'margin': '0',
-            'padding': '0',
-            'width': '36px',
-            'height': '36px',
-            'will-change': 'transform, left, top'
-        });
+        // 🌟 静态样式全交由 styles.css 处理，删除此处大量 .css({...}) 注入！
 
         const defaultFrames = [
             'assets/img/cursor/cursor1.png', 'assets/img/cursor/cursor2.png', 'assets/img/cursor/cursor3.png'
@@ -1613,15 +1638,9 @@ MaiRijiApp.prototype = {
         const allFrames = [...defaultFrames, ...pointerFrames, ...normalClickFrames, ...pointerClickFrames];
         const uniqueFrames = Array.from(new Set(allFrames));
 
+        // 🌟 极其干净的 img 元素初始化（图片样式同样交给 CSS）
         uniqueFrames.forEach((src) => {
-            const $img = $('<img>').attr('src', src).css({
-                'position': 'absolute',
-                'top': '0',
-                'left': '0',
-                'width': '100%',
-                'height': '100%',
-                'display': 'none'
-            });
+            const $img = $('<img>').attr('src', src);
             $cursor.append($img);
             imageElements[src] = $img;
         });
@@ -1718,11 +1737,21 @@ MaiRijiApp.prototype = {
 
         startCursorTimer();
 
+        let mouseX = 0, mouseY = 0;
+        let cursorTicking = false;
+
         $(document).on('mousemove.customCursor', (e) => {
-            $cursor.css({
-                'transform': `translate3d(${e.clientX - 5}px, ${e.clientY - 5}px, 0)`
-            });
-            if ($cursor.css('display') === 'none') $cursor.show();
+            mouseX = e.clientX - 5;
+            mouseY = e.clientY - 5;
+            
+            if (!cursorTicking) {
+                requestAnimationFrame(() => {
+                    $cursor[0].style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+                    if ($cursor[0].style.display === 'none') $cursor[0].style.display = 'block';
+                    cursorTicking = false;
+                });
+                cursorTicking = true;
+            }
         });
 
         $(document).off('.cursorWindow').on({
@@ -1852,6 +1881,13 @@ MaiRijiApp.prototype = {
         els.cartBadge.text(totalQty);
     },
 
+    updateVIPBtnUI: function () {
+        const existingVIP = localStorage.getItem(this.config.storageKeys.custName);
+        const label = existingVIP ? `Hi, ${existingVIP}` : this.t('nav.vip');
+        $('#open-vip-btn').attr('data-label', label);
+    },
+
+    // 🌟 生成并跳转 WhatsApp 订单文本（已完美多语言化）
     checkoutWhatsApp: function (customerData) {
         const isEnglish = this.getCurrentLanguage() === 'en';
 
@@ -1881,7 +1917,13 @@ MaiRijiApp.prototype = {
             if (customerData.phone) {
                 msg += (isEnglish ? "Contact Phone: " : "联系电话：") + customerData.phone + "\n";
             }
-            msg += (isEnglish ? "Address/Note: \n" : "地址/说明：\n") + customerData.address + "\n";
+
+            const zoneVal = $('#cust-delivery-zone').val();
+            const addressLabel = (zoneVal === 'pickup') ? 
+                (isEnglish ? "Pickup Location: \n" : "自提地点：\n") : 
+                (isEnglish ? "Delivery Address: \n" : "详细配送地址：\n");
+
+            msg += addressLabel + customerData.address + "\n";
             msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
         }
 
@@ -1966,7 +2008,11 @@ MaiRijiApp.prototype = {
         $('#gps-unit').val('');
         $('#gps-street').val('');
         $('#gps-coords').val('');
-        $('#gps-loading-status').html(isEnglish ? "⌛ Detecting your precise GPS location, please wait..." : "⌛ 正在获取您的精准 GPS 位置，请稍候...");
+        
+        const loadingMsg = this.t('gps.loading') || (isEnglish ? 
+            "⌛ Detecting your precise GPS location, please wait..." : 
+            "⌛ 正在获取您的精准 GPS 位置，请稍候...");
+        $('#gps-loading-status').html(loadingMsg);
 
         this.startGPSDetection();
     },
@@ -2047,13 +2093,16 @@ MaiRijiApp.prototype = {
     isValidPhone: function (phone) {
         if (!phone) return false;
         
+        // 1. 清理输入的空格、连字符 -、括号 () 及 + 号
         let cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
 
+        // 2. 统一将 601x 国际格式转换为本地 01x 格式
         if (cleaned.indexOf('601') === 0) {
             cleaned = '0' + cleaned.substring(2);
         }
 
-        const phonePattern = /^(0111\d{7}|01[02-9]\d{7})$/;
+        // 3. 马来西亚标准手机号：以 01 开头，后接 8 位或 9 位数字（总长度 10 位或 11 位）
+        const phonePattern = /^01[0-9]{8,9}$/;
         return phonePattern.test(cleaned);
     },
 
@@ -2070,4 +2119,6 @@ MaiRijiApp.prototype = {
         $input.removeClass('input-error');
         $group.find('.field-error-msg').remove();
     }
+
+
 };
