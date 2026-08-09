@@ -13,7 +13,27 @@
       { "id": "b10", "name": "Dragon Fruit Cream Cheese Sourdough", "price": "17.00", "img": "10", "desc": "Made with fresh red dragon fruit for a striking natural pink dough, filled with rich and velvety cream cheese pockets.", "ingredients": "Japanese high-protein bread flour, German rye flour, fresh red dragon fruit, cream cheese filling, water, sourdough starter, rose salt.", "allergens": "Gluten (Wheat, Rye), Milk (Cream cheese)", "gallery": ["10", "10-hover"] }
     ],
     "cake": [
-      { "id": "c1", "name": "Amber Caramel Double Fromage Cheesecake", "price": "0.00", "img": "1", "status": "coming_soon", "desc": "A heavenly double-layer creation featuring a velvety unbaked mascarpone mousse on top, a rich baked cheesecake in the middle, and a crispy caramelized cookie base. A melt-in-your-mouth indulgence infused with warm amber caramel notes.", "ingredients": "Mascarpone cheese, sour cream, cream cheese, caramel biscuit crust, fresh cream, eggs, sugar, butter.", "allergens": "Contains Milk, Eggs, Gluten (Wheat), Soy.", "gallery": ["1", "1-hover"] }
+      { 
+        "id": "c1", 
+        "name": "Amber Caramel Double Fromage Cheesecake", 
+        "price": "28.00", 
+        "img": "1", 
+        "desc": "An exquisite 4-inch double-layer cheesecake creation. A heavenly double-layer creation featuring a velvety mascarpone mousse on top, a rich baked cheesecake in the middle, and a crispy caramelized cookie base. A melt-in-your-mouth indulgence infused with warm amber caramel notes.", 
+        "ingredients": "Mascarpone cheese, sour cream, cream cheese, caramel biscuit crust, fresh cream, eggs, sugar, butter.", 
+        "allergens": "Contains Milk, Eggs, Gluten (Wheat), Soy.", 
+        "gallery": ["1", "1-hover"] 
+      },
+      { 
+        "id": "c2", 
+        "name": "Matcha Oreo Double Fromage Cheesecake", 
+        "price": "0.00", 
+        "img": "2", 
+        "status": "coming_soon", 
+        "desc": "An exquisite 4-inch double-layer cheesecake creation. Built on a crunchy Oreo cookie base, centered with a rich baked original cheesecake, and crowned with a silky matcha mascarpone mousse. A beautiful harmony of cocoa, creaminess, and tea notes.", 
+        "ingredients": "Mascarpone cheese, Oreo cookie crust, premium matcha powder, cream cheese, fresh cream, eggs, sugar, butter.", 
+        "allergens": "Contains Milk, Eggs, Gluten (Wheat/Oreo), Soy.", 
+        "gallery": ["2", "2-hover"] 
+      }
     ]
   },
   "zh": {
@@ -30,7 +50,27 @@
       { "id": "b10", "name": "火龙果奶酪欧包", "price": "17.00", "img": "10", "desc": "纯红肉火龙果榨汁揉面，呈现梦幻的天然粉红色。包裹着浓郁绵密的奶油奶酪夹心，果香与奶香交织，颜值与美味兼备。", "ingredients": "日本高筋小麦粉、德国裸麦粉、新鲜红肉火龙果、奶油奶酪夹心、水、酸种酵母、玫瑰盐。", "allergens": "含有麸质（小麦、裸麦）、乳制品（奶油奶酪）。", "gallery": ["10", "10-hover"] }
     ],
     "cake": [
-      { "id": "c1", "name": "琥珀焦糖双层乳酪蛋糕", "price": "0.00", "img": "1", "status": "coming_soon", "desc": "底座是香脆的焦糖饼干，中层是浓郁醇厚的烘焙芝士，顶层则是如云朵般轻盈的生乳酪慕斯。温暖焦香与丝滑奶香完美交织，带来层次丰富、入口即化的奢华体验。", "ingredients": "马斯卡彭乳酪、酸奶油、奶油芝士、焦糖饼干底、新鲜奶油、鸡蛋、砂糖、黄油。", "allergens": "含有乳制品（奶油、奶酪）、鸡蛋、麸质（小麦/焦糖饼干底）、大豆成分。", "gallery": ["1", "1-hover"] }
+      { 
+        "id": "c1", 
+        "name": "琥珀焦糖双层芝士蛋糕", 
+        "price": "28.00", 
+        "img": "1", 
+        "desc": "精巧4寸双层芝士蛋糕。底座是香脆的焦糖饼干，中层是浓郁醇厚的原味烘焙芝士，顶层则是如云朵般轻盈的生乳酪慕斯。温暖焦香与丝滑奶香完美交织，带来层次丰富、入口即化的奢华体验。", 
+        "ingredients": "马斯卡彭乳酪、酸奶油、奶油芝士、焦糖饼干底、新鲜奶油、鸡蛋、砂糖、黄油。", 
+        "allergens": "含有乳制品（奶油、奶酪）、鸡蛋、麸质（小麦/焦糖饼干底）、大豆成分。", 
+        "gallery": ["1", "1-hover"] 
+      },
+      { 
+        "id": "c2", 
+        "name": "抹茶奥利奥双层芝士蛋糕", 
+        "price": "0.00", 
+        "img": "2", 
+        "status": "coming_soon", 
+        "desc": "精巧4寸双层芝士蛋糕。底座是香浓酥脆奥利奥饼干底，中层是浓郁醇厚原味烘烤芝士，顶层是丝滑优雅的抹茶马斯卡彭慕斯。奥利奥的微甜、芝士的浓香与抹茶的茶韵交织，层次丰富无比。", 
+        "ingredients": "马斯卡彭乳酪、奥利奥饼干底、优质抹茶粉、奶油芝士、新鲜奶油、鸡蛋、砂糖、黄油。", 
+        "allergens": "含有乳制品（奶油、奶酪）、鸡蛋、麸质（小麦/奥利奥饼干）、大豆成分。", 
+        "gallery": ["2", "2-hover"] 
+      }
     ]
   }
 }

@@ -357,6 +357,21 @@ MaiRijiApp.prototype = {
         this.updateVIPBtnUI();
     },
 
+    // 🌟 新增：向浏览器写入历史记录（用于侧滑返回拦截）
+    pushModalState: function (stateName) {
+        history.pushState({ modal: stateName }, '', window.location.pathname + window.location.search);
+        this.pushedStateCount = (this.pushedStateCount || 0) + 1;
+    },
+
+    // 🌟 新增：当用户主动点击关闭按钮时，退回历史状态
+    popModalStateIfNeeded: function (fromPopState) {
+        if (!fromPopState && this.pushedStateCount > 0) {
+            this.pushedStateCount--;
+            this.isProgrammaticPop = true;
+            history.back();
+        }
+    },
+
     updateScrollMetrics: function () {
         if (this.isMobile() || !this.$els.scrollWrapper || this.$els.scrollWrapper.length === 0) return;
 
@@ -604,8 +619,16 @@ MaiRijiApp.prototype = {
             loader.load();
         }
 
-        $('.m-burger').on('click', () => {
-            this.$els.body.toggleClass('menuOpen');
+        // 在 bindEvents 中的 .m-burger 点击事件里：
+        $('.m-burger').on('click', (e) => {
+            const $this = $(e.currentTarget);
+            const isOpen = this.$els.body.toggleClass('menuOpen').hasClass('menuOpen');
+            $this.attr('aria-expanded', isOpen ? 'true' : 'false');
+            if (isOpen) {
+                this.pushModalState('mobile-menu');
+            } else {
+                this.popModalStateIfNeeded(false);
+            }
         });
 
         $('.nav-link').on('click', (e) => {
@@ -739,18 +762,19 @@ MaiRijiApp.prototype = {
         });
 
         this.openCart = () => {
+            this.pushModalState('cart-drawer'); // 🌟 打开购物车入栈
             this.$els.cartDrawer.addClass('open');
             this.$els.cartBackdrop.addClass('show');
             this.$els.body.addClass('no-scroll');
         };
 
-        this.closeCart = () => {
+        this.closeCart = (fromPopState = false) => {
             this.$els.cartDrawer.removeClass('open');
             this.$els.cartBackdrop.removeClass('show');
-
             if (!this.$els.detailPanel.hasClass('open')) {
                 this.$els.body.removeClass('no-scroll');
             }
+            this.popModalStateIfNeeded(fromPopState); // 🌟 主动关闭出栈
         };
 
         $('#cart-float, .open-cart-btn').on('click', (e) => {
@@ -1194,20 +1218,62 @@ MaiRijiApp.prototype = {
             }
         });
 
-        // 🌟 新增：监听手机侧滑/浏览器后退按键手势
         $(window).off('popstate.modalHandler').on('popstate.modalHandler', (e) => {
-            // 如果商品详情页打开着，侧滑时仅关闭详情页
-            if (this.$els.detailPanel.hasClass('open')) {
-                this.closeProductDetail(true); // true 表示是由侧滑返回事件触发的关闭
+            // 如果是程序主动 history.back() 触发的，忽略这次拦截
+            if (this.isProgrammaticPop) {
+                this.isProgrammaticPop = false;
+                return;
+            }
+
+            if (this.pushedStateCount > 0) {
+                this.pushedStateCount--;
+            }
+
+            // 🌟 1. 最高优先级：关闭所有当前打开的浮层/弹窗（从最上层逐层检测）
+            if ($('#gps-confirm-modal').hasClass('show')) {
+                this.closeGPSModal(true);
             } 
-            // （可选）如果购物车抽屉打开着，侧滑时关闭购物车
+            else if ($('#thankyou-modal').hasClass('show')) {
+                $('#thankyou-modal-backdrop, #thankyou-modal').removeClass('show');
+                this.$els.body.removeClass('no-scroll');
+            } 
+            else if ($('#checkout-modal').hasClass('show')) {
+                this.closeCheckoutModal(true);
+            } 
+            else if ($('#vip-register-modal').hasClass('show')) {
+                $('#vip-modal-backdrop, #vip-register-modal').removeClass('show');
+                this.$els.body.removeClass('no-scroll');
+            } 
+            else if ($('#vip-profile-modal').hasClass('show')) {
+                $('#vip-profile-backdrop, #vip-profile-modal').removeClass('show');
+                this.$els.body.removeClass('no-scroll');
+            } 
+            else if ($('#guide-modal').hasClass('show')) {
+                $('#guide-modal-backdrop, #guide-modal').removeClass('show');
+                this.$els.body.removeClass('no-scroll');
+            } 
+            else if ($('#diary-read-modal').hasClass('show')) {
+                $('#diary-modal-backdrop, #diary-read-modal').removeClass('show');
+                this.$els.body.removeClass('no-scroll');
+            } 
+            else if (this.$els.detailPanel.hasClass('open')) {
+                this.closeProductDetail(true);
+            } 
             else if (this.$els.cartDrawer.hasClass('open')) {
                 this.closeCart(true);
+            } 
+            else if (this.$els.body.hasClass('menuOpen')) {
+                this.$els.body.removeClass('menuOpen');
+                $('.m-burger').attr('aria-expanded', 'false');
+            } 
+            // 🌟 2. 次优先：若没有任何弹窗打开，且不在【首页】，侧滑返回直接回到【首页】
+            else if (!$('#view-home').hasClass('active-view')) {
+                const $homeLink = $('.nav-link[data-target="view-home"]');
+                if ($homeLink.length > 0) {
+                    this.handlePageTransition($homeLink, true);
+                }
             }
-            // （可选）如果弹窗打开着，侧滑时关闭弹窗
-            else if ($('.checkout-modal.show').length > 0) {
-                this.closeCheckoutModal();
-            }
+            // 🌟 3. 根入口：如果在【首页】且【无任何弹窗】，不做任何拦截，浏览器自动正常后退/退出网站！
         });
     },
 
@@ -1390,11 +1456,7 @@ MaiRijiApp.prototype = {
         els.detailPanel.find('.detail-scroll-area').scrollTop(0);
 
         // 🌟 新增：打开详情页时，向浏览器写入历史记录状态（支持手机侧滑返回关闭）
-        if (!this.isDetailStatePushed) {
-            history.pushState({ modal: 'product-detail' }, '', '#product-detail');
-            this.isDetailStatePushed = true;
-        }
-
+        this.pushModalState('product-detail'); // 🌟 入栈
         els.detailPanel.addClass('open');
         els.body.addClass('no-scroll');
         els.detailPanel.find('.detail-scroll-area').scrollTop(0);
@@ -1405,20 +1467,10 @@ MaiRijiApp.prototype = {
         if (!this.$els.cartDrawer.hasClass('open')) {
             this.$els.body.removeClass('no-scroll');
         }
-        
         if (typeof this.savedMainScrollPos !== 'undefined') {
             window.scrollTo(0, this.savedMainScrollPos);
         }
-
-        // 🌟 新增：如果是用户主动点击 X 关闭（非右滑返回触发），手动退回历史状态，保持 URL 干净
-        if (!fromPopState && this.isDetailStatePushed) {
-            this.isDetailStatePushed = false;
-            if (window.location.hash === '#product-detail') {
-                history.back();
-            }
-        } else {
-            this.isDetailStatePushed = false;
-        }
+        this.popModalStateIfNeeded(fromPopState); // 🌟 出栈
     },
 
     // 🌟 导航栏吸顶与缩小监听
@@ -1514,16 +1566,18 @@ MaiRijiApp.prototype = {
         }
     },
 
-    handlePageTransition: function ($link) {
+    handlePageTransition: function ($link, fromPopState = false) {
         const targetId = $link.data('target');
-
         if (!targetId || $(`#${targetId}`).length === 0) return;
 
-        const $toast = this.$els.toastTransition;
+        // 🌟 新增：如果从首页切换到其他子页面（如菜单、日记），写入历史记录，方便侧滑返回首页
+        if (!fromPopState && targetId !== 'view-home' && $('#view-home').hasClass('active-view')) {
+            this.pushModalState(`view-${targetId}`);
+        }
 
+        const $toast = this.$els.toastTransition;
         $toast.removeClass('pop-in expanding fading-out').css('opacity', '');
         void $toast[0].offsetWidth;
-
         $toast.addClass('pop-in');
 
         setTimeout(() => {
@@ -1534,10 +1588,12 @@ MaiRijiApp.prototype = {
                 $(`#${targetId}`).addClass('active-view');
 
                 window.scrollTo(0, 0);
-
                 $('.home-intro .wrap, .page-intro .wrap').css('opacity', '');
 
-                if (this.$els.body.hasClass('menuOpen')) this.$els.body.removeClass('menuOpen');
+                if (this.$els.body.hasClass('menuOpen')) {
+                    this.$els.body.removeClass('menuOpen');
+                    $('.m-burger').attr('aria-expanded', 'false');
+                }
                 this.$els.detailPanel.removeClass('open');
                 this.$els.body.removeClass('no-scroll');
 
@@ -1550,32 +1606,7 @@ MaiRijiApp.prototype = {
 
                 this.initStickyNav();
 
-                if (this.wax && this.wax.elements) {
-                    for (let i = 0; i < this.wax.elements.length; i++) {
-                        this.wax.elements[i].onResize();
-                    }
-                }
-
-                let frames = 60;
-                const stabilize = () => {
-                    if (this.wax && this.wax.elements) {
-                        for (let i = 0; i < this.wax.elements.length; i++) {
-                            this.wax.elements[i].onFrame();
-                        }
-                    }
-                    if (typeof Waypoint !== 'undefined' && Waypoint.refreshAll) {
-                        Waypoint.refreshAll();
-                    }
-
-                    frames--;
-                    if (frames > 0) {
-                        requestAnimationFrame(stabilize);
-                    }
-                };
-                stabilize();
-
                 $toast.addClass('fading-out');
-
                 setTimeout(() => {
                     $toast.removeClass('pop-in expanding fading-out');
                 }, 400);
