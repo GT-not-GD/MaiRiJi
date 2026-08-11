@@ -53,6 +53,7 @@
 
 <body class="home">
 
+<!-- 🍞 原版的面包 Loading (修复: 删除了意外重复粘贴的多余 Loader) -->
 <div id="global-loader">
     <div class="loader">
         <div class="bread">
@@ -64,19 +65,14 @@
     </div>
 </div>
 
-<!-- 🍞 优化版转场层 -->
-<div id="toast-transition">
-    <div class="expander"></div>
-    <div class="icon-container">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-             <path class="body" d="M20,35 Q20,10 50,10 Q80,10 80,35 L80,80 Q80,90 70,90 L30,90 Q20,90 20,80 Z" />
-             <g class="face" fill="#5a3a22">
-                <circle cx="35" cy="45" r="3" />
-                <circle cx="65" cy="45" r="3" />
-                <path d="M40,55 Q50,65 60,55" fill="none" stroke="#5a3a22" stroke-width="3" stroke-linecap="round" />
-             </g>
-        </svg>
-    </div>
+<!-- 🎬 视频转场层 (修复: 移除了 active 样式，防止页面刷新即被永久黑屏阻挡点击) -->
+<div id="video-transition" class="video-transition">
+    <video id="transition-video" muted playsinline style="background: transparent;">
+        <!-- 苹果设备会自动播放这个 -->
+        <source src="assets/video/croissant-bear.mov" type="video/quicktime">
+        <!-- 电脑 Chrome 和安卓手机会自动播放这个 -->
+        <source src="assets/video/croissant-bear.webm" type="video/webm">
+    </video>
 </div>
 
 <!-- ======================= 页眉 ======================= -->
@@ -218,7 +214,7 @@
             </section>
 		</div>
 
-		<!-- 🌟 菜单主体区：恢复 25px 顶距，保留上面的完美白边！ -->
+		<!-- 🌟 菜单主体区 -->
 		<section class="product-showcase-section scrollTrigger" style="padding: 25px 0 80px; position: relative; z-index: 10;">
 			<div id="bakery-menu-container" class="page-width page-width-desktop">
 				<div class="menu-switcher">
@@ -358,7 +354,7 @@
                     <img src="assets/img/logo/logo-black.png" alt="麦日记"/>
                 </div>
 
-                <!-- 纯极简风 Instagram 快门闪光按钮 (无账号名) -->
+                <!-- 纯极简风 Instagram 快门闪光按钮 -->
                 <div class="logo-socials">
                     <button id="insta-flash-btn" class="btn-insta-minimal" title="Instagram">
                         <div class="insta-icon-wrapper">
@@ -379,9 +375,8 @@
     </div>
 </footer>
 
-<!-- ======================= 产品详情面板 (Slide-up Panel) ======================= -->
+<!-- ======================= 产品详情面板 ======================= -->
 <div id="product-detail-panel">
-    <!-- 玻璃感关闭按钮 -->
     <button class="close-detail-btn" title="关闭">
         <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -391,15 +386,12 @@
     
     <div class="detail-scroll-area">
         <div class="detail-main-layout">
-            <!-- 👈 左列：媒体图片区 (主图 + 画廊缩略图) -->
             <div class="detail-media-col">
                 <div class="detail-hero" id="detail-hero-img"></div>
                 <div class="detail-gallery" id="detail-gallery"></div>
             </div>
 
-            <!-- 👉 右列：商品信息与动态操作区 -->
             <div class="detail-info-col">
-                <!-- 🌟 动态标签区 (JS 根据品类自动渲染) -->
                 <div class="detail-tags" id="detail-tags"></div>
 
                 <div class="detail-header">
@@ -411,15 +403,12 @@
                     <p id="detail-text">这里是面包的故事和描述...</p>
                 </div>
 
-                <!-- 🌟 动态加购/询问操作区 -->
                 <div class="detail-inpage-action" id="inpage-action-anchor">
-                    <!-- 数量选择器 (未上线商品会自动隐藏) -->
                     <div class="qty-selector" id="detail-qty-selector">
                         <button type="button" class="qty-btn" id="detail-qty-minus">-</button>
                         <span class="qty-val" id="detail-qty-val">1</span>
                         <button type="button" class="qty-btn" id="detail-qty-plus">+</button>
                     </div>
-                    <!-- 操作按钮 -->
                     <button id="detail-order-btn" class="wheat-btn detail-add-btn">
                         <span class="btn-text-wrapper">
                             <span class="btn-txt default" data-i18n="detail.add_to_cart">加进购物篮</span>
@@ -428,7 +417,6 @@
                     </button>
                 </div>
 
-                <!-- 折叠手风琴区域 -->
                 <div class="detail-accordions">
                     <div class="accordion-item">
                         <button type="button" class="accordion-header" aria-expanded="false">
@@ -498,7 +486,6 @@
         </div>
     </div>
 
-    <!-- 🌟 吸底悬浮栏 (同步适配未上线状态) -->
     <div class="detail-sticky-bar" id="detail-sticky-bar">
         <div class="sticky-bar-info">
             <span class="sticky-bar-title" id="sticky-title">面包名称</span>
@@ -557,13 +544,11 @@
             <span data-i18n="cart.total">总计 Total:</span>
             <span class="cart-total-price" id="cart-total-price">RM 0.00</span>
         </div>
-        <!-- 带麦穗叶子与落叶动画的 WhatsApp 结算按钮 -->
         <button class="wheat-btn" id="cart-checkout-btn" style="margin: 0; width: 100%; padding: 14px;">
             <span class="btn-text-wrapper">
                 <span class="btn-txt default" data-i18n="cart.checkout_btn_default">WhatsApp 结算预定</span>
                 <span class="btn-txt hover" data-i18n="cart.checkout_btn_hover">Send Order!</span>
             </span>
-            <!-- 麦穗三叶图案 -->
             <div class="icon-1"><svg viewBox="0 0 26.3 65.33"><use href="#wheat-leaf-1"/></svg></div>
             <div class="icon-2"><svg viewBox="0 0 11.67 37.63"><use href="#wheat-leaf-2"/></svg></div>
             <div class="icon-3"><svg viewBox="0 0 25.29 76.92"><use href="#wheat-leaf-3"/></svg></div>
@@ -580,17 +565,14 @@
     </div>
     <div class="modal-body">
         <form id="checkout-form" novalidate>
-            <!-- 联系姓名 -->
 			<div class="form-group">
 				<label for="cust-name"><span data-i18n="checkout.name_label">联系姓名</span> <span class="required">*</span></label>
 				<input type="text" id="cust-name" data-i18n-placeholder="checkout.name_placeholder" placeholder="例如：陈小姐 / Mr. Tan" required>
 			</div>
-			<!-- 联系电话 -->
 			<div class="form-group">
 				<label for="cust-phone"><span data-i18n="checkout.phone_label">联系电话</span> <span class="required">*</span></label>
 				<input type="tel" id="cust-phone" data-i18n-placeholder="checkout.phone_ph" placeholder="如：012-3456789" required>
 			</div>
-			<!-- 配送区域与方式选择 -->
             <div class="form-group">
 				<label for="cust-delivery-zone"><span data-i18n="checkout.zone_label">配送方式 / 区域</span> <span class="required">*</span></label>
 				<select id="cust-delivery-zone" style="width: 100%; padding: 10px 12px; border: 1px solid #d8c8b7; border-radius: 6px; font-size: 14px; color: #333; background: #fff;">
@@ -599,11 +581,9 @@
 					<option value="pickup" data-i18n="checkout.zone_pickup">🏡 到店自提（Tanjong Sepat）</option>
 					<option value="other" data-i18n="checkout.zone_other">⚠️ 其他区域（暂无配送服务）</option>
 				</select>
-				<!-- 内联温馨提示栏 -->
 				<div id="zone-notice" class="form-tip" style="display: none; margin-top: 8px; background-color: #fdf2e9; border-left: 3px solid #e67e22; color: #a04000;"></div>
 			</div>
 
-			<!-- 地址输入框外包裹一个容器，方便自提时动态隐藏 -->
 			<div class="form-group" id="cust-address-group">
 				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
 					<label for="cust-address" style="margin-bottom: 0;"><span data-i18n="checkout.address_label">详细配送地址</span> <span class="required">*</span></label>
@@ -612,7 +592,6 @@
 				<textarea id="cust-address" rows="3" data-i18n-placeholder="checkout.address_placeholder" placeholder="请输入详细配送地址（或点击右上方“一键定位”）" required></textarea>
 			</div>
 
-			<!-- 🌟 到店自提地址展示卡片（选择自提时显示） -->
 			<div id="cust-pickup-info" class="form-tip" style="display: none; background-color: #f7ece1; border-left: 3px solid #8b5e3c; color: #5a3a22; margin-top: 10px; padding: 12px; border-radius: 6px;">
 				<p style="font-weight: 700; margin-bottom: 4px; color: #5a3a22;" data-i18n="checkout.pickup_title">📍 麦日记工坊自提地址：</p>
 				<p style="margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; color: #333;">65, Jalan Pelangi 12, Taman Pelangi, 42800 Tanjong Sepat</p>
@@ -631,7 +610,6 @@
                     <span class="btn-txt default" data-i18n="checkout.submit_btn_default">确认并发送 WhatsApp 订单</span>
                     <span class="btn-txt hover" data-i18n="checkout.submit_btn_hover">Send Order!</span>
 				</span>
-				<!-- 麦穗三叶图案 -->
 				<div class="icon-1"><svg viewBox="0 0 26.3 65.33"><use href="#wheat-leaf-1"/></svg></div>
                 <div class="icon-2"><svg viewBox="0 0 11.67 37.63"><use href="#wheat-leaf-2"/></svg></div>
                 <div class="icon-3"><svg viewBox="0 0 25.29 76.92"><use href="#wheat-leaf-3"/></svg></div>
@@ -674,7 +652,6 @@
     </div>
 </div>
 
-<!-- 🌟 感谢预定弹窗 (Thank You Modal) -->
 <div id="thankyou-modal-backdrop" class="modal-backdrop"></div>
 <div id="thankyou-modal" class="checkout-modal thankyou-modal" style="text-align: center;">
     <div class="modal-body" style="padding: 25px 20px 20px;">
@@ -735,7 +712,6 @@
     </div>
     <div class="modal-body" style="text-align: center;">
         
-        <!-- 🌟 烘焙风暖色尊贵会员卡设计 -->
         <div class="vip-card-box" style="background: linear-gradient(135deg, #faf6ee 0%, #f4eae0 100%); border: 1px solid #d8c8b7; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(139, 94, 60, 0.05); text-align: left;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #d8c8b7; padding-bottom: 8px;">
                 <span style="font-family: 'Playfair Display', serif; font-size: 12px; color: #8b5e3c; font-weight: bold;" data-i18n="vip_profile.card_tag">MAIRIJI VIP MEMBER</span>
@@ -758,18 +734,13 @@
             </div>
         </div>
 
-        <!-- 操作按钮组 -->
-        <!-- 🌟 统一样式的双麦穗按钮组 (仅颜色区分) -->
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <!-- 1. 退出按钮 (暖陶红/警示色版 wheat-btn) -->
             <button type="button" id="vip-logout-btn" class="wheat-btn logout-wheat-btn" style="flex: 1; margin-top: 0; padding: 10px;">
                 <span class="btn-text-wrapper">
                     <span class="btn-txt default" data-i18n="vip_profile.logout_btn">退出登录 / 清除档案</span>
                     <span class="btn-txt hover">Sign Out!</span>
                 </span>
             </button>
-            
-            <!-- 2. 关闭按钮 (经典麦黄版 wheat-btn) -->
             <button type="button" id="vip-profile-close-btn" class="wheat-btn" style="flex: 1; margin-top: 0; padding: 10px;">
                 <span class="btn-text-wrapper">
                     <span class="btn-txt default" data-i18n="vip_profile.close_btn">关 闭</span>
@@ -789,14 +760,12 @@
         <button class="close-modal-btn" id="close-guide-modal" title="关闭">&times;</button>
     </div>
     <div class="modal-body">
-        <!-- 切换 Tab 按钮组 -->
         <div class="guide-tabs">
             <button class="guide-tab-btn active" data-tab="delivery" data-i18n="guides.tab_delivery">🛵 配送自提</button>
             <button class="guide-tab-btn" data-tab="care" data-i18n="guides.tab_care">🌾 保存加热</button>
             <button class="guide-tab-btn" data-tab="faq" data-i18n="guides.tab_faq">❓ 常见 FAQ</button>
         </div>
 
-        <!-- Tab 1: 配送自提 -->
         <div class="guide-tab-content active" id="guide-tab-delivery">
             <div class="guide-box">
                 <h5 data-i18n="guides.del_box1_title">🏡 1. Tanjong Sepat 本地送货 & 到店自提</h5>
@@ -809,7 +778,6 @@
             </div>
         </div>
 
-        <!-- Tab 2: 保存加热 -->
         <div class="guide-tab-content" id="guide-tab-care">
             <div class="guide-box">
                 <h5 data-i18n="guides.care_bread_title">🌾 酸种欧包 (Sourdough Bread)</h5>
@@ -824,7 +792,6 @@
             </div>
         </div>
 
-        <!-- Tab 3: 常见 FAQ -->
         <div class="guide-tab-content" id="guide-tab-faq">
             <div class="guide-box">
                 <h5 data-i18n="guides.faq_q1">⏱️ 1. 为什么要提前至少 1 天预定？</h5>
@@ -859,7 +826,7 @@
     </div>
 </div>
 
-<!-- 🌾 全站公共 SVG 麦穗模板符号池 (无损复用) -->
+<!-- 🌾 全站公共 SVG 麦穗模板符号池 -->
 <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
   <symbol id="wheat-leaf-1" viewBox="0 0 26.3 65.33">
     <path d="M13.98 52.87c0.37,-0.8 0.6,-1.74 0.67,-2.74 1.01,1.1 2.23,2.68 1.24,3.87 -0.22,0.26 -0.41,0.61 -0.59,0.97 -2.95,5.89 3.44,10.87 2.98,0.78 0.29,0.23 0.73,0.82 1.03,1.18 0.33,0.4 0.7,0.77 1,1.15 0.29,0.64 -0.09,2.68 1.77,4.91 5.42,6.5 5.67,-2.38 0.47,-4.62 -0.41,-0.18 -0.95,-0.26 -1.28,-0.54 -0.5,-0.41 -1.23,-1.37 -1.66,-1.9 0.03,-0.43 -0.17,-0.13 0.11,-0.33 4.98,1.72 8.4,-1.04 2.38,-3.16 -1.98,-0.7 -2.9,-0.36 -4.72,0.16 -0.63,-0.58 -2.38,-3.82 -2.82,-4.76 1.21,0.56 1.72,1.17 3.47,1.3 6.5,0.5 2.31,-4.21 -2.07,-4.04 -1.12,0.04 -1.62,0.37 -2.49,0.62l-1.25 -3.11c0.03,-0.26 0.01,-0.18 0.1,-0.28 1.35,0.86 1.43,1 3.25,1.45 2.35,0.15 3.91,-0.15 1.75,-2.4 -1.22,-1.27 -2.43,-2.04 -4.22,-2.23l-2.08 0.13c-0.35,-0.58 -0.99,-2.59 -1.12,-3.3l-0.01 -0.01c-0.24,-0.36 1.88,1.31 2.58,1.57 1.32,0.49 2.6,0.33 3.82,0 -0.37,-1.08 -1.17,-2.31 -2.13,-3.11 -1.79,-1.51 -3.07,-1.41 -5.22,-1.38l-0.93 -4.07c0.41,-0.57 1.41,0.9 2.82,1.36 0.96,0.31 1.94,0.41 3,0.14 2,-0.52 -2.25,-4.4 -4.53,-4.71 -0.7,-0.1 -1.23,-0.04 -1.92,-0.03 -0.46,-0.82 -0.68,-3.61 -0.92,-4.74 0.8,0.88 1.15,1.54 2.25,2.23 0.8,0.5 1.58,0.78 2.57,0.85 2.54,0.18 -0.1,-3.47 -0.87,-4.24 -1.05,-1.05 -2.34,-1.59 -4.32,-1.78l-0.33 -3.49c0.83,0.67 1.15,1.48 2.3,2.16 1.07,0.63 2.02,0.89 3.58,0.79 0.15,-1.34 -1.07,-3.39 -2.03,-4.3 -1.05,-0.99 -2.08,-1.47 -3.91,-1.68l-0.07 -3.27 0.32 -0.65c0.44,0.88 1.4,1.74 2.24,2.22 0.69,0.39 2.4,1.1 3.44,0.67 0.31,-1.92 -1.84,-4.49 -3.5,-5.29 -0.81,-0.39 -1.61,-0.41 -2.18,-0.68 -0.12,-1.28 0.27,-3.23 0.37,-4.55l-0.89 0c-0.06,1.28 -0.35,3.12 -0.34,4.31 -0.44,0.45 -0.37,0.42 -0.96,0.64 -3.88,1.49 -4.86,6.38 -3.65,7.34 1.42,-0.31 3.69,-2.14 4.16,-3.66 0.23,0.5 0.1,2.36 0.05,3.05 -1.23,0.4 -2.19,1.05 -2.92,1.82 -1.17,1.24 -2.36,4.04 -1.42,5.69 1.52,0.09 4.07,-2.49 4.49,-4.07l0.29 3.18c-2.81,0.96 -5.01,3.68 -4.18,7.43 2.06,-0.09 3.78,-2.56 4.66,-4.15 0.23,1.45 0.67,3.06 0.74,4.52 -1.26,0.93 -2.37,1.8 -2.97,3.55 -0.48,1.4 -0.49,3.72 0.19,4.55 0.59,0.71 2.06,-1.17 2.42,-1.67 1,-1.35 0.81,-1.92 1.29,-2.46l0.7 3.44c-0.49,0.45 -0.94,0.55 -1.5,1.19 -1.93,2.23 -2.14,4.33 -1.01,6.92 0.72,0.09 2.04,-1.4 2.49,-2.06 0.65,-0.95 0.79,-1.68 1.14,-2.88l0.97 2.92c-0.2,0.55 -1.84,1.32 -2.6,3.62 -0.54,1.62 -0.37,3.86 0.67,4.93 0.58,-0.09 1.85,-1.61 2.2,-2.19 0.66,-1.09 0.66,-1.64 1,-2.93l1.32 3.18c-0.23,0.72 -1.63,1.72 -1.82,4.18 -0.17,2.16 1.11,6.88 3.13,2.46zm-4.09 -16.89z" fill="#5a3a22" fill-rule="nonzero"></path>

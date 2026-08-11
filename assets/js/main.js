@@ -194,6 +194,9 @@ function MaiRijiApp() {
         trackWidth: 0,
         contentWrapHeight: 0
     };
+    
+    // 防并发锁 (非常重要)
+    this.isVideoTransitioning = false;
 }
 
 MaiRijiApp.prototype = {
@@ -575,23 +578,8 @@ MaiRijiApp.prototype = {
             return;
         }
 
-        const $toast = this.$els.toastTransition;
-        $toast.removeClass('pop-in expanding fading-out').css('opacity', '');
-        void $toast[0].offsetWidth;
-        $toast.addClass('pop-in');
-
-        setTimeout(() => {
-            $toast.addClass('expanding');
-
-            setTimeout(() => {
-                doSwitch();
-
-                $toast.addClass('fading-out');
-                setTimeout(() => {
-                    $toast.removeClass('pop-in expanding fading-out');
-                }, 400);
-            }, 500);
-        }, 250);
+        // 菜单 Tab 切换也触发牛角包熊转场
+        this.playVideoTransition(doSwitch);
     },
 
     bindEvents: function () {
@@ -808,6 +796,7 @@ MaiRijiApp.prototype = {
             this.clearFieldError($('#cust-name'));
             this.clearFieldError($('#cust-phone'));
             this.clearFieldError($('#cust-address'));
+            this.clearFieldError($('#cust-date'));
 
             if (zoneVal === 'other') {
                 this.showToast(isEnglish ? "Delivery is unavailable for other areas. Please select Self-Pickup." : "其他区域暂无配送服务，请选择【到店自提】哦！");
@@ -832,6 +821,12 @@ MaiRijiApp.prototype = {
 
             if (zoneVal !== 'pickup' && !address) {
                 this.showFieldError($('#cust-address'), isEnglish ? 'Please enter delivery address' : '请填写详细配送地址');
+                return;
+            }
+            
+            // 修复: 遗漏的送货/取货日期检测
+            if (!date) {
+                this.showFieldError($('#cust-date'), isEnglish ? 'Please select a preferred date' : '请选择期望送货/取货日期');
                 return;
             }
 
@@ -1517,15 +1512,10 @@ MaiRijiApp.prototype = {
             this.pushModalState(`view-${targetId}`);
         }
 
-        const $toast = this.$els.toastTransition;
-        $toast.removeClass('pop-in expanding fading-out').css('opacity', '');
-        void $toast[0].offsetWidth;
-        $toast.addClass('pop-in');
-
-        setTimeout(() => {
-            $toast.addClass('expanding');
-
-            setTimeout(() => {
+        // 调用牛角包熊转场动画
+        this.playVideoTransition(
+            // 遮挡瞬间的回调 (切换 DOM 视图)
+            () => {
                 $('.page-view').removeClass('active-view');
                 $(`#${targetId}`).addClass('active-view');
 
@@ -1547,14 +1537,8 @@ MaiRijiApp.prototype = {
                 }
 
                 this.initStickyNav();
-
-                $toast.addClass('fading-out');
-                setTimeout(() => {
-                    $toast.removeClass('pop-in expanding fading-out');
-                }, 400);
-
-            }, 500);
-        }, 600);
+            }
+        );
     },
 
     onLoad: function () {
@@ -2080,5 +2064,115 @@ MaiRijiApp.prototype = {
         const $group = $input.closest('.form-group');
         $input.removeClass('input-error');
         $group.find('.field-error-msg').remove();
-    }
+    },
+
+    // 🎬 视频转场核心函数 (高频 60fps 丝滑白色蒙版)
+    playVideoTransition: function (callback) {
+        if (this.isVideoTransitioning) return;
+        this.isVideoTransitioning = true;
+
+        const $transitionLayer = $('#video-transition');
+        const videoEl = document.getElementById('transition-video');
+
+        if (!videoEl) {
+            console.warn("找不到视频元素");
+            if (callback) callback();
+            this.isVideoTransitioning = false;
+            return;
+        }
+
+        // 1. 显示转场层
+        $transitionLayer.addClass('active');
+
+        // 2. 重置视频到开头
+        videoEl.currentTime = 0;
+
+        // 🌟 针对牛角包熊，2.7秒时刚好完全遮挡屏幕
+        const switchTime = 2.7; 
+        let callbackExecuted = false;
+        let rafId = null; // 用于存储 requestAnimationFrame 的 ID
+
+        // --- 🎨 蒙版自定义配置 ---
+        const maxOpacity = 1.0; 
+        const maskRGB = '255, 255, 255'; // 纯白色
+
+        // 🌟 核心优化：使用 requestAnimationFrame 实现硬件级帧率渲染，彻底解决原生 timeupdate 频率低导致的卡顿
+        const updateTransition = () => {
+            if (!this.isVideoTransitioning) return; // 安全出口：如果转场已被清理，终止循环
+
+            const current = videoEl.currentTime;
+            const duration = (videoEl.duration && !isNaN(videoEl.duration)) ? videoEl.duration : 4.5;
+            
+            // 🌓 实时计算蒙版透明度
+            let currentOpacity = 0;
+            if (current <= switchTime) {
+                // 阶段1 (0 -> 2.7秒): 渐渐加深到 maxOpacity
+                // 指数降至 1.1，让白色来得更快、更有冲击感、节奏更紧凑
+                const progress = current / switchTime;
+                currentOpacity = Math.pow(progress, 1.1) * maxOpacity;
+            } else {
+                // 阶段2 (2.7秒 -> 结束): 渐渐消退到 0
+                const remaining = duration - switchTime;
+                if (remaining > 0) {
+                    const progress = (current - switchTime) / remaining;
+                    currentOpacity = (1 - Math.pow(progress, 1.1)) * maxOpacity;
+                }
+            }
+            
+            currentOpacity = Math.max(0, Math.min(currentOpacity, maxOpacity));
+            $transitionLayer.css('background-color', `rgba(${maskRGB}, ${currentOpacity})`);
+
+            // 当视频播放到指定时间点，暗中执行 DOM 视图切换
+            if (!callbackExecuted && current >= switchTime) {
+                callbackExecuted = true;
+                if (callback) callback(); 
+            }
+
+            // 如果视频还在播放，继续渲染下一帧 (实现极致顺滑)
+            if (!videoEl.paused && !videoEl.ended) {
+                rafId = requestAnimationFrame(updateTransition);
+            }
+        };
+
+        const endedHandler = () => {
+            // 停止高频渲染循环
+            if (rafId) cancelAnimationFrame(rafId);
+
+            $transitionLayer.removeClass('active');
+            $transitionLayer.css('background-color', 'transparent');
+            
+            videoEl.removeEventListener('ended', endedHandler);
+            
+            if (!callbackExecuted) {
+                callbackExecuted = true;
+                if (callback) callback();
+            }
+            this.isVideoTransitioning = false;
+        };
+
+        videoEl.addEventListener('ended', endedHandler);
+
+        // 4. 开始播放
+        const playPromise = videoEl.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // 🌟 视频成功播放后，开启硬件级高频渲染循环
+                rafId = requestAnimationFrame(updateTransition);
+            }).catch(err => {
+                console.warn('转场视频加载失败或被浏览器拦截:', err);
+                if (rafId) cancelAnimationFrame(rafId);
+                if (!callbackExecuted && callback) {
+                    callbackExecuted = true;
+                    callback();
+                }
+                $transitionLayer.removeClass('active');
+                $transitionLayer.css('background-color', 'transparent');
+                this.isVideoTransitioning = false;
+            });
+        } else {
+            // 兼容老版本浏览器
+            rafId = requestAnimationFrame(updateTransition);
+        }
+    },
+
 };
