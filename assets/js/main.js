@@ -857,7 +857,7 @@ MaiRijiApp.prototype = {
             setTimeout(() => {
                 this.closeCheckoutModal();
 
-                this.checkoutWhatsApp({
+                window.MRJMailbox.placeOrder(this, {
                     name: name,
                     phone: phone,
                     address: address,
@@ -868,10 +868,6 @@ MaiRijiApp.prototype = {
                 $('#thankyou-modal-backdrop').addClass('show');
                 $('#thankyou-modal').addClass('show');
                 this.$els.body.addClass('no-scroll');
-
-                this.cart = [];
-                this.saveCart();
-                this.updateCartUI();
 
                 $btn.removeClass('clicked');
             }, 800);
