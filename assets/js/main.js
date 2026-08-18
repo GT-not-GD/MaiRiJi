@@ -582,7 +582,7 @@ MaiRijiApp.prototype = {
         this.playMenuFade(doSwitch);
     },
 
-    // 🌾 菜单内容渐变过场：只动菜单区域，不盖全屏，柔和不生硬
+    // 🌾 菜单内容"蒙一下"过场：渐渐蒙（模糊+变淡但仍隐约可见）→ 换画面 → 慢慢变清楚
     playMenuFade: function (callback) {
         if (this.isMaskTransitioning) { if (callback) callback(); return; }
         this.isMaskTransitioning = true;
@@ -590,8 +590,8 @@ MaiRijiApp.prototype = {
         if (!this._menuFadeCss) {
             this._menuFadeCss = true;
             $('<style>' +
-              '.mrj-fade-zone{transition:opacity .28s ease,transform .28s ease}' +
-              '.mrj-fade-out{opacity:0 !important;transform:translateY(14px)}' +
+              '.mrj-fade-zone{transition:opacity .35s ease,filter .35s ease}' +
+              '.mrj-fade-out{opacity:.45 !important;filter:blur(6px) saturate(.8)}' +
               '</style>').appendTo('head');
         }
 
@@ -599,22 +599,22 @@ MaiRijiApp.prototype = {
         const $zone = $('#bakery-menu-container, .menu-hero-banner-container');
         $zone.addClass('mrj-fade-zone');
 
-        // ① 淡出 + 轻微下沉
+        // ① 渐渐蒙上：模糊 + 变淡（但看得见轮廓，不是黑掉/白掉）
         $zone.addClass('mrj-fade-out');
         setTimeout(() => {
-            // ② 在看不见的时候换内容
+            // ② 蒙着的时候换内容（用户只看到画面朦胧中变了）
             if (callback) callback();
-            // ③ 强制回流后淡入浮起（双 rAF 确保浏览器先应用了隐藏态）
+            // ③ 双 rAF 确保新内容以蒙状态渲染，然后慢慢变清楚
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     $zone.removeClass('mrj-fade-out');
                     setTimeout(() => {
                         $zone.removeClass('mrj-fade-zone');
                         this.isMaskTransitioning = false;
-                    }, 300);
+                    }, 380);
                 });
             });
-        }, 280);
+        }, 360);
     },
 
     bindEvents: function () {
@@ -1063,6 +1063,8 @@ MaiRijiApp.prototype = {
                 $('#vip-profile-backdrop').addClass('show');
                 $('#vip-profile-modal').addClass('show');
                 this.$els.body.addClass('no-scroll');
+                /* 🌾 麦粒积分：由插件异步填充（缓存秒显 + 后台刷新） */
+                if (window.MRJMailbox && window.MRJMailbox.fillPoints) window.MRJMailbox.fillPoints();
             } else {
                 $('#vip-modal-backdrop').addClass('show');
                 $('#vip-register-modal').addClass('show');
@@ -1124,29 +1126,27 @@ MaiRijiApp.prototype = {
             $btn.css({'opacity': '0.7', 'pointer-events': 'none'});
             $btn.find('.btn-txt.default').text(isEn ? "Saving..." : "档案生成中...");
 
-            fetch(this.config.googleSheetUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: name, phone: phone })
-            })
-            .then(() => {
+            const restoreBtn = () => {
+                $btn.css({'opacity': '1', 'pointer-events': 'auto'});
+                $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
+            };
+            const saveLocal = () => {
                 localStorage.setItem(this.config.storageKeys.custName, name);
                 localStorage.setItem(this.config.storageKeys.custPhone, phone);
-
                 this.showToast(isEn ? `Successfully joined! Welcome, ${name}` : `注册成功！麦日记欢迎您，${name}`);
-
-                $btn.css({'opacity': '1', 'pointer-events': 'auto'});
-                $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
+                restoreBtn();
                 $('#close-vip-modal').trigger('click');
-
                 this.updateVIPBtnUI();
-            })
-            .catch(() => {
-                $btn.css({'opacity': '1', 'pointer-events': 'auto'});
-                $btn.find('.btn-txt.default').text(isEn ? "Create My Profile" : "生成我的专属档案");
-                this.showToast(isEn ? "Network error, please try again." : "网络波动，请稍后再试。");
-            });
+            };
+            /* 🌟 VIP 注册走信箱（和下单同一 token，麦粒积分自动挂钩） */
+            if (window.MRJMailbox && window.MRJMailbox.vipRegister) {
+                window.MRJMailbox.vipRegister(name, phone)
+                    .then(saveLocal)
+                    .catch(() => { restoreBtn(); this.showToast(isEn ? "Network error, please try again." : "网络波动，请稍后再试。"); });
+            } else {
+                /* 插件没加载：仍存本地，不阻断 */
+                saveLocal();
+            }
         });
 
         $(document).on('click', '.quick-link-card', (e) => {
@@ -1411,7 +1411,13 @@ MaiRijiApp.prototype = {
         const $stickyBar = $('#detail-sticky-bar').removeClass('show');
         const $scrollArea = $('.detail-scroll-area');
 
+        /* 🌟 修复"打开详情页悬浮条闪一下"：面板滑入动画期间锚点位置不可信，
+         * 会误判成"锚点不在视口"而弹出悬浮条。开页后 600ms 内不做任何判定，
+         * 动画结束、布局稳定后才开始（本来就没要出来，就不要出来）。 */
+        const stickyReadyAt = Date.now() + 600;
+
         const checkStickyVisibility = () => {
+            if (Date.now() < stickyReadyAt) return;
             const $anchor = $('#inpage-action-anchor');
             if ($anchor.length === 0) return;
 
@@ -1429,8 +1435,7 @@ MaiRijiApp.prototype = {
 
         $scrollArea.off('scroll.stickyBtn').on('scroll.stickyBtn', checkStickyVisibility);
 
-        checkStickyVisibility();
-        setTimeout(checkStickyVisibility, 350);
+        setTimeout(checkStickyVisibility, 650); /* 布局稳定后首查 */
 
         this.pushModalState('product-detail');
         els.detailPanel.addClass('open');

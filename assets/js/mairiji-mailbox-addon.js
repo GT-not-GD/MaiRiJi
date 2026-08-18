@@ -56,6 +56,8 @@
 '.mrj-oh{display:flex;justify-content:space-between;align-items:center;padding:18px 22px 12px;border-bottom:1px dashed #e0d0bd;flex:none}',
 '.mrj-oh h3{margin:0;font-family:"Playfair Display","Noto Serif SC",serif;font-size:19px;font-weight:700;color:#5a3a22}',
 '.mrj-oh button{background:none;border:none;font-size:26px;color:#a8977f;cursor:pointer;line-height:1}',
+'#mrj-vip-mini{font-size:13px !important;font-weight:700;color:#8b5e3c !important;border:1px dashed #c19a6b !important;border-radius:99px;padding:4px 12px;background:#faf5ec !important}',
+'#mrj-vip-mini:hover{background:#f4eae0 !important}',
 '.mrj-ob{overflow:hidden;padding:0;flex:1;display:flex;min-height:0}',
 /* 左右分栏：左=订单列表，右=详情+聊天 */
 '.mrj-split{display:flex;width:100%;min-height:min(420px,70vh)}',
@@ -91,7 +93,9 @@
 '.mrj-step.cur i{background:#8b5e3c;color:#fff;box-shadow:0 0 0 4px rgba(139,94,60,.18)}.mrj-step.cur{color:#5a3a22;font-weight:700}',
 '.mrj-cancelled{display:inline-block;margin:12px 0 4px;padding:5px 14px;border-radius:99px;background:#fbeae7;color:#b0503f;font-weight:700;font-size:12.5px}',
 '.mrj-chatwrap{position:relative;margin-top:14px}',
-'.mrj-chat{background:#f7f0e6;border-radius:10px;padding:12px;max-height:230px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}',
+/* 聊天框固定高度：不随内容伸缩（内容少留白、内容多滚动），按屏幕高度适配 */
+'.mrj-chat{background:#f7f0e6;border-radius:10px;padding:12px;height:clamp(220px,38vh,380px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}',
+'.mrj-chat .mrj-spacer{flex:1 0 auto}', /* 消息少时把气泡压到底部（像真聊天软件） */
 '.mrj-chat-empty{text-align:center;color:#b3a28c;font-size:12px;padding:6px 0}',
 '.mrj-bb{max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;margin-bottom:8px;line-height:1.55;box-shadow:0 1px 3px rgba(60,42,26,.08);word-break:break-word}',
 '.mrj-bb.c{background:#8b5e3c;color:#fff;margin-left:auto;border-bottom-right-radius:4px}',
@@ -110,7 +114,7 @@
 '.mrj-inrow button:hover{background:#6f4a2f}',
 '.mrj-cart-dot{position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:block;box-shadow:0 0 0 2px #fdf9f3}',
 
-'.mrj-empty{text-align:center;color:#b3a28c;padding:40px 10px;font-size:13.5px;line-height:1.8}',
+'.mrj-empty{text-align:center;color:#b3a28c;padding:40px 10px;font-size:13.5px;line-height:1.8;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}',
 '.mrj-empty span{font-size:34px;display:block;margin-bottom:8px}',
 '#mrj-my-orders-link{display:block;text-align:center;margin:14px 16px 10px;padding:10px;font-size:13px;color:#8b5e3c;border:1px dashed #c19a6b;border-radius:8px;cursor:pointer;font-weight:700;position:relative}',
 '#mrj-my-orders-link:hover{background:#f4eae0}',
@@ -128,6 +132,14 @@
 '.mrj-place-actions .w{background:#25D366;color:#fff}',
 /* 聊天里的可点文字链接（WhatsApp 补发/确认取消） */
 '.mrj-bb .mrj-wa-send,.mrj-bb .mrj-do-cancel{text-decoration:underline;cursor:pointer}',
+/* 打字中气泡：三个点轮流跳（模拟店家正在输入） */
+'.mrj-typing{display:inline-flex;align-items:center;gap:4px;padding:11px 14px;background:#fff;border-radius:12px;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(60,42,26,.08);margin-bottom:8px;width:fit-content}',
+'.mrj-typing i{width:6px;height:6px;border-radius:50%;background:#c4b09a;animation:mrjtyp 1.2s ease-in-out infinite}',
+'.mrj-typing i:nth-child(2){animation-delay:.15s}',
+'.mrj-typing i:nth-child(3){animation-delay:.3s}',
+'@keyframes mrjtyp{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}',
+'.mrj-typing-me{margin-left:auto;background:#8b5e3c;border-bottom-right-radius:4px;border-bottom-left-radius:12px}',
+'.mrj-typing-me i{background:rgba(255,255,255,.75)}',
 /* 滚动条：常态隐身，滚动时才显示 */
 '.mrj-ob,.mrj-list,.mrj-detail,.mrj-chat{scrollbar-width:thin;scrollbar-color:transparent transparent}',
 '.mrj-ob::-webkit-scrollbar,.mrj-list::-webkit-scrollbar,.mrj-detail::-webkit-scrollbar,.mrj-chat::-webkit-scrollbar{width:5px;height:5px}',
@@ -168,7 +180,11 @@
   backdrop.id = 'mrj-backdrop';
   var modal = document.createElement('div');
   modal.id = 'mrj-orders-modal';
-  modal.innerHTML = '<div class="mrj-oh"><h3>🌾 我的订单</h3><button id="mrj-oclose" title="关闭">&times;</button></div><div class="mrj-ob" id="mrj-obody"></div>';
+  modal.innerHTML = '<div class="mrj-oh"><h3>🌾 我的订单</h3>' +
+    '<span style="display:flex;align-items:center;gap:10px">' +
+    '<button id="mrj-vip-mini" title="麦友 VIP">👑 <span id="mrj-vip-mini-pts"></span></button>' +
+    '<button id="mrj-oclose" title="关闭">&times;</button></span></div>' +
+    '<div class="mrj-ob" id="mrj-obody"></div>';
   var miniNote = document.createElement('div');
   miniNote.id = 'mrj-mini-note';
   document.body.appendChild(backdrop);
@@ -200,8 +216,52 @@
     });
   }
   function mrjAlert(text) { return mrjConfirm(text, '', isEn() ? 'OK' : '知道了', null); }
+
+  /* 🔑 重复档案横幅：同电话有旧档案（旧积分在别的设备上），点击去验证合并。
+   * 常驻页面顶部，验证合并完成后自动消失 */
+  var dupBanner = null;
+  function showDupBanner() {
+    if (dupBanner) { dupBanner.style.display = 'flex'; return; }
+    dupBanner = document.createElement('div');
+    dupBanner.id = 'mrj-dup-banner';
+    dupBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#f7ece1;border-bottom:1px solid #d9a05b;color:#5a3a22;font-size:13px;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(60,42,26,.12)';
+    var en = isEn();
+    var pts = '';
+    try { var c = JSON.parse(localStorage.getItem('mrj_status_cache') || 'null'); if (c && c.vip && c.vip.dupPoints) pts = c.vip.dupPoints; } catch (e) {}
+    dupBanner.innerHTML = '👑 ' +
+      (en ? 'We found an existing VIP profile with this phone' + (pts ? ' (' + pts + ' pts)' : '') + '. Verify to merge your points.'
+          : '检测到这个电话已有麦友档案' + (pts ? '（' + pts + ' 麦粒）' : '') + '，验证后即可合并积分～') +
+      '<button id="mrj-dup-go" style="border:none;background:#8b5e3c;color:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">' + (en ? 'Verify now' : '立即验证') + '</button>' +
+      '<button id="mrj-dup-x" style="border:none;background:none;color:#a8977f;font-size:18px;cursor:pointer;line-height:1">&times;</button>';
+    document.body.appendChild(dupBanner);
+    document.getElementById('mrj-dup-go').addEventListener('click', function () {
+      window.MRJMailbox.startRecoverPublic();
+    });
+    document.getElementById('mrj-dup-x').addEventListener('click', function () {
+      dupBanner.style.display = 'none'; /* 只是本次收起；下次 my_status 发现还没合并会再出现 */
+    });
+  }
+  function hideDupBanner() {
+    if (dupBanner) dupBanner.style.display = 'none';
+    try { localStorage.removeItem('mrj_dup_profile'); } catch (e) {}
+  }
   backdrop.addEventListener('click', hideOrders);
   document.getElementById('mrj-oclose').addEventListener('click', hideOrders);
+  /* 👑 VIP 并入订单窗：小按钮开原有 VIP 注册/档案弹窗（header 的 VIP 按钮已隐藏） */
+  document.getElementById('mrj-vip-mini').addEventListener('click', function () {
+    hideOrders();
+    var vb = document.getElementById('open-vip-btn');
+    if (vb) vb.click(); /* 复用官网原有注册/档案逻辑（按钮隐藏但功能还在） */
+  });
+  function refreshVipMini() {
+    var el = document.getElementById('mrj-vip-mini-pts');
+    if (!el) return;
+    var registered = false;
+    try { registered = !!localStorage.getItem('mairiji_cust_name'); } catch (e) {}
+    var pts = localStorage.getItem('mrj_vip_points');
+    el.textContent = registered ? ((isEn() ? 'VIP · ' : '麦友 · ') + (pts || '0') + (isEn() ? ' pts' : ' 粒'))
+                                : (isEn() ? 'Join VIP' : '加入麦友');
+  }
   miniNote.addEventListener('click', function () { miniNote.style.display = 'none'; showOrders(); });
 
   /* 滚动条：滚动时显现，停下 0.8 秒后隐身（事件委托，动态生成的聊天框也生效） */
@@ -263,11 +323,18 @@
     document.body.classList.add('no-scroll');
     setCartDot(false);
     miniNote.style.display = 'none';
-    /* 秒开：先用缓存渲染 */
+    refreshVipMini();
+    /* 秒开：先用缓存渲染（坏缓存直接丢弃，绝不让窗口开不了） */
     var cached = loadCache();
-    if (cached) { lastData = cached; renderFull(cached); }
-    else if (placing) { document.getElementById('mrj-obody').innerHTML = ''; renderPlacing(); }
-    else document.getElementById('mrj-obody').innerHTML = '<div class="mrj-empty"><span>🍞</span>' + (isEn() ? 'Loading…' : '加载中…') + '</div>';
+    var painted = false;
+    if (cached) {
+      try { lastData = cached; renderFull(cached); painted = true; }
+      catch (e) { try { localStorage.removeItem('mrj_status_cache'); } catch (e2) {} lastData = null; }
+    }
+    if (!painted) {
+      if (placing) { document.getElementById('mrj-obody').innerHTML = ''; renderPlacing(); }
+      else document.getElementById('mrj-obody').innerHTML = '<div class="mrj-empty"><span>🍞</span>' + (isEn() ? 'Loading…' : '加载中…') + '</div>';
+    }
     fetchAndApply(true);
     clearInterval(pollTimer);
     pollTimer = setInterval(function () { fetchAndApply(false); }, 15000);
@@ -291,8 +358,36 @@
   function fetchAndApply(isOpen) {
     post({ action: 'my_status', token: getToken() }).then(function (r) {
       if (!r.ok) return;
+      if (!Array.isArray(r.orders)) r.orders = [];
+      if (!Array.isArray(r.msgs)) r.msgs = [];
       cacheData(r);
-      var structureChanged = !lastData ||
+      /* 🌾 顺带缓存麦粒积分（VIP 档案窗秒显用） */
+      if (r.vip) {
+        try {
+          localStorage.setItem('mrj_vip_points', String(r.vip.points || 0));
+          /* 🔑 找回已被店家批准（服务器带回了本 token 的档案）→ 本地自动登录 */
+          var pend = JSON.parse(localStorage.getItem('mrj_recover_pending') || 'null');
+          if (pend && !localStorage.getItem('mairiji_cust_name')) {
+            localStorage.setItem('mairiji_cust_name', r.vip.name || pend.name);
+            localStorage.setItem('mairiji_cust_phone', r.vip.phone || pend.phone);
+            localStorage.removeItem('mrj_recover_pending');
+            miniNote.textContent = isEn() ? '👑 VIP profile restored! Points: ' + (r.vip.points || 0) : '👑 麦友档案已恢复！麦粒积分：' + (r.vip.points || 0);
+            miniNote.style.display = 'block';
+          }
+          /* 🔑 同电话有旧档案未合并 → 常驻横幅；合并完成 → 收起 + 恭喜 */
+          if (r.vip.dup) showDupBanner();
+          else {
+            var hadDup = false;
+            try { hadDup = !!localStorage.getItem('mrj_dup_profile'); } catch (e3) {}
+            if (hadDup) {
+              hideDupBanner();
+              miniNote.textContent = isEn() ? '👑 Profiles merged! Points: ' + (r.vip.points || 0) : '👑 档案已合并！麦粒积分：' + (r.vip.points || 0);
+              miniNote.style.display = 'block';
+            }
+          }
+        } catch (e) {}
+      }
+      var structureChanged = !lastData || !Array.isArray(lastData.orders) ||
         r.orders.length !== lastData.orders.length ||
         r.orders.some(function (w) {
           var old = lastData.orders.filter(function (x) { return x.orderId === w.orderId; })[0];
@@ -327,6 +422,17 @@
     var body = document.getElementById('mrj-obody');
     var en = isEn();
     renderedKeys = {};
+    /* 🛡 数据消毒：旧版缓存/脏数据缺字段会让渲染崩溃 → 聊天框打不开。
+     * 补齐所有必要字段，彻底防炸 */
+    if (!r || typeof r !== 'object') r = { orders: [], msgs: [] };
+    if (!Array.isArray(r.orders)) r.orders = [];
+    if (!Array.isArray(r.msgs)) r.msgs = [];
+    r.orders = r.orders.filter(function (w) { return w && w.orderId; });
+    r.orders.forEach(function (w) {
+      if (typeof w.status !== 'string') w.status = 'pending';
+      if (!w.order || typeof w.order !== 'object') w.order = {};
+      if (!Array.isArray(w.order.items)) w.order.items = [];
+    });
     /* 下单成功且真订单卡已到 → 撤掉临时"发送中"卡片，并自动选中新订单 */
     if (placing && placing.stage === 'ok' && placing.orderId &&
         r.orders.some(function (w) { return w.orderId === placing.orderId; })) {
@@ -422,9 +528,7 @@
     }
     pane.innerHTML = html;
 
-    /* 聊天框加高（右栏空间更大） */
-    var chatEl = pane.querySelector('.mrj-chat');
-    if (chatEl) chatEl.style.maxHeight = '46vh';
+    /* 聊天框固定高度由 CSS clamp 控制，无需内联覆盖 */
 
     if (!cancelled) {
       fillMsgs(w.orderId, collectMsgs(r, w.orderId), true);
@@ -470,10 +574,11 @@
     if (!chat) return;
     renderedKeys[orderId] = renderedKeys[orderId] || {};
     if (!msgs.length) {
-      chat.innerHTML = '<div class="mrj-chat-empty">' + (isEn() ? 'Questions? Leave us a message below.' : '有问题可以在下面留言，我们会尽快回复～') + '</div>';
+      chat.innerHTML = '<div class="mrj-spacer"></div><div class="mrj-chat-empty">' + (isEn() ? 'Questions? Leave us a message below.' : '有问题可以在下面留言，我们会尽快回复～') + '</div>';
       return;
     }
-    chat.innerHTML = msgs.map(function (m) { renderedKeys[orderId][msgKey(m)] = true; return bubbleHtml(m); }).join('');
+    /* 顶部弹性占位：消息少时把气泡压到底部（固定高度聊天框专用） */
+    chat.innerHTML = '<div class="mrj-spacer"></div>' + msgs.map(function (m) { renderedKeys[orderId][msgKey(m)] = true; return bubbleHtml(m); }).join('');
     if (scrollBottom) chat.scrollTop = chat.scrollHeight;
     bindRetry(chat);
   }
@@ -537,6 +642,8 @@
     if (chat) {
       var emptyHint = chat.querySelector('.mrj-chat-empty');
       if (emptyHint) emptyHint.remove();
+      var meTyping = chat.querySelector('.mrj-typing-me');
+      if (meTyping) meTyping.remove(); /* 发送了，撤掉"打字中" */
       chat.insertAdjacentHTML('beforeend', bubbleHtml(m));
       chat.scrollTop = chat.scrollHeight;
     }
@@ -590,6 +697,23 @@
       inp.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { var b = body.querySelector('[data-send="' + inp.dataset.inp + '"]'); if (b) b.click(); }
       });
+      /* 顾客打字时：聊天框右下角出现自己的「···」气泡（纯本地，停手 1.2 秒消失） */
+      inp.addEventListener('input', function () {
+        var chat = document.querySelector('[data-chat="' + inp.dataset.inp + '"]');
+        if (!chat) return;
+        var t = chat.querySelector('.mrj-typing-me');
+        if (inp.value.trim()) {
+          if (!t) {
+            t = document.createElement('div');
+            t.className = 'mrj-typing mrj-typing-me';
+            t.innerHTML = '<i></i><i></i><i></i>';
+            chat.appendChild(t);
+            chat.scrollTop = chat.scrollHeight;
+          }
+          clearTimeout(t._tm);
+          t._tm = setTimeout(function () { t.remove(); }, 1200);
+        } else if (t) { t.remove(); }
+      });
     });
     body.querySelectorAll('[data-faq]').forEach(function (sel) {
       sel.addEventListener('change', function () {
@@ -610,7 +734,6 @@
         localFaqLog.push(qm, am);
         if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
         localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
-        /* 直接追加气泡，零等待零网络 */
         var chat = document.querySelector('[data-chat="' + sel.dataset.faq + '"]');
         if (chat) {
           var empty = chat.querySelector('.mrj-chat-empty');
@@ -618,8 +741,26 @@
           renderedKeys[sel.dataset.faq] = renderedKeys[sel.dataset.faq] || {};
           renderedKeys[sel.dataset.faq][msgKey(qm)] = true;
           renderedKeys[sel.dataset.faq][msgKey(am)] = true;
-          chat.insertAdjacentHTML('beforeend', bubbleHtml(qm) + bubbleHtml(am));
+          /* ① 问题气泡立即上屏 */
+          chat.insertAdjacentHTML('beforeend', bubbleHtml(qm));
           chat.scrollTop = chat.scrollHeight;
+          /* ② 店家「···」打字中动画（纯前端模拟，零网络零消耗） */
+          var typing = document.createElement('div');
+          typing.className = 'mrj-typing';
+          typing.innerHTML = '<i></i><i></i><i></i>';
+          setTimeout(function () {
+            if (!chat.isConnected) return;
+            chat.appendChild(typing);
+            chat.scrollTop = chat.scrollHeight;
+          }, 350);
+          /* ③ 按答案长度模拟打字时间（0.9~2 秒），然后答案跳出 */
+          var thinkMs = Math.min(2000, 900 + f.a.length * 8);
+          setTimeout(function () {
+            if (typing.parentNode) typing.remove();
+            if (!chat.isConnected) return;
+            chat.insertAdjacentHTML('beforeend', bubbleHtml(am));
+            chat.scrollTop = chat.scrollHeight;
+          }, 350 + thinkMs);
         }
       });
     });
@@ -737,8 +878,10 @@
   }
   /* header 信息按钮：插在 VIP 按钮旁（信封图标，点击开订单窗） */
   function injectHeaderBtn() {
-    if (document.getElementById('mrj-msg-btn')) return;
     var vipBtn = document.getElementById('open-vip-btn');
+    /* 👑 VIP 已并入订单窗：header 的 VIP 按钮隐藏（功能保留，靠订单窗小按钮转发点击） */
+    if (vipBtn) vipBtn.style.display = 'none';
+    if (document.getElementById('mrj-msg-btn')) return;
     if (!vipBtn || !vipBtn.parentNode) return;
     var b = document.createElement('button');
     b.id = 'mrj-msg-btn';
@@ -948,5 +1091,82 @@
       doPlace();
     },
     showOrders: showOrders,
+
+    /* 🌟 VIP 注册：称呼+电话写进信箱 customers 表（同一 token，麦粒积分自动挂钩） */
+    vipRegister: function (name, phone) {
+      var self = this;
+      return post({ action: 'vip_register', token: getToken(), name: name, phone: phone })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.error || 'fail');
+          try { localStorage.setItem('mrj_vip_points', String(r.points || 0)); } catch (e) {}
+          /* 🔑 v4.9：同电话有旧档案 → 注册照常成功（不阻断），挂横幅引导验证合并 */
+          if (r.needRecover) {
+            try { localStorage.setItem('mrj_dup_profile', JSON.stringify({ name: name, phone: phone })); } catch (e) {}
+            setTimeout(function () { showDupBanner(); }, 600);
+          }
+          return r;
+        });
+    },
+
+    startRecoverPublic: function () { /* 横幅点击入口 */
+      var pend = {};
+      try { pend = JSON.parse(localStorage.getItem('mrj_dup_profile') || '{}'); } catch (e) {}
+      this.startRecover(pend.name || localStorage.getItem('mairiji_cust_name') || '',
+                        pend.phone || localStorage.getItem('mairiji_cust_phone') || '');
+    },
+
+    /* 🔑 找回流程：生成验证码 → 顾客用本人电话的 WhatsApp 发给店家 → 店家 APP 批准 */
+    startRecover: function (name, phone) {
+      var en = isEn();
+      post({ action: 'recover_request', token: getToken(), phone: phone }).then(function (r) {
+        if (!r.ok) { mrjAlert(r.error || (en ? 'Failed, please try later.' : '出错了，请稍后再试')); return; }
+        /* 记住待恢复的资料：批准后本地自动补上 */
+        try { localStorage.setItem('mrj_recover_pending', JSON.stringify({ name: name, phone: phone, at: Date.now() })); } catch (e) {}
+        var waNum = (window.app && window.app.config && window.app.config.waNumber) || '601115277643';
+        var text = en
+          ? 'Hi MaiRiJi! I want to recover my VIP profile. My verification code: ' + r.code
+          : '你好麦日记！我要找回我的麦友档案，我的验证码：' + r.code;
+        mrjConfirm(
+          en ? 'This phone already has a VIP profile' : '这个电话已经有麦友档案了',
+          en ? 'To protect your points, please send the code <b style="font-size:16px">' + r.code + '</b> to us via WhatsApp <b>from this phone number</b>. We will approve and restore your profile & points shortly.'
+             : '为保护您的积分，请<b>用这个电话号码的 WhatsApp</b> 把验证码 <b style="font-size:16px">' + r.code + '</b> 发给我们。店家确认是您本人后，档案和积分马上恢复～',
+          en ? 'Open WhatsApp' : '打开 WhatsApp 发送',
+          en ? 'Later' : '稍后再说'
+        ).then(function (yes) {
+          if (!yes) return;
+          var url = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(text);
+          var w2 = window.open(url, '_blank');
+          if (!w2 || w2.closed || typeof w2.closed === 'undefined') location.href = url;
+        });
+      }).catch(function () { mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
+    },
+
+    /* 🌾 麦粒积分：填进 VIP 档案窗（缓存秒显 → my_status 顺带刷新） */
+    fillPoints: function () {
+      var en = isEn();
+      var box = document.getElementById('mrj-vip-points');
+      if (!box) {
+        /* 档案卡里插一行「麦粒积分」（地址下方） */
+        var addr = document.getElementById('profile-display-address');
+        var card = addr && addr.closest ? addr.closest('.vip-card-box') : null;
+        if (!card) return;
+        var div = document.createElement('div');
+        div.style.cssText = 'margin-top:10px;padding-top:8px;border-top:1px dashed #d8c8b7';
+        div.innerHTML = '<span style="font-size:12px;color:#888">' + (en ? 'Wheat Points: ' : '麦粒积分：') + '</span>' +
+          '<strong id="mrj-vip-points" style="font-size:17px;color:#8b5e3c;margin-left:4px">…</strong>' +
+          '<span style="font-size:11px;color:#b3a28c;margin-left:6px">' + (en ? '(RM1 spent = 1 point)' : '（消费 RM1 = 1 粒）') + '</span>';
+        card.appendChild(div);
+        box = document.getElementById('mrj-vip-points');
+      }
+      /* 缓存秒显 */
+      box.textContent = localStorage.getItem('mrj_vip_points') || '0';
+      /* 后台刷新（my_status 已带 vip 字段，无需新接口） */
+      post({ action: 'my_status', token: getToken() }).then(function (r) {
+        if (r.ok && r.vip) {
+          box.textContent = String(r.vip.points || 0);
+          localStorage.setItem('mrj_vip_points', String(r.vip.points || 0));
+        }
+      }).catch(function () {});
+    },
   };
 })();
