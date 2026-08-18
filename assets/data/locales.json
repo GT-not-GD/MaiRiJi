@@ -94,7 +94,7 @@
       "faq_q1": "⏱️ 1. 为什么要提前至少 1 天预定？",
       "faq_a1": "我们的酸种欧包采用传统纯手作与天然酵母发酵，需经过 18 小时以上的低温慢发酵排单。因此不接受突发即时订单，请提前预定以便为您准备面团。",
       "faq_q2": "📱 2. 如何确认我的订单？",
-      "faq_a2": "在网站选好商品并提交信息后，系统会自动为您跳转生成 WhatsApp 预定信息。我们将与您进行二次确认并安排排单。"
+      "faq_a2": "选好商品点「发送订单」后，订单会直接送达麦日记。您可以随时在「我的订单」（购物车底部入口）查看进度条：待确认 → 已确认 → 制作中 → 已完成 → 已送达。我们确认后会在订单聊天里回复您，有任何问题也可以直接在里面留言～"
     },
     "cart": {
       "title": "你的购物篮",
@@ -138,7 +138,7 @@
       "pickup_title": "📍 麦日记工坊自提地址：",
       "pickup_map_btn": "🗺️ 点击打开 Google Maps 导航",
       "date_label": "期望取货 / 送货日期",
-      "date_tip": "🌾 <strong>温馨提示：</strong>酸种欧包需经过 18 小时以上长时间发酵，请至少提前 1 天预定。您选择的日期仅供参考，发送订单后我们将与您二次确认具体时间。",
+      "date_tip": "🌾 <strong>温馨提示：</strong>酸种欧包需经过 18 小时以上长时间发酵，请至少提前 1 天预定。您选择的日期仅供参考，我们确认后会在「我的订单」里回复您具体时间。",
       "submit_btn_default": "确认并发送订单",
       "submit_btn_hover": "Send Order!"
     },
@@ -280,7 +280,7 @@
       "faq_q1": "⏱️ 1. Why order at least 1 day in advance?",
       "faq_a1": "Our sourdough undergoes a slow fermentation of over 18 hours. We bake to order and cannot accept instant same-day orders, so please order ahead.",
       "faq_q2": "📱 2. How is my order confirmed?",
-      "faq_a2": "After selecting items and submitting details, you will be redirected to WhatsApp with your order summary. We will confirm exact schedule and timing with you."
+      "faq_a2": "After choosing your items, tap \"Send Order\" and it goes straight to MaiRiJi. Track your order anytime in \"My Orders\" (bottom of the cart drawer): Pending → Confirmed → Baking → Ready → Delivered. We will reply in the order chat once confirmed, and you can message us there anytime."
     },
     "cart": {
       "title": "Your Basket",
@@ -324,7 +324,7 @@
       "pickup_title": "📍 Self-Pickup Location:",
       "pickup_map_btn": "🗺️ Open in Google Maps",
       "date_label": "Preferred Delivery / Pickup Date",
-      "date_tip": "🌾 <strong>Notice:</strong> Our sourdough undergoes a slow fermentation process of over 18 hours. Please order at least 1 day in advance. Selected date is for reference; we will confirm exact timing with you via WhatsApp.",
+      "date_tip": "🌾 <strong>Notice:</strong> Our sourdough undergoes a slow fermentation process of over 18 hours. Please order at least 1 day in advance. Selected date is for reference; we will confirm exact timing with you in \"My Orders\".",
       "submit_btn_default": "Confirm & Send Order",
       "submit_btn_hover": "Send Order!"
     },
