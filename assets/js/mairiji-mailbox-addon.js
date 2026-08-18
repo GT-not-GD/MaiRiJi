@@ -1,15 +1,23 @@
 /* ================================================================
- * 麦日记官网 · 站内预定插件（信箱系统前端）
- * 引入方式：在 index.html 的 main.js 之后加
- *   <script src="assets/js/mairiji-mailbox-addon.js"></script>
- * main.js 只需一处小改（见部署说明）
+ * 麦日记官网 · 站内预定插件 v4
+ * v4 改动：
+ *  - 修复 FAQ「确认取消订单」链接不渲染（escB 把引号转成 &quot; 导致放行正则匹配失败）
+ *  - 取消链接改事件委托：重开窗口/缓存重画后依然可点
+ *  - 删除感谢弹窗：下单改为聊天式流程（打开信息框→感谢语→订单气泡「发送中…」）
+ *  - WhatsApp 追问改在聊天里出现（成功/失败/超时触发），用下单快照发送——
+ *    购物车已清空也能发
+ *  - 滚动条常态隐藏，滚动时才显示
+ * v3 体验优化：
+ *  - 消息增量更新：刷新不重绘/不跳动；不在底部时显示「↓ 新消息」泡泡
+ *  - 乐观发送：留言/FAQ 立即上屏，后台慢慢上传（失败标记重发）
+ *  - 秒开：本地缓存上次数据，打开即渲染，网络数据到了再增量补
+ *  - 店家回复提醒：入口红点 + 页面角落轻提示（订单窗关着也能收到）
  * ================================================================ */
 (function () {
   'use strict';
 
   var MAILBOX_URL = 'https://script.google.com/macros/s/AKfycbzCjQC5-fo5C3s_C2qas-9k56jVvSG4WE9jBqJCZyH2TXlh0yYXvG_ok13hjlkenm1R/exec';
 
-  /* ---------- token：顾客的随机钥匙（存本机） ---------- */
   function getToken() {
     var t = localStorage.getItem('mrj_web_token');
     if (!t) {
@@ -18,7 +26,6 @@
     }
     return t;
   }
-
   function post(payload) {
     return fetch(MAILBOX_URL, {
       method: 'POST',
@@ -26,218 +33,919 @@
       body: JSON.stringify(payload),
     }).then(function (r) { return r.json(); });
   }
+  function isEn() {
+    try { return (localStorage.getItem('mairiji_lang') || 'zh').indexOf('en') === 0; } catch (e) { return false; }
+  }
 
   var STATUS_STEPS = ['pending', 'confirmed', 'baking', 'ready', 'delivered'];
-  var STATUS_ZH = { pending: '待确认', 'new': '待确认', confirmed: '已确认', baking: '制作中',
-    ready: '已完成', delivered: '已送达', cancelled: '已取消', cancelled_by_customer: '已取消' };
-
-  /* 快捷提问（FAQ 机器人）：点选 → 发出提问 → 自动回复 */
   var FAQ = [
-    { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已经在制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊' },
-    { q: '可以修改订单吗？', a: '订单确认前可以直接取消重新下单；确认后请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
-    { q: '配送范围和费用？', a: '目前配送以 Setia Alam 附近区域为主，其他区域建议选择自取。具体请留言您的地址，我们确认后回复～' },
+    { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已在发酵制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊' },
+    { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；确认后请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
+    { q: '配送范围和费用？', a: '目前 Tanjong Sepat 地区送货上门，Banting 需事先沟通安排，其他区域建议到店自提。有疑问请留言您的地址～' },
     { q: '面包如何保存？', a: '欧包常温密封可放 2 天；切片冷冻可保存 2 周，吃前 180°C 回烤 5 分钟风味最佳。芝士蛋糕请冷藏并在 3 天内享用～' },
+    { q: '我想取消订单', a: '', cancel: true }, /* 动态回答 */
   ];
 
   /* ---------- 样式 ---------- */
   var css = document.createElement('style');
-  css.textContent = '\
-#mrj-orders-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99990;background:rgba(45,35,25,.5);display:none;align-items:flex-end;justify-content:center}\
-#mrj-orders-modal.show{display:flex}\
-#mrj-orders-panel{background:#fffdf9;width:100%;max-width:560px;max-height:88vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;font-family:inherit}\
-@media(min-width:700px){#mrj-orders-modal{align-items:center;padding:2rem}#mrj-orders-panel{border-radius:18px}}\
-.mrj-oh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e8dccc}\
-.mrj-oh h3{margin:0;font-size:16px;color:#3e2f23}\
-.mrj-oh button{background:none;border:none;font-size:18px;cursor:pointer;color:#8a7563}\
-.mrj-ob{overflow-y:auto;padding:14px 18px;flex:1;overscroll-behavior:contain}\
-.mrj-card{border:1px solid #e8dccc;border-radius:12px;padding:12px;margin-bottom:12px;background:#fff}\
-.mrj-steps{display:flex;justify-content:space-between;margin:10px 0 4px;position:relative}\
-.mrj-steps:before{content:"";position:absolute;left:10%;right:10%;top:9px;height:2px;background:#e8dccc}\
-.mrj-step{position:relative;z-index:1;text-align:center;flex:1;font-size:10px;color:#a8977f}\
-.mrj-step i{display:block;width:20px;height:20px;border-radius:50%;background:#f0e5d3;margin:0 auto 3px;font-style:normal;line-height:20px;font-size:11px}\
-.mrj-step.done i{background:#5f8d4e;color:#fff}.mrj-step.done{color:#5f8d4e}\
-.mrj-step.cur i{background:#b07d4f;color:#fff;box-shadow:0 0 0 3px rgba(176,125,79,.25)}.mrj-step.cur{color:#8a5a32;font-weight:700}\
-.mrj-cancelled{color:#c05b4d;font-weight:700;font-size:13px;margin:8px 0}\
-.mrj-items{font-size:12.5px;color:#5c4a38;margin:6px 0;line-height:1.6}\
-.mrj-chat{background:#f6efe3;border-radius:10px;padding:10px;max-height:220px;overflow-y:auto;margin-top:10px;overscroll-behavior:contain}\
-.mrj-bb{max-width:85%;padding:7px 10px;border-radius:10px;font-size:12.5px;margin-bottom:6px;line-height:1.5}\
-.mrj-bb.c{background:#b07d4f;color:#fff;margin-left:auto;border-bottom-right-radius:3px}\
-.mrj-bb.s{background:#fff;color:#3e2f23;border-bottom-left-radius:3px}\
-.mrj-bb small{display:block;font-size:10px;opacity:.6;margin-top:2px}\
-.mrj-inrow{display:flex;gap:6px;margin-top:8px}\
-.mrj-inrow input{flex:1;border:1px solid #e8dccc;border-radius:8px;padding:8px 10px;font-size:13px}\
-.mrj-inrow button{border:none;background:#b07d4f;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer}\
-.mrj-faq{width:100%;margin-top:8px;border:1px solid #e8dccc;border-radius:8px;padding:8px;font-size:12.5px;color:#5c4a38;background:#fff}\
-.mrj-cxl{width:100%;margin-top:8px;border:1px solid #c05b4d;color:#c05b4d;background:none;border-radius:8px;padding:8px;font-size:12.5px;cursor:pointer}\
-.mrj-empty{text-align:center;color:#a8977f;padding:30px 10px;font-size:13px}\
-#mrj-my-orders-link{display:block;text-align:center;margin:10px 0 4px;font-size:13px;color:#8a5a32;text-decoration:underline;cursor:pointer}\
-.mrj-ask{margin-top:12px;padding:12px;background:#fff8ef;border:1px solid #eabf8f;border-radius:10px;font-size:13px;color:#5c4a38;text-align:center}\
-.mrj-ask button{margin:8px 4px 0;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer}\
-.mrj-ask .y{background:#25D366;color:#fff}.mrj-ask .n{background:#eee;color:#666}';
+  css.textContent = [
+'#mrj-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(60,42,26,.45);backdrop-filter:blur(2px);z-index:100000;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}',
+'#mrj-backdrop.show{opacity:1;visibility:visible}',
+'#mrj-orders-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-45%);width:94%;max-width:720px;background:#fdf9f3;border-radius:14px;box-shadow:0 12px 36px rgba(60,42,26,.25);z-index:100001;opacity:0;visibility:hidden;transition:transform .3s,opacity .3s,visibility .3s;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;overflow:hidden}',
+'#mrj-orders-modal.show{opacity:1;visibility:visible;transform:translate(-50%,-50%)}',
+'.mrj-oh{display:flex;justify-content:space-between;align-items:center;padding:18px 22px 12px;border-bottom:1px dashed #e0d0bd;flex:none}',
+'.mrj-oh h3{margin:0;font-family:"Playfair Display","Noto Serif SC",serif;font-size:19px;font-weight:700;color:#5a3a22}',
+'.mrj-oh button{background:none;border:none;font-size:26px;color:#a8977f;cursor:pointer;line-height:1}',
+'.mrj-ob{overflow:hidden;padding:0;flex:1;display:flex;min-height:0}',
+/* 左右分栏：左=订单列表，右=详情+聊天 */
+'.mrj-split{display:flex;width:100%;min-height:min(420px,70vh)}',
+'.mrj-list{width:200px;flex:none;border-right:1px dashed #e0d0bd;overflow-y:auto;padding:12px 10px;background:#faf5ec;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}',
+'.mrj-detail{flex:1;overflow-y:auto;padding:14px 18px 18px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-width:0}',
+'.mrj-li{position:relative;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:background .2s}',
+'.mrj-li:hover{background:#f4eae0}',
+'.mrj-li.sel{background:#fff;border-color:#eadfd0;box-shadow:0 2px 6px rgba(60,42,26,.08)}',
+'.mrj-li .li-t{font-size:12.5px;font-weight:700;color:#3d2c1c;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+'.mrj-li .li-s{font-size:11px;color:#8a7563;margin-top:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}',
+'.mrj-li .st{display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;background:#f4eae0;color:#8b5e3c}',
+'.mrj-li .st.ok{background:#eaf2e3;color:#7c9d5f}',
+'.mrj-li .st.bad{background:#fbeae7;color:#b0503f}',
+'.mrj-li.cxl .li-t{text-decoration:line-through;color:#b3a28c;font-weight:400}',
+'.mrj-li-dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%;background:#d9534f;display:none;box-shadow:0 0 0 2px #faf5ec}',
+'.mrj-back{display:none;align-items:center;gap:4px;font-size:13px;font-weight:700;color:#8b5e3c;cursor:pointer;margin-bottom:10px}',
+'@media (max-width:640px){',
+' .mrj-list{width:100%;border-right:none}',
+' .mrj-detail{display:none}',
+' .mrj-split.mob-detail .mrj-list{display:none}',
+' .mrj-split.mob-detail .mrj-detail{display:block}',
+' .mrj-split.mob-detail .mrj-back{display:flex}',
+'}',
+'.mrj-card{background:#fff;border:1px solid #eadfd0;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(60,42,26,.05)}',
+'.mrj-title{font-size:14px;font-weight:700;color:#3d2c1c;line-height:1.5}',
+'.mrj-meta{font-size:12.5px;color:#8a7563;margin-top:4px}',
+'.mrj-meta b{color:#8b5e3c}',
+'.mrj-steps{display:flex;margin:16px 0 6px;position:relative}',
+'.mrj-steps:before{content:"";position:absolute;left:10%;right:10%;top:11px;height:2px;background:#eadfd0}',
+'.mrj-step{position:relative;z-index:1;text-align:center;flex:1;font-size:10.5px;color:#b3a28c}',
+'.mrj-step i{display:block;width:24px;height:24px;border-radius:50%;background:#f4eae0;margin:0 auto 5px;font-style:normal;line-height:24px;font-size:12px;color:#b3a28c;transition:all .3s}',
+'.mrj-step.done i{background:#7c9d5f;color:#fff}.mrj-step.done{color:#7c9d5f}',
+'.mrj-step.cur i{background:#8b5e3c;color:#fff;box-shadow:0 0 0 4px rgba(139,94,60,.18)}.mrj-step.cur{color:#5a3a22;font-weight:700}',
+'.mrj-cancelled{display:inline-block;margin:12px 0 4px;padding:5px 14px;border-radius:99px;background:#fbeae7;color:#b0503f;font-weight:700;font-size:12.5px}',
+'.mrj-chatwrap{position:relative;margin-top:14px}',
+'.mrj-chat{background:#f7f0e6;border-radius:10px;padding:12px;max-height:230px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}',
+'.mrj-chat-empty{text-align:center;color:#b3a28c;font-size:12px;padding:6px 0}',
+'.mrj-bb{max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;margin-bottom:8px;line-height:1.55;box-shadow:0 1px 3px rgba(60,42,26,.08);word-break:break-word}',
+'.mrj-bb.c{background:#8b5e3c;color:#fff;margin-left:auto;border-bottom-right-radius:4px}',
+'.mrj-bb.s{background:#fff;color:#3d2c1c;border-bottom-left-radius:4px}',
+'.mrj-bb small{display:block;font-size:10px;opacity:.65;margin-top:3px}',
+'.mrj-bb.pending-up{opacity:.7}',
+'.mrj-bb .mrj-retry{color:#ffd7cf;text-decoration:underline;cursor:pointer;font-size:10px}',
+/* 新消息泡泡 */
+'.mrj-newpill{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:#8b5e3c;color:#fff;font-size:11.5px;padding:5px 14px;border-radius:99px;box-shadow:0 3px 10px rgba(60,42,26,.3);cursor:pointer;display:none;z-index:2;animation:mrjpop .25s ease}',
+'@keyframes mrjpop{from{transform:translateX(-50%) translateY(8px);opacity:0}}',
+'.mrj-faq{width:100%;margin-top:12px;border:1px solid #d8c8b7;border-radius:8px;padding:9px 10px;font-size:13px;color:#5a3a22;background:#fff;font-family:inherit}',
+'.mrj-inrow{display:flex;gap:8px;margin-top:8px}',
+'.mrj-inrow input{flex:1;border:1px solid #d8c8b7;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;color:#3d2c1c}',
+'.mrj-inrow input:focus{outline:none;border-color:#c19a6b;box-shadow:0 0 0 2px rgba(193,154,107,.15)}',
+'.mrj-inrow button{border:none;background:#8b5e3c;color:#fff;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}',
+'.mrj-inrow button:hover{background:#6f4a2f}',
+'.mrj-cart-dot{position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:block;box-shadow:0 0 0 2px #fdf9f3}',
+
+'.mrj-empty{text-align:center;color:#b3a28c;padding:40px 10px;font-size:13.5px;line-height:1.8}',
+'.mrj-empty span{font-size:34px;display:block;margin-bottom:8px}',
+'#mrj-my-orders-link{display:block;text-align:center;margin:14px 16px 10px;padding:10px;font-size:13px;color:#8b5e3c;border:1px dashed #c19a6b;border-radius:8px;cursor:pointer;font-weight:700;position:relative}',
+'#mrj-my-orders-link:hover{background:#f4eae0}',
+'#mrj-my-orders-link .mrj-dot{position:absolute;top:6px;right:10px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:none}',
+/* 页面角落轻提示（店家回复） */
+'#mrj-mini-note{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#5a3a22;color:#fff;font-size:13px;padding:10px 18px;border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:99999;display:none;cursor:pointer;max-width:86vw;text-align:center}',
+/* 下单中的临时卡片（聊天式下单流程） */
+'.mrj-sending{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#8b5e3c;font-weight:700;line-height:1.6}',
+'.mrj-spin{width:15px;height:15px;border:2px solid #eadfd0;border-top-color:#8b5e3c;border-radius:50%;animation:mrjspin .8s linear infinite;flex:none}',
+'@keyframes mrjspin{to{transform:rotate(360deg)}}',
+'.mrj-place-note{margin-top:10px;font-size:12.5px;color:#8a7563;line-height:1.7}',
+'.mrj-place-actions{display:flex;gap:8px;margin-top:10px}',
+'.mrj-place-actions button{flex:1;border:none;border-radius:8px;padding:10px 8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}',
+'.mrj-place-actions .r{background:#8b5e3c;color:#fff}',
+'.mrj-place-actions .w{background:#25D366;color:#fff}',
+/* 聊天里的可点文字链接（WhatsApp 补发/确认取消） */
+'.mrj-bb .mrj-wa-send,.mrj-bb .mrj-do-cancel{text-decoration:underline;cursor:pointer}',
+/* 滚动条：常态隐身，滚动时才显示 */
+'.mrj-ob,.mrj-list,.mrj-detail,.mrj-chat{scrollbar-width:thin;scrollbar-color:transparent transparent}',
+'.mrj-ob::-webkit-scrollbar,.mrj-list::-webkit-scrollbar,.mrj-detail::-webkit-scrollbar,.mrj-chat::-webkit-scrollbar{width:5px;height:5px}',
+'.mrj-ob::-webkit-scrollbar-track,.mrj-list::-webkit-scrollbar-track,.mrj-detail::-webkit-scrollbar-track,.mrj-chat::-webkit-scrollbar-track{background:transparent}',
+'.mrj-ob::-webkit-scrollbar-thumb,.mrj-list::-webkit-scrollbar-thumb,.mrj-detail::-webkit-scrollbar-thumb,.mrj-chat::-webkit-scrollbar-thumb{background:transparent;border-radius:99px}',
+'.mrj-scrolling{scrollbar-color:#d5c3ad transparent}',
+'.mrj-scrolling::-webkit-scrollbar-thumb{background:#d5c3ad}',
+/* 自制确认弹窗（不用系统 confirm——系统弹窗会让自定义鼠标消失） */
+'#mrj-cfm-bd{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(60,42,26,.5);z-index:100010;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}',
+'#mrj-cfm-bd.show{opacity:1;visibility:visible}',
+'#mrj-cfm{position:fixed;top:50%;left:50%;transform:translate(-50%,-42%) scale(.96);width:86%;max-width:340px;background:#fdf9f3;border-radius:14px;box-shadow:0 14px 40px rgba(60,42,26,.35);z-index:100011;padding:24px 22px 18px;text-align:center;opacity:0;visibility:hidden;transition:transform .25s,opacity .25s,visibility .25s}',
+'#mrj-cfm.show{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}',
+'#mrj-cfm .t{font-size:15px;font-weight:700;color:#5a3a22;line-height:1.7;margin-bottom:6px}',
+'#mrj-cfm .d{font-size:12.5px;color:#8a7563;line-height:1.7;margin-bottom:16px}',
+'#mrj-cfm .btns{display:flex;gap:10px}',
+'#mrj-cfm .btns button{flex:1;border:none;border-radius:8px;padding:11px 8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .2s}',
+'#mrj-cfm .btns button:hover{filter:brightness(.93)}',
+'#mrj-cfm .ok{background:#b0503f;color:#fff}',
+'#mrj-cfm .no{background:#fff;color:#8a7563;border:1px solid #d8c8b7 !important}',
+/* 已取消订单：缩小卡片，隐藏聊天 */
+'.mrj-ob>#mrj-placing-card{margin:16px 20px;flex:1;align-self:flex-start}', /* 无订单时直接放窗体里 */
+'.mrj-card.mrj-cxl{padding:12px 16px;opacity:.75}',
+'.mrj-card.mrj-cxl .mrj-title{font-size:13px;color:#8a7563;text-decoration:line-through}',
+'.mrj-card.mrj-cxl .mrj-meta{font-size:11.5px}',
+'.mrj-card.mrj-cxl .mrj-cancelled{margin:8px 0 0;padding:3px 12px;font-size:11.5px}',
+/* 官网按钮 hover 文字修复：Send Order!/Add to Basket 太宽被挤换行，
+ * 第二行被 overflow:hidden 吃掉。改为不换行 + 居中，
+ * 用 clip-path 只裁上下、放行左右（保住上下滑动效果） */
+'.btn-text-wrapper{overflow:visible !important;clip-path:inset(0 -200px)}',
+'.btn-txt{white-space:nowrap}',
+'.btn-txt.hover{left:50% !important;width:auto !important;transform:translateY(20px) translateX(-50%)}',
+'.wheat-btn:hover .btn-txt.hover{transform:translateY(0) translateX(-50%)}',
+  ].join('\n');
   document.head.appendChild(css);
 
-  /* ---------- 订单窗 ---------- */
+  /* ---------- DOM ---------- */
+  var backdrop = document.createElement('div');
+  backdrop.id = 'mrj-backdrop';
   var modal = document.createElement('div');
   modal.id = 'mrj-orders-modal';
-  modal.innerHTML = '<div id="mrj-orders-panel"><div class="mrj-oh"><h3>我的订单</h3><button id="mrj-oclose">✕</button></div><div class="mrj-ob" id="mrj-obody"><div class="mrj-empty">加载中…</div></div></div>';
+  modal.innerHTML = '<div class="mrj-oh"><h3>🌾 我的订单</h3><button id="mrj-oclose" title="关闭">&times;</button></div><div class="mrj-ob" id="mrj-obody"></div>';
+  var miniNote = document.createElement('div');
+  miniNote.id = 'mrj-mini-note';
+  document.body.appendChild(backdrop);
   document.body.appendChild(modal);
-  modal.addEventListener('click', function (e) { if (e.target === modal) hideOrders(); });
-  document.getElementById('mrj-oclose').addEventListener('click', hideOrders);
+  document.body.appendChild(miniNote);
 
-  var pollTimer = null;
-  function showOrders() { modal.classList.add('show'); refresh(); pollTimer = setInterval(refresh, 15000); }
-  function hideOrders() { modal.classList.remove('show'); clearInterval(pollTimer); }
-
-  var localFaqLog = JSON.parse(localStorage.getItem('mrj_faq_log') || '[]');
-
-  function refresh() {
-    post({ action: 'my_status', token: getToken() }).then(function (r) {
-      if (!r.ok) return;
-      var body = document.getElementById('mrj-obody');
-      if (!r.orders.length) {
-        body.innerHTML = '<div class="mrj-empty">还没有订单记录<br>去菜单挑选喜欢的面包吧 🍞</div>';
-        return;
+  /* ---------- 自制确认弹窗（替代系统 confirm/alert，不影响自定义鼠标） ---------- */
+  var cfmBd = document.createElement('div'); cfmBd.id = 'mrj-cfm-bd';
+  var cfmBox = document.createElement('div'); cfmBox.id = 'mrj-cfm';
+  document.body.appendChild(cfmBd);
+  document.body.appendChild(cfmBox);
+  function mrjConfirm(title, desc, okText, cancelText) {
+    return new Promise(function (resolve) {
+      cfmBox.innerHTML = '<div class="t">' + title + '</div>' +
+        (desc ? '<div class="d">' + desc + '</div>' : '') +
+        '<div class="btns">' +
+        (cancelText === null ? '' : '<button class="no">' + (cancelText || (isEn() ? 'Keep it' : '再想想')) + '</button>') +
+        '<button class="ok">' + (okText || (isEn() ? 'Confirm' : '确定')) + '</button></div>';
+      cfmBd.classList.add('show'); cfmBox.classList.add('show');
+      function done(v) {
+        cfmBd.classList.remove('show'); cfmBox.classList.remove('show');
+        cfmBd.onclick = null;
+        resolve(v);
       }
-      r.orders.sort(function (a, b) { return (b.order.at || 0) - (a.order.at || 0); });
-      body.innerHTML = r.orders.map(function (w) {
-        var o = w.order;
-        var cancelled = w.status.indexOf('cancelled') === 0;
-        var stepIdx = STATUS_STEPS.indexOf(w.status === 'new' ? 'pending' : w.status);
-        var steps = cancelled ? '<div class="mrj-cancelled">✕ ' + (STATUS_ZH[w.status] || '已取消') + '</div>'
-          : '<div class="mrj-steps">' + ['待确认', '已确认', '制作中', '已完成', '已送达'].map(function (n, i) {
-              var cls = i < stepIdx ? 'done' : i === stepIdx ? 'cur' : '';
-              return '<div class="mrj-step ' + cls + '"><i>' + (i < stepIdx ? '✓' : i + 1) + '</i>' + n + '</div>';
-            }).join('') + '</div>';
-        var items = o.items.map(function (it) { return it.name + ' × ' + it.qty; }).join('、');
-        /* 该订单的对话（含本地FAQ问答） */
-        var msgs = (r.msgs || []).filter(function (m) { return !m.orderId || m.orderId === w.orderId; });
-        localFaqLog.forEach(function (f) { if (f.orderId === w.orderId) msgs.push(f); });
-        msgs.sort(function (a, b) { return a.at - b.at; });
-        var chat = msgs.map(function (m) {
-          var mine = m.from === 'customer';
-          return '<div class="mrj-bb ' + (mine ? 'c' : 's') + '">' + escB(m.text) + '<small>' + fmtT(m.at) + (mine ? '' : ' · 麦日记') + '</small></div>';
-        }).join('') || '<div style="text-align:center;color:#a8977f;font-size:12px">有问题可以在下面留言～</div>';
-        var faqOpts = '<option value="">💡 常见问题（点选即问）</option>' + FAQ.map(function (f, i) { return '<option value="' + i + '">' + f.q + '</option>'; }).join('');
-        return '<div class="mrj-card" data-oid="' + w.orderId + '">' +
-          '<div style="font-size:13px;font-weight:700;color:#3e2f23">' + items + '</div>' +
-          '<div class="mrj-items">合计 RM ' + (o.total || 0).toFixed(2) + ' · ' + (o.method === 'delivery' ? '配送' : '自取') + (o.timeRaw ? ' · ' + o.timeRaw.replace('T', ' ') : '') + '</div>' +
-          steps +
-          '<div class="mrj-chat" id="mrj-chat-' + w.orderId + '">' + chat + '</div>' +
-          '<select class="mrj-faq" data-faq="' + w.orderId + '">' + faqOpts + '</select>' +
-          '<div class="mrj-inrow"><input type="text" maxlength="300" placeholder="给店家留言…" data-inp="' + w.orderId + '"><button data-send="' + w.orderId + '">发送</button></div>' +
-          ((w.status === 'pending' || w.status === 'new') && !cancelled ? '<button class="mrj-cxl" data-cxl="' + w.orderId + '">取消这笔订单</button>' : '') +
-          '</div>';
-      }).join('');
+      cfmBox.querySelector('.ok').onclick = function () { done(true); };
+      var no = cfmBox.querySelector('.no');
+      if (no) no.onclick = function () { done(false); };
+      cfmBd.onclick = function () { done(false); };
+    });
+  }
+  function mrjAlert(text) { return mrjConfirm(text, '', isEn() ? 'OK' : '知道了', null); }
+  backdrop.addEventListener('click', hideOrders);
+  document.getElementById('mrj-oclose').addEventListener('click', hideOrders);
+  miniNote.addEventListener('click', function () { miniNote.style.display = 'none'; showOrders(); });
 
-      /* 事件 */
-      body.querySelectorAll('[data-send]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var inp = body.querySelector('[data-inp="' + b.dataset.send + '"]');
-          var text = (inp.value || '').trim();
-          if (!text) return;
-          inp.value = '';
-          post({ action: 'customer_msg', token: getToken(), orderId: b.dataset.send, text: text }).then(refresh);
-        });
-      });
-      body.querySelectorAll('[data-faq]').forEach(function (sel) {
-        sel.addEventListener('change', function () {
-          if (sel.value === '') return;
-          var f = FAQ[+sel.value];
-          var now = Date.now();
-          localFaqLog.push({ orderId: sel.dataset.faq, from: 'customer', text: f.q, at: now });
-          localFaqLog.push({ orderId: sel.dataset.faq, from: 'shop', text: f.a, at: now + 1 });
-          if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
-          localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
-          sel.value = '';
-          refresh();
-        });
-      });
-      body.querySelectorAll('[data-cxl]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          if (!window.confirm('确定取消这笔订单吗？')) return;
-          post({ action: 'customer_cancel', token: getToken(), orderId: b.dataset.cxl }).then(function (r2) {
-            if (!r2.ok) alert(r2.error || '取消失败');
-            refresh();
-          });
-        });
-      });
-    }).catch(function () {});
+  /* 滚动条：滚动时显现，停下 0.8 秒后隐身（事件委托，动态生成的聊天框也生效） */
+  var scrollHideTimers = {};
+  document.addEventListener('scroll', function (e) {
+    var el = e.target;
+    if (!el || !el.classList) return;
+    if (!el.classList.contains('mrj-ob') && !el.classList.contains('mrj-chat') && !el.classList.contains('mrj-list') && !el.classList.contains('mrj-detail')) return;
+    el.classList.add('mrj-scrolling');
+    var key = el.dataset.chat || el.className.slice(0, 20);
+    clearTimeout(scrollHideTimers[key]);
+    scrollHideTimers[key] = setTimeout(function () { el.classList.remove('mrj-scrolling'); }, 800);
+  }, true);
+
+  /* 购物车按钮 + 抽屉入口红点 */
+  function setCartDot(on) {
+    var entryDot = document.querySelector('#mrj-my-orders-link .mrj-dot');
+    if (entryDot) entryDot.style.display = on ? 'block' : 'none';
+    var cartBtn = document.getElementById('open-cart-btn') || document.querySelector('.cart-button, [id*="cart"][class*="btn"], .nav-action-btn.cart');
+    /* 兜底：找购物车角标的父按钮 */
+    if (!cartBtn) {
+      var badge = document.getElementById('cart-count-badge');
+      if (badge) cartBtn = badge.closest('button, a');
+    }
+    if (cartBtn) {
+      var d = cartBtn.querySelector('.mrj-cart-dot');
+      if (on && !d) {
+        d = document.createElement('span');
+        d.className = 'mrj-cart-dot';
+        cartBtn.style.position = cartBtn.style.position || 'relative';
+        cartBtn.appendChild(d);
+      }
+      if (d) d.style.display = on ? 'block' : 'none';
+    }
+    var msgBtn = document.getElementById('mrj-msg-btn');
+    if (msgBtn) {
+      var md = msgBtn.querySelector('.mrj-cart-dot');
+      if (md) md.style.display = on ? 'block' : 'none';
+    }
   }
 
+  /* ---------- 状态 ---------- */
+  var pollTimer = null, bgTimer = null;
+  var lastData = null;                 /* 最近一次服务器数据 */
+  var renderedKeys = {};               /* orderId -> {msgKey:true} 已渲染消息 */
+  var pendingLocal = [];               /* 乐观上屏、上传中的消息 */
+  var localFaqLog = JSON.parse(localStorage.getItem('mrj_faq_log') || '[]');
+  var seenShopN = Number(localStorage.getItem('mrj_seen_shop_n') || 0);
+
+  function cacheData(d) { try { localStorage.setItem('mrj_status_cache', JSON.stringify(d)); } catch (e) {} }
+  function loadCache() { try { return JSON.parse(localStorage.getItem('mrj_status_cache') || 'null'); } catch (e) { return null; } }
+
+  function msgKey(m) { return m.from + '|' + m.text + '|' + Math.floor((m.at || 0) / 120000); } /* 2分钟窗口去重 */
   function escB(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function fmtT(ts) { var d = new Date(ts); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 
-  /* ---------- 「我的订单」入口：购物车抽屉底部（无悬浮球） ---------- */
+  function showOrders() {
+    backdrop.classList.add('show'); modal.classList.add('show');
+    document.body.classList.add('no-scroll');
+    setCartDot(false);
+    miniNote.style.display = 'none';
+    /* 秒开：先用缓存渲染 */
+    var cached = loadCache();
+    if (cached) { lastData = cached; renderFull(cached); }
+    else if (placing) { document.getElementById('mrj-obody').innerHTML = ''; renderPlacing(); }
+    else document.getElementById('mrj-obody').innerHTML = '<div class="mrj-empty"><span>🍞</span>' + (isEn() ? 'Loading…' : '加载中…') + '</div>';
+    fetchAndApply(true);
+    clearInterval(pollTimer);
+    pollTimer = setInterval(function () { fetchAndApply(false); }, 15000);
+  }
+  function hideOrders() {
+    backdrop.classList.remove('show'); modal.classList.remove('show');
+    document.body.classList.remove('no-scroll');
+    clearInterval(pollTimer);
+    markShopSeen();
+  }
+
+  function shopMsgCount(d) {
+    var n = 0;
+    ((d && d.msgs) || []).forEach(function (m) { if (m.from === 'shop') n++; });
+    return n;
+  }
+  function markShopSeen() {
+    if (lastData) { seenShopN = shopMsgCount(lastData); localStorage.setItem('mrj_seen_shop_n', String(seenShopN)); }
+  }
+
+  function fetchAndApply(isOpen) {
+    post({ action: 'my_status', token: getToken() }).then(function (r) {
+      if (!r.ok) return;
+      cacheData(r);
+      var structureChanged = !lastData ||
+        r.orders.length !== lastData.orders.length ||
+        r.orders.some(function (w) {
+          var old = lastData.orders.filter(function (x) { return x.orderId === w.orderId; })[0];
+          return !old || old.status !== w.status;
+        });
+      lastData = r;
+      if (structureChanged || isOpen && !document.querySelector('.mrj-split')) {
+        renderFull(r); /* 订单增减/状态变化才整体重绘 */
+      } else {
+        applyMsgDelta(r); /* 只追加新消息，不动滚动位置 */
+      }
+      if (modal.classList.contains('show')) markShopSeen();
+    }).catch(function () {});
+  }
+
+  /* ---------- 整体渲染（打开/结构变化时）：左右分栏 ---------- */
+  var selectedOid = null;   /* 当前选中的订单（右栏显示谁） */
+  var mobDetail = false;    /* 手机窄屏：是否处于详情页 */
+
+  function orderUnread(r, orderId) {
+    /* 该订单是否有未读店家消息（粗略：按 seen 计数无法分单，这里用时间） */
+    var lastSeen = Number(localStorage.getItem('mrj_seen_at_' + orderId) || 0);
+    return ((r && r.msgs) || []).some(function (m) {
+      return m.from === 'shop' && (!m.orderId || m.orderId === orderId) && (m.at || 0) > lastSeen;
+    });
+  }
+  function markOrderSeen(orderId) {
+    localStorage.setItem('mrj_seen_at_' + orderId, String(Date.now()));
+  }
+
+  function renderFull(r) {
+    var body = document.getElementById('mrj-obody');
+    var en = isEn();
+    renderedKeys = {};
+    /* 下单成功且真订单卡已到 → 撤掉临时"发送中"卡片，并自动选中新订单 */
+    if (placing && placing.stage === 'ok' && placing.orderId &&
+        r.orders.some(function (w) { return w.orderId === placing.orderId; })) {
+      selectedOid = placing.orderId;
+      placing = null;
+    }
+    if (!r.orders.length) {
+      body.innerHTML = placing ? '' : '<div class="mrj-empty" style="flex:1"><span>🌾</span>' + (en ? 'No orders yet.<br>Pick something you love from our menu!' : '还没有订单记录<br>去菜单挑选喜欢的面包吧～') + '</div>';
+      renderPlacing();
+      return;
+    }
+    var ordersSorted = r.orders.slice().sort(function (a, b) {
+      var ca = a.status.indexOf('cancelled') === 0 ? 1 : 0;
+      var cb = b.status.indexOf('cancelled') === 0 ? 1 : 0;
+      if (ca !== cb) return ca - cb; /* 已取消沉底 */
+      return (b.order.at || 0) - (a.order.at || 0);
+    });
+    /* 选中项失效时默认选第一单 */
+    if (!selectedOid || !ordersSorted.some(function (w) { return w.orderId === selectedOid; })) {
+      selectedOid = ordersSorted[0].orderId;
+    }
+
+    /* 左栏：订单列表 */
+    var listHtml = ordersSorted.map(function (w) {
+      var o = w.order;
+      var cancelled = w.status.indexOf('cancelled') === 0;
+      var items = o.items.map(function (it) { return it.name + ' × ' + it.qty; }).join('、');
+      var st = statusChip(w.status, en);
+      return '<div class="mrj-li' + (w.orderId === selectedOid ? ' sel' : '') + (cancelled ? ' cxl' : '') + '" data-li="' + w.orderId + '">' +
+        '<div class="li-t">' + escB(items) + '</div>' +
+        '<div class="li-s"><span class="st ' + st.cls + '">' + st.label + '</span>RM ' + (o.total || 0).toFixed(2) + '</div>' +
+        '<span class="mrj-li-dot"' + (orderUnread(r, w.orderId) && w.orderId !== selectedOid ? ' style="display:block"' : '') + '></span>' +
+        '</div>';
+    }).join('');
+
+    body.innerHTML = '<div class="mrj-split' + (mobDetail ? ' mob-detail' : '') + '">' +
+      '<div class="mrj-list" id="mrj-list">' + listHtml + '</div>' +
+      '<div class="mrj-detail" id="mrj-detail"></div></div>';
+
+    /* 右栏：选中订单的详情 */
+    renderDetailPane(r, ordersSorted.filter(function (w) { return w.orderId === selectedOid; })[0]);
+
+    /* 左栏点击切换 */
+    body.querySelectorAll('[data-li]').forEach(function (li) {
+      li.addEventListener('click', function () {
+        selectedOid = li.dataset.li;
+        mobDetail = true; /* 手机上进详情页 */
+        renderFull(lastData || r);
+      });
+    });
+    renderPlacing(); /* 临时"发送中"卡片 */
+  }
+
+  function statusChip(status, en) {
+    if (status.indexOf('cancelled') === 0) return { cls: 'bad', label: en ? 'Cancelled' : '已取消' };
+    if (status === 'delivered') return { cls: 'ok', label: en ? 'Delivered' : '已送达' };
+    if (status === 'ready') return { cls: 'ok', label: en ? 'Ready' : '已完成' };
+    if (status === 'baking') return { cls: '', label: en ? 'Baking' : '制作中' };
+    if (status === 'confirmed') return { cls: '', label: en ? 'Confirmed' : '已确认' };
+    return { cls: '', label: en ? 'Pending' : '待确认' };
+  }
+
+  /* 右栏渲染：一次只显示一个订单的进度+聊天 */
+  function renderDetailPane(r, w) {
+    var pane = document.getElementById('mrj-detail');
+    if (!pane || !w) { if (pane) pane.innerHTML = ''; return; }
+    var en = isEn();
+    var o = w.order;
+    var cancelled = w.status.indexOf('cancelled') === 0;
+    var stepNames = en ? ['Pending', 'Confirmed', 'Baking', 'Ready', 'Delivered'] : ['待确认', '已确认', '制作中', '已完成', '已送达'];
+    var stepIdx = STATUS_STEPS.indexOf(w.status === 'new' ? 'pending' : w.status);
+    var steps = cancelled
+      ? '<div class="mrj-cancelled">✕ ' + (en ? 'Cancelled' : '已取消') + '</div>'
+      : '<div class="mrj-steps">' + stepNames.map(function (n, i) {
+          var cls = i < stepIdx ? 'done' : i === stepIdx ? 'cur' : '';
+          return '<div class="mrj-step ' + cls + '"><i>' + (i < stepIdx ? '✓' : i + 1) + '</i>' + n + '</div>';
+        }).join('') + '</div>';
+    var items = o.items.map(function (it) { return it.name + ' × ' + it.qty; }).join('、');
+
+    var html = '<div class="mrj-back" id="mrj-back">‹ ' + (en ? 'All orders' : '返回订单列表') + '</div>' +
+      '<div class="mrj-title">' + escB(items) + '</div>' +
+      '<div class="mrj-meta"><b>RM ' + (o.total || 0).toFixed(2) + '</b> · ' + (o.method === 'delivery' ? (en ? 'Delivery' : '配送') : (en ? 'Pickup' : '自取')) + (o.timeRaw ? ' · ' + o.timeRaw.replace('T', ' ') : '') + '</div>' +
+      steps;
+
+    if (!cancelled) {
+      var faqOpts = '<option value="">💡 ' + (en ? 'Quick questions (tap to ask)' : '常见问题（点选即问）') + '</option>' +
+        FAQ.map(function (f, i) { return '<option value="' + i + '">' + f.q + '</option>'; }).join('');
+      html +=
+        '<div class="mrj-chatwrap"><div class="mrj-chat" data-chat="' + w.orderId + '"></div>' +
+        '<div class="mrj-newpill" data-pill="' + w.orderId + '">↓ ' + (en ? 'New message' : '新消息') + '</div></div>' +
+        '<select class="mrj-faq" data-faq="' + w.orderId + '">' + faqOpts + '</select>' +
+        '<div class="mrj-inrow"><input type="text" maxlength="300" placeholder="' + (en ? 'Message us…' : '给店家留言…') + '" data-inp="' + w.orderId + '"><button data-send="' + w.orderId + '">' + (en ? 'Send' : '发送') + '</button></div>';
+    }
+    pane.innerHTML = html;
+
+    /* 聊天框加高（右栏空间更大） */
+    var chatEl = pane.querySelector('.mrj-chat');
+    if (chatEl) chatEl.style.maxHeight = '46vh';
+
+    if (!cancelled) {
+      fillMsgs(w.orderId, collectMsgs(r, w.orderId), true);
+      bindCardEvents(pane);
+    }
+    markOrderSeen(w.orderId);
+    var back = document.getElementById('mrj-back');
+    if (back) back.addEventListener('click', function () {
+      mobDetail = false;
+      renderFull(lastData || r);
+    });
+  }
+
+  function collectMsgs(r, orderId) {
+    var msgs = (r.msgs || []).filter(function (m) { return !m.orderId || m.orderId === orderId; }).slice();
+    localFaqLog.forEach(function (f) { if (f.orderId === orderId) msgs.push(f); });
+    pendingLocal.forEach(function (p) { if (p.orderId === orderId) msgs.push(p); });
+    msgs.sort(function (a, b) { return a.at - b.at; });
+    return msgs;
+  }
+
+  function escKeepU(s2) {
+    /* 转义后放行 <u ...>…</u>（FAQ 取消链接 / WhatsApp 补发链接专用）
+     * 注意：escB 会把引号转成 &quot;，所以这里必须按 &quot; 匹配（v3 的 bug 就在这） */
+    var t = escB(s2);
+    t = t.replace(/&lt;u class=&quot;(mrj-do-cancel|mrj-wa-send)&quot; data-oid=&quot;([^&]*)&quot;(?: style=&quot;cursor:pointer&quot;)?&gt;/g,
+      '<u class="$1" data-oid="$2" style="cursor:pointer">');
+    t = t.replace(/&lt;\/u&gt;/g, '</u>');
+    return t;
+  }
+  function bubbleHtml(m) {
+    var mine = m.from === 'customer';
+    var tag = m._pending ? '<small>' + (isEn() ? 'sending…' : '发送中…') + '</small>'
+      : m._failed ? '<small>' + (isEn() ? 'failed · ' : '发送失败 · ') + '<span class="mrj-retry" data-retry="' + m._localId + '">' + (isEn() ? 'retry' : '点击重发') + '</span></small>'
+      : '<small>' + fmtT(m.at) + (mine ? '' : ' · ' + (isEn() ? 'MaiRiJi' : '麦日记')) + '</small>';
+    return '<div class="mrj-bb ' + (mine ? 'c' : 's') + (m._pending ? ' pending-up' : '') + '" data-mk="' + escB(msgKey(m)) + '"' + (m._localId ? ' data-lid="' + m._localId + '"' : '') + '>' + escKeepU(m.text) + tag + '</div>';
+  }
+
+  function atBottom(el) { return el.scrollHeight - el.scrollTop - el.clientHeight < 40; }
+
+  function fillMsgs(orderId, msgs, scrollBottom) {
+    var chat = document.querySelector('[data-chat="' + orderId + '"]');
+    if (!chat) return;
+    renderedKeys[orderId] = renderedKeys[orderId] || {};
+    if (!msgs.length) {
+      chat.innerHTML = '<div class="mrj-chat-empty">' + (isEn() ? 'Questions? Leave us a message below.' : '有问题可以在下面留言，我们会尽快回复～') + '</div>';
+      return;
+    }
+    chat.innerHTML = msgs.map(function (m) { renderedKeys[orderId][msgKey(m)] = true; return bubbleHtml(m); }).join('');
+    if (scrollBottom) chat.scrollTop = chat.scrollHeight;
+    bindRetry(chat);
+  }
+
+  /* ---------- 增量：只追加新消息（不动滚动位置，不在底部则显示泡泡） ---------- */
+  function applyMsgDelta(r) {
+    r.orders.forEach(function (w) {
+      var chat = document.querySelector('[data-chat="' + w.orderId + '"]');
+      if (!chat) {
+        /* 非选中订单：没有聊天框，只点亮左栏红点 */
+        if (w.orderId !== selectedOid && orderUnread(r, w.orderId)) {
+          var li = document.querySelector('[data-li="' + w.orderId + '"] .mrj-li-dot');
+          if (li) li.style.display = 'block';
+        }
+        return;
+      }
+      var known = renderedKeys[w.orderId] || (renderedKeys[w.orderId] = {});
+      var fresh = [];
+      (r.msgs || []).forEach(function (m) {
+        if (m.orderId && m.orderId !== w.orderId) return;
+        var k = msgKey(m);
+        if (known[k]) return;
+        /* 服务器回显了乐观消息 → 把本地待传气泡转正 */
+        var dup = pendingLocal.filter(function (p) { return p.orderId === w.orderId && p.text === m.text && p.from === m.from; })[0];
+        if (dup) {
+          var el = chat.querySelector('[data-lid="' + dup._localId + '"]');
+          if (el) el.outerHTML = bubbleHtml(m);
+          pendingLocal = pendingLocal.filter(function (p) { return p !== dup; });
+          known[k] = true;
+          return;
+        }
+        fresh.push(m);
+      });
+      if (!fresh.length) return;
+      var stick = atBottom(chat);
+      var emptyHint = chat.querySelector('.mrj-chat-empty');
+      if (emptyHint) emptyHint.remove();
+      fresh.sort(function (a, b) { return a.at - b.at; }).forEach(function (m) {
+        known[msgKey(m)] = true;
+        chat.insertAdjacentHTML('beforeend', bubbleHtml(m));
+      });
+      if (stick) {
+        chat.scrollTop = chat.scrollHeight;
+      } else {
+        var pill = document.querySelector('[data-pill="' + w.orderId + '"]');
+        if (pill) {
+          pill.style.display = 'block';
+          pill.onclick = function () { chat.scrollTop = chat.scrollHeight; pill.style.display = 'none'; };
+          chat.onscroll = function () { if (atBottom(chat)) pill.style.display = 'none'; };
+        }
+      }
+    });
+  }
+
+  /* ---------- 乐观发送 ---------- */
+  var localSeq = 0;
+  function optimisticSend(orderId, text) {
+    var m = { orderId: orderId, from: 'customer', text: text, at: Date.now(), _pending: true, _localId: 'L' + (++localSeq) + Date.now() };
+    pendingLocal.push(m);
+    var chat = document.querySelector('[data-chat="' + orderId + '"]');
+    if (chat) {
+      var emptyHint = chat.querySelector('.mrj-chat-empty');
+      if (emptyHint) emptyHint.remove();
+      chat.insertAdjacentHTML('beforeend', bubbleHtml(m));
+      chat.scrollTop = chat.scrollHeight;
+    }
+    uploadMsg(m);
+  }
+  function uploadMsg(m) {
+    post({ action: 'customer_msg', token: getToken(), orderId: m.orderId, text: m.text }).then(function (r) {
+      var chat = document.querySelector('[data-chat="' + m.orderId + '"]');
+      var el = chat && chat.querySelector('[data-lid="' + m._localId + '"]');
+      if (r && r.ok) {
+        m._pending = false;
+        renderedKeys[m.orderId] = renderedKeys[m.orderId] || {};
+        renderedKeys[m.orderId][msgKey(m)] = true;
+        pendingLocal = pendingLocal.filter(function (p) { return p !== m; });
+        if (el) el.outerHTML = bubbleHtml(m);
+      } else { markFailed(m); }
+    }).catch(function () { markFailed(m); });
+  }
+  function markFailed(m) {
+    m._pending = false; m._failed = true;
+    var chat = document.querySelector('[data-chat="' + m.orderId + '"]');
+    var el = chat && chat.querySelector('[data-lid="' + m._localId + '"]');
+    if (el) { el.outerHTML = bubbleHtml(m); bindRetry(chat); }
+  }
+  function bindRetry(scope) {
+    (scope || document).querySelectorAll('.mrj-retry').forEach(function (r) {
+      r.onclick = function () {
+        var m = pendingLocal.filter(function (p) { return p._localId === r.dataset.retry; })[0];
+        if (!m) return;
+        m._failed = false; m._pending = true;
+        var chat = document.querySelector('[data-chat="' + m.orderId + '"]');
+        var el = chat && chat.querySelector('[data-lid="' + m._localId + '"]');
+        if (el) el.outerHTML = bubbleHtml(m);
+        uploadMsg(m);
+      };
+    });
+  }
+
+  /* ---------- 卡片事件 ---------- */
+  function bindCardEvents(body) {
+    body.querySelectorAll('[data-send]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var inp = body.querySelector('[data-inp="' + b.dataset.send + '"]');
+        var text = (inp.value || '').trim();
+        if (!text) return;
+        inp.value = '';
+        optimisticSend(b.dataset.send, text); /* 立即上屏，后台上传 */
+      });
+    });
+    body.querySelectorAll('[data-inp]').forEach(function (inp) {
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { var b = body.querySelector('[data-send="' + inp.dataset.inp + '"]'); if (b) b.click(); }
+      });
+    });
+    body.querySelectorAll('[data-faq]').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        if (sel.value === '') return;
+        var f = FAQ[+sel.value];
+        sel.value = '';
+        if (f.cancel) {
+          /* 取消订单：动态回答 + 隐蔽的文字链接 */
+          var w0 = (lastData && lastData.orders || []).filter(function (x) { return x.orderId === sel.dataset.faq; })[0];
+          var canCancel = w0 && (w0.status === 'pending' || w0.status === 'new');
+          f = { q: '我想取消订单', a: canCancel
+            ? '好的，订单还未确认可以取消。请确认您真的不需要了——手作烘焙每一单都是为您预留的食材呢 🥲 确定的话请点：<u class="mrj-do-cancel" data-oid="' + sel.dataset.faq + '" style="cursor:pointer">确认取消订单</u>'
+            : '您的订单已经确认，食材已为您安排，暂时不能直接取消了。如有特殊情况请在下方留言，师傅会尽快与您协商～' };
+        }
+        var now = Date.now();
+        var qm = { orderId: sel.dataset.faq, from: 'customer', text: f.q, at: now };
+        var am = { orderId: sel.dataset.faq, from: 'shop', text: f.a, at: now + 1 };
+        localFaqLog.push(qm, am);
+        if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
+        localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
+        /* 直接追加气泡，零等待零网络 */
+        var chat = document.querySelector('[data-chat="' + sel.dataset.faq + '"]');
+        if (chat) {
+          var empty = chat.querySelector('.mrj-chat-empty');
+          if (empty) empty.remove();
+          renderedKeys[sel.dataset.faq] = renderedKeys[sel.dataset.faq] || {};
+          renderedKeys[sel.dataset.faq][msgKey(qm)] = true;
+          renderedKeys[sel.dataset.faq][msgKey(am)] = true;
+          chat.insertAdjacentHTML('beforeend', bubbleHtml(qm) + bubbleHtml(am));
+          chat.scrollTop = chat.scrollHeight;
+        }
+      });
+    });
+    body.querySelectorAll('[data-cxl]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        mrjConfirm(
+          isEn() ? 'Cancel this order?' : '确定取消这笔订单吗？',
+          isEn() ? 'Every order reserves ingredients just for you 🥲' : '每一单的食材都是为您预留的呢 🥲',
+          isEn() ? 'Yes, cancel' : '确定取消',
+          isEn() ? 'Keep my order' : '我再想想'
+        ).then(function (yes) { if (yes) doCancelOrder(b.dataset.cxl); });
+      });
+    });
+  }
+
+  /* 聊天里的文字链接（事件委托：重开窗口/缓存重画后依然可点） */
+  modal.addEventListener('click', function (e) {
+    var u = e.target.closest ? e.target.closest('.mrj-do-cancel, .mrj-wa-send') : null;
+    if (!u) return;
+    if (u.classList.contains('mrj-do-cancel')) {
+      mrjConfirm(
+        isEn() ? 'Really cancel this order?' : '真的要取消这笔订单吗？',
+        isEn() ? 'Every order reserves ingredients just for you 🥲' : '每一单的食材都是为您预留的呢 🥲',
+        isEn() ? 'Yes, cancel' : '确定取消',
+        isEn() ? 'Keep my order' : '我再想想'
+      ).then(function (yes) { if (yes) doCancelOrder(u.dataset.oid); });
+    } else {
+      sendWaSnapshot(u.dataset.oid);
+    }
+  });
+
+  /* 取消订单：聊天式即时反馈（先上屏，再等服务器，不让顾客以为卡了） */
+  function pushLocalMsg(m) {
+    localFaqLog.push(m);
+    if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
+    localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
+  }
+  function appendBubble(orderId, m) {
+    var chat = document.querySelector('[data-chat="' + orderId + '"]');
+    if (!chat) return null;
+    var empty = chat.querySelector('.mrj-chat-empty');
+    if (empty) empty.remove();
+    renderedKeys[orderId] = renderedKeys[orderId] || {};
+    renderedKeys[orderId][msgKey(m)] = true;
+    chat.insertAdjacentHTML('beforeend', bubbleHtml(m));
+    chat.scrollTop = chat.scrollHeight;
+    return chat.lastElementChild;
+  }
+  function doCancelOrder(orderId) {
+    var en = isEn();
+    var now = Date.now();
+    /* ① 顾客气泡 + 店家"处理中"气泡立刻上屏 */
+    var qm = { orderId: orderId, from: 'customer', text: en ? 'I confirm to cancel this order.' : '我确认取消这笔订单', at: now };
+    pushLocalMsg(qm);
+    appendBubble(orderId, qm);
+    var busy = { orderId: orderId, from: 'shop', text: en ? 'Got it, cancelling your order…' : '收到，正在为您取消订单…', at: now + 1 };
+    var busyEl = appendBubble(orderId, busy);
+    /* ② 等服务器结果，把"处理中"气泡换成结果 */
+    function settle(text) {
+      var done = { orderId: orderId, from: 'shop', text: text, at: Date.now() };
+      pushLocalMsg(done);
+      renderedKeys[orderId] = renderedKeys[orderId] || {};
+      renderedKeys[orderId][msgKey(done)] = true;
+      if (busyEl && busyEl.parentNode) busyEl.outerHTML = bubbleHtml(done);
+      var chat = document.querySelector('[data-chat="' + orderId + '"]');
+      if (chat) chat.scrollTop = chat.scrollHeight;
+    }
+    post({ action: 'customer_cancel', token: getToken(), orderId: orderId }).then(function (r2) {
+      if (!r2.ok) {
+        settle((en ? 'Sorry, cancellation failed: ' : '抱歉，取消没有成功：') + (r2.error || (en ? 'please message us below.' : '请在下方留言，师傅会帮您处理～')));
+        return;
+      }
+      settle(en ? '✓ Your order has been cancelled. Hope to bake for you next time! 🌾' : '✓ 订单已为您取消。期待下次为您烘焙～ 🌾');
+      /* 让顾客看清成功气泡，1.5 秒后再刷新（卡片会缩小成"已取消"状态） */
+      setTimeout(function () { fetchAndApply(true); }, 1500);
+    }).catch(function () {
+      settle(en ? 'Network hiccup — cancellation not confirmed. Please try again or message us below.' : '网络不太稳定，取消还没确认成功。请再点一次，或在下方留言，师傅会帮您处理～');
+    });
+  }
+
+  /* ---------- 后台轻监听：店家回复提醒（订单窗关着也能收到） ---------- */
+  function bgWatch() {
+    if (modal.classList.contains('show')) return;      /* 窗开着由主轮询负责 */
+    var cached = loadCache();
+    if (!cached || !cached.orders || !cached.orders.length) return;
+    /* 只在有活跃订单（未送达未取消）时才轮询 */
+    var active = cached.orders.some(function (w) {
+      return ['delivered'].indexOf(w.status) === -1 && w.status.indexOf('cancelled') !== 0;
+    });
+    if (!active) return;
+    post({ action: 'my_status', token: getToken() }).then(function (r) {
+      if (!r.ok) return;
+      cacheData(r); lastData = r;
+      var n = shopMsgCount(r);
+      if (n > seenShopN) {
+        miniNote.textContent = isEn() ? '🍞 MaiRiJi replied to your order — tap to view' : '🍞 麦日记回复了您的订单，点击查看';
+        miniNote.style.display = 'block'; /* 永久显示，点击打开订单窗才消失 */
+        setCartDot(true);
+      }
+    }).catch(function () {});
+  }
+  bgTimer = setInterval(bgWatch, 60000);
+  setTimeout(bgWatch, 5000); /* 打开页面 5 秒后先查一次 */
+
+  /* ---------- 入口 ---------- */
   function injectEntry() {
     var drawer = document.getElementById('cart-drawer-panel');
     if (drawer && !document.getElementById('mrj-my-orders-link')) {
       var a = document.createElement('a');
       a.id = 'mrj-my-orders-link';
-      a.textContent = '查看我的订单 / 订单进度 ›';
-      a.addEventListener('click', function () { showOrders(); });
+      a.innerHTML = (isEn() ? '📦 My Orders / Track Progress ›' : '📦 查看我的订单 / 订单进度 ›') + '<span class="mrj-dot"></span>';
+      a.addEventListener('click', showOrders);
       drawer.appendChild(a);
     }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectEntry);
-  else injectEntry();
-  setTimeout(injectEntry, 2000); /* 兜底：抽屉晚渲染 */
+  /* header 信息按钮：插在 VIP 按钮旁（信封图标，点击开订单窗） */
+  function injectHeaderBtn() {
+    if (document.getElementById('mrj-msg-btn')) return;
+    var vipBtn = document.getElementById('open-vip-btn');
+    if (!vipBtn || !vipBtn.parentNode) return;
+    var b = document.createElement('button');
+    b.id = 'mrj-msg-btn';
+    b.className = vipBtn.className; /* 继承官网按钮样式 */
+    b.title = isEn() ? 'My Orders' : '我的订单';
+    b.setAttribute('data-label', isEn() ? 'My Orders' : '我的订单');
+    b.style.position = 'relative';
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="mrj-cart-dot" style="display:none"></span>';
+    b.addEventListener('click', showOrders);
+    vipBtn.parentNode.insertBefore(b, vipBtn.nextSibling);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { injectEntry(); injectHeaderBtn(); });
+  else { injectEntry(); injectHeaderBtn(); }
+  setTimeout(function () { injectEntry(); injectHeaderBtn(); }, 2000);
 
-  /* ---------- 站内下单（main.js 调用入口） ---------- */
+  /* ================================================================
+   * 聊天式下单流程（v4，替代感谢弹窗）
+   * 点「发送订单」→ 打开信息框 → 感谢语 + 订单卡「发送中…」→
+   * 成功：订单卡转正 + 聊天里问「要不要也发一份 WhatsApp？」
+   * 失败/太久：保留购物篮，卡片上给「重试」「发 WhatsApp」按钮
+   * ================================================================ */
+  var placing = null;        /* {stage, en, summary, orderId, reason} */
+  var placePayload = null, placeApp = null, placeSeq = 0, slowTimer = null, failTimer = null;
+
+  /* WhatsApp 订单快照：下单那一刻就存好文字，购物篮清空后照样能发 */
+  function loadWaSnaps() { try { return JSON.parse(localStorage.getItem('mrj_wa_snaps') || '[]'); } catch (e) { return []; } }
+  function stashWa(url, oid) {
+    var s = loadWaSnaps().filter(function (x) { return x.oid !== oid; });
+    s.unshift({ oid: oid || '', url: url });
+    localStorage.setItem('mrj_wa_snaps', JSON.stringify(s.slice(0, 5)));
+  }
+  function sendWaSnapshot(oid) {
+    var s = loadWaSnaps();
+    var hit = s.filter(function (x) { return x.oid === oid; })[0] || s[0];
+    if (!hit) { mrjAlert(isEn() ? 'Order content not found on this device.' : '这台设备上找不到订单内容了，请直接留言给我们～'); return; }
+    var w = window.open(hit.url, '_blank');
+    if (!w || w.closed || typeof w.closed === 'undefined') window.location.href = hit.url;
+  }
+
+  function buildWaMsg(app, data, en) {
+    var cart = app.cart || [];
+    var totalPrice = 0, totalQty = 0;
+    var isVIP = false;
+    try { isVIP = !!localStorage.getItem(app.config.storageKeys.custName); } catch (e) {}
+    var vipBadge = isVIP ? (en ? ' [VIP Member]' : ' [VIP会员]') : '';
+    var msg = en ? 'Hello MaiRiji! I would like to place an order:\n\n' : '你好，麦日记！我想预定以下商品：\n\n';
+    msg += en ? '【Customer & Delivery Info】\n' : '【预定与配送信息】\n';
+    if (data.deliveryZone) msg += (en ? 'Type/Zone: ' : '配送/取货方式：') + data.deliveryZone + '\n';
+    if (data.name) msg += (en ? 'Name: ' : '姓名：') + data.name + vipBadge + '\n';
+    if (data.phone) msg += (en ? 'Contact Phone: ' : '联系电话：') + data.phone + '\n';
+    var zoneEl = document.getElementById('cust-delivery-zone');
+    var zoneVal = zoneEl ? zoneEl.value : '';
+    msg += (zoneVal === 'pickup' ? (en ? 'Pickup Location: \n' : '自提地点：\n') : (en ? 'Delivery Address: \n' : '详细配送地址：\n')) + (data.address || '') + '\n';
+    msg += (en ? 'Preferred Date: ' : '期望日期：') + (data.date || '') + '\n\n';
+    msg += en ? '【Order Details】\n' : '【商品明细】\n';
+    cart.forEach(function (item, i) {
+      var line = (item.price * item.qty).toFixed(2);
+      totalPrice += item.price * item.qty; totalQty += item.qty;
+      var dn = app.getItemDisplayName ? app.getItemDisplayName(item) : item.name;
+      msg += (i + 1) + '. ' + dn + ' x ' + item.qty + ' — RM ' + line + '\n';
+    });
+    msg += '\n------------------------------\n';
+    msg += en ? ('Total Items: ' + totalQty + ' | Total: RM ' + totalPrice.toFixed(2) + '\n\n')
+              : ('共 ' + totalQty + ' 件商品 | 总计：RM ' + totalPrice.toFixed(2) + '\n\n');
+    msg += en ? 'Please confirm availability and delivery schedule with me. Thank you!' : '请与我确认具体配送/自提时间，谢谢！';
+    return 'https://wa.me/' + app.config.waNumber + '?text=' + encodeURIComponent(msg);
+  }
+
+  function placingHtml() {
+    if (!placing) return '';
+    var en = placing.en;
+    var h = '<div class="mrj-card" id="mrj-placing-card">' +
+      '<div class="mrj-title">🌾 ' + (en ? 'Thank you for your order!' : '感谢您的预定！') + '</div>' +
+      '<div class="mrj-meta">' + escB(placing.summary) + '</div>';
+    if (placing.stage === 'sending' || placing.stage === 'slow') {
+      h += '<div class="mrj-sending"><span class="mrj-spin"></span>' + (en ? 'Sending your order…' : '订单发送中，请稍候…') + '</div>';
+      if (placing.stage === 'slow') {
+        h += '<div class="mrj-place-note">' + (en ? 'Taking longer than usual… you can also send it via WhatsApp first, we handle both the same way.' : '网络有点慢…您也可以先把订单发到 WhatsApp，我们同样会处理～') + '</div>' +
+          '<div class="mrj-place-actions"><button class="w" data-pw="1">' + (en ? 'Send via WhatsApp' : '发送 WhatsApp 订单') + '</button></div>';
+      }
+    } else if (placing.stage === 'ok') {
+      h += '<div class="mrj-sending" style="color:#7c9d5f"><span style="flex:none">✓</span>' + (en ? 'Order sent! Loading details…' : '订单已送达麦日记！正在加载订单详情…') + '</div>';
+    } else { /* failed / paused */
+      h += '<div class="mrj-place-note">' + escB(placing.reason || '') + '</div>' +
+        '<div class="mrj-place-actions">' +
+        (placing.stage === 'failed' ? '<button class="r" data-pr="1">' + (en ? 'Retry' : '重试发送') + '</button>' : '') +
+        '<button class="w" data-pw="1">' + (en ? 'Send via WhatsApp' : '发送 WhatsApp 订单') + '</button></div>';
+    }
+    return h + '</div>';
+  }
+  function renderPlacing() {
+    var body = document.getElementById('mrj-obody');
+    if (!body) return;
+    var old = document.getElementById('mrj-placing-card');
+    if (!placing) { if (old) old.remove(); return; }
+    /* 分栏布局时放右栏顶部；无订单时放整个窗体 */
+    var host = document.getElementById('mrj-detail') || body;
+    if (old) old.outerHTML = placingHtml();
+    else host.insertAdjacentHTML('afterbegin', placingHtml());
+    var card = document.getElementById('mrj-placing-card');
+    if (!card) return;
+    var w = card.querySelector('[data-pw]');
+    if (w) w.onclick = function () { sendWaSnapshot((placing && placing.orderId) || ''); };
+    var rb = card.querySelector('[data-pr]');
+    if (rb) rb.onclick = function () { doPlace(); };
+  }
+
+  function failPlace(reason) {
+    if (!placing) return;
+    placing.stage = 'failed';
+    placing.reason = reason || (placing.en
+      ? 'Order failed to send 🥲 Your basket is kept — retry, or send via WhatsApp instead.'
+      : '订单发送失败了 🥲 购物篮已为您保留，可以重试，或改发 WhatsApp 订单。');
+    renderPlacing();
+  }
+
+  function onPlaced(orderId) {
+    if (!placing) return;
+    placing.stage = 'ok';
+    placing.orderId = orderId;
+    /* 把刚存的快照挂到订单号上 */
+    var snaps = loadWaSnaps();
+    if (snaps[0]) { snaps[0].oid = orderId; localStorage.setItem('mrj_wa_snaps', JSON.stringify(snaps)); }
+    var en = placing.en;
+    /* 聊天里追问 WhatsApp（本地气泡，零网络） */
+    var m = { orderId: orderId, from: 'shop', at: Date.now(), text: en
+      ? '🌾 We\'ve received your order and will reply here after confirming. Want a WhatsApp copy too? Tap: <u class="mrj-wa-send" data-oid="' + orderId + '">Send WhatsApp order</u> (or just ignore this)'
+      : '🌾 我们已收到您的订单，确认后会在这里回复您～ 需要同时发送一份订单到 WhatsApp 吗？点这里：<u class="mrj-wa-send" data-oid="' + orderId + '">发送 WhatsApp 订单</u>（不需要就忽略～）' };
+    localFaqLog.push(m);
+    if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
+    localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
+    /* 成功了才清空购物篮 */
+    if (placeApp) { placeApp.cart = []; placeApp.saveCart(); placeApp.updateCartUI(); }
+    renderPlacing();
+    fetchAndApply(true);
+  }
+
+  function doPlace() {
+    if (!placePayload || !placing) return;
+    var seq = ++placeSeq;
+    placing.stage = 'sending'; placing.reason = '';
+    renderPlacing();
+    clearTimeout(slowTimer); clearTimeout(failTimer);
+    /* 太久（12秒）：给出 WhatsApp 选项但继续等 */
+    slowTimer = setTimeout(function () {
+      if (seq === placeSeq && placing && placing.stage === 'sending') { placing.stage = 'slow'; renderPlacing(); }
+    }, 12000);
+    /* 超时（30秒）：判失败，保留购物篮 */
+    failTimer = setTimeout(function () {
+      if (seq === placeSeq && placing && (placing.stage === 'sending' || placing.stage === 'slow')) {
+        failPlace(placing.en ? 'Timed out 🥲 Your basket is kept — retry, or send via WhatsApp.' : '发送超时了 🥲 购物篮已为您保留，可以重试或改发 WhatsApp 订单。');
+      }
+    }, 30000);
+    post({ action: 'shop_status' }).then(function (st) {
+      if (seq !== placeSeq) return;
+      if (st.ok && st.paused) {
+        clearTimeout(slowTimer); clearTimeout(failTimer);
+        placing.stage = 'paused';
+        placing.reason = placing.en
+          ? 'Sorry, we are not taking orders right now. Your basket is kept — try later, or reach us on WhatsApp.'
+          : '不好意思，我们暂时停止接单了。购物篮已为您保留，可以稍后再试，或先发 WhatsApp 和我们沟通～';
+        renderPlacing();
+        return;
+      }
+      return post({ action: 'place_order', token: getToken(), order: placePayload }).then(function (r) {
+        if (seq !== placeSeq) return;
+        clearTimeout(slowTimer); clearTimeout(failTimer);
+        if (!r || !r.ok) { failPlace(r && r.error); return; }
+        onPlaced(r.orderId);
+      });
+    }).catch(function () {
+      if (seq !== placeSeq) return;
+      clearTimeout(slowTimer); clearTimeout(failTimer);
+      failPlace(null);
+    });
+  }
+
+  /* ---------- 站内下单入口 ---------- */
   window.MRJMailbox = {
-    /* app = 官网主对象(this)；data = {name,phone,address,date,deliveryZone} */
     placeOrder: function (app, data) {
-      var isEn = app.getCurrentLanguage && app.getCurrentLanguage() === 'en';
+      var en = app.getCurrentLanguage && app.getCurrentLanguage() === 'en';
       var cart = app.cart || [];
       if (!cart.length) return;
       var items = cart.map(function (it) {
         return { id: it.id, name: app.getItemDisplayName ? app.getItemDisplayName(it) : it.name, price: it.price, qty: it.qty };
       });
       var total = cart.reduce(function (s, it) { return s + it.price * it.qty; }, 0);
-      var zoneVal = document.getElementById('cust-delivery-zone') ? document.getElementById('cust-delivery-zone').value : '';
-
-      /* 先查营业状态 */
-      post({ action: 'shop_status' }).then(function (st) {
-        if (st.ok && st.paused) {
-          alert(isEn ? 'Sorry, we are not taking orders right now. Please try again later or WhatsApp us.' : '不好意思，我们暂时停止接单，请稍后再试或通过 WhatsApp 联系我们～');
-          return;
-        }
-        return post({
-          action: 'place_order', token: getToken(),
-          order: {
-            name: data.name, phone: data.phone,
-            method: zoneVal === 'pickup' ? 'pickup' : 'delivery',
-            timeRaw: data.date || '', address: data.address || '',
-            note: (data.deliveryZone ? '[' + data.deliveryZone + '] ' : ''),
-            items: items, total: Math.round(total * 100) / 100,
-          },
-        }).then(function (r) {
-          if (!r || !r.ok) { alert((r && r.error) || (isEn ? 'Failed, please try WhatsApp.' : '提交失败，请改用 WhatsApp 下单')); return; }
-          /* 成功：清空购物车 + 感谢弹窗 + 询问是否也发 WhatsApp */
-          app.cart = []; app.saveCart(); app.updateCartUI();
-          var ty = document.getElementById('thankyou-modal');
-          if (ty) {
-            document.getElementById('thankyou-modal-backdrop').classList.add('show');
-            ty.classList.add('show');
-            if (!ty.querySelector('.mrj-ask')) {
-              var ask = document.createElement('div');
-              ask.className = 'mrj-ask';
-              ask.innerHTML = (isEn ? 'Order received! We will confirm with you here.<br>Also send a copy via WhatsApp?' : '订单已收到！我们确认后会在「我的订单」里回复您。<br>需要同时发送一份到 WhatsApp 吗？') +
-                '<br><button class="y">' + (isEn ? 'Yes, WhatsApp too' : '好，也发 WhatsApp') + '</button>' +
-                '<button class="n">' + (isEn ? 'No need' : '不用了') + '</button>' +
-                '<a id="mrj-ty-track" style="display:block;margin-top:8px;font-size:12px;color:#8a5a32;text-decoration:underline;cursor:pointer">' + (isEn ? 'Track my order ›' : '查看订单进度 ›') + '</a>';
-              ty.appendChild(ask);
-              ask.querySelector('.y').addEventListener('click', function () { app.checkoutWhatsApp(data); ask.remove(); });
-              ask.querySelector('.n').addEventListener('click', function () { ask.remove(); });
-              ask.querySelector('#mrj-ty-track').addEventListener('click', function () {
-                document.getElementById('close-thankyou-btn') && document.getElementById('close-thankyou-btn').click();
-                showOrders();
-              });
-            }
-          }
-        });
-      }).catch(function () {
-        alert(isEn ? 'Network error, please try WhatsApp.' : '网络异常，请改用 WhatsApp 下单');
-      });
+      var zoneEl = document.getElementById('cust-delivery-zone');
+      var zoneVal = zoneEl ? zoneEl.value : '';
+      placeApp = app;
+      placePayload = {
+        name: data.name, phone: data.phone,
+        method: zoneVal === 'pickup' ? 'pickup' : 'delivery',
+        timeRaw: data.date || '', address: data.address || '',
+        note: (data.deliveryZone ? '[' + data.deliveryZone + '] ' : ''),
+        items: items, total: Math.round(total * 100) / 100,
+      };
+      /* 趁购物篮还在，先做好 WhatsApp 快照（成功后清空也能发） */
+      stashWa(buildWaMsg(app, data, en), '');
+      placing = {
+        stage: 'sending', en: en, orderId: '',
+        summary: items.map(function (it) { return it.name + ' × ' + it.qty; }).join('、') + ' · RM ' + (Math.round(total * 100) / 100).toFixed(2),
+      };
+      mobDetail = true;      /* 手机上直接进详情栏（发送中卡片在右栏） */
+      showOrders();          /* 直接打开信息框 */
+      renderPlacing();       /* 感谢语 + 发送中… */
+      doPlace();
     },
     showOrders: showOrders,
   };

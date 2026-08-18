@@ -578,8 +578,43 @@ MaiRijiApp.prototype = {
             return;
         }
 
-        // 菜单 Tab 切换也触发牛角包熊转场
-        this.playVideoTransition(doSwitch);
+        // 菜单 Tab 切换：内容淡出下沉 → 换画面 → 淡入浮起（丝滑无蒙版）
+        this.playMenuFade(doSwitch);
+    },
+
+    // 🌾 菜单内容渐变过场：只动菜单区域，不盖全屏，柔和不生硬
+    playMenuFade: function (callback) {
+        if (this.isMaskTransitioning) { if (callback) callback(); return; }
+        this.isMaskTransitioning = true;
+
+        if (!this._menuFadeCss) {
+            this._menuFadeCss = true;
+            $('<style>' +
+              '.mrj-fade-zone{transition:opacity .28s ease,transform .28s ease}' +
+              '.mrj-fade-out{opacity:0 !important;transform:translateY(14px)}' +
+              '</style>').appendTo('head');
+        }
+
+        // 只对菜单内容 + 顶部横幅做过渡（不是全屏蒙版）
+        const $zone = $('#bakery-menu-container, .menu-hero-banner-container');
+        $zone.addClass('mrj-fade-zone');
+
+        // ① 淡出 + 轻微下沉
+        $zone.addClass('mrj-fade-out');
+        setTimeout(() => {
+            // ② 在看不见的时候换内容
+            if (callback) callback();
+            // ③ 强制回流后淡入浮起（双 rAF 确保浏览器先应用了隐藏态）
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    $zone.removeClass('mrj-fade-out');
+                    setTimeout(() => {
+                        $zone.removeClass('mrj-fade-zone');
+                        this.isMaskTransitioning = false;
+                    }, 300);
+                });
+            });
+        }, 280);
     },
 
     bindEvents: function () {
@@ -857,17 +892,20 @@ MaiRijiApp.prototype = {
             setTimeout(() => {
                 this.closeCheckoutModal();
 
-                window.MRJMailbox.placeOrder(this, {
+                const orderData = {
                     name: name,
                     phone: phone,
                     address: address,
                     date: date,
                     deliveryZone: deliveryZoneText
-                });
-
-                $('#thankyou-modal-backdrop').addClass('show');
-                $('#thankyou-modal').addClass('show');
-                this.$els.body.addClass('no-scroll');
+                };
+                if (window.MRJMailbox && window.MRJMailbox.placeOrder) {
+                    window.MRJMailbox.placeOrder(this, orderData);
+                } else {
+                    // 插件没加载成功时兜底：走原来的 WhatsApp 流程
+                    this.checkoutWhatsApp(orderData);
+                }
+                // 感谢弹窗改由插件在提交成功后显示（失败保留购物车+WhatsApp兜底）
 
                 $btn.removeClass('clicked');
             }, 800);
@@ -2130,14 +2168,45 @@ MaiRijiApp.prototype = {
             }
         };
 
+        // 🌙 后台兜底 1：timeupdate 在切后台时依然触发（rAF 会停），
+        //    保证 2.7 秒的视图切换回调不会因为切后台而漏掉
+        const timeupdateHandler = () => {
+            if (!callbackExecuted && videoEl.currentTime >= switchTime) {
+                callbackExecuted = true;
+                if (callback) callback();
+            }
+        };
+        videoEl.addEventListener('timeupdate', timeupdateHandler);
+
+        // 🌙 后台兜底 2：切回前台时，若视频被浏览器暂停就续播，并重启渲染循环
+        const visibilityHandler = () => {
+            if (document.hidden || !this.isVideoTransitioning) return;
+            if (videoEl.paused && !videoEl.ended) {
+                videoEl.play().catch(() => {});
+            }
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(updateTransition);
+        };
+        document.addEventListener('visibilitychange', visibilityHandler);
+
+        // 🌙 后台兜底 3：超时保险丝——就算 ended 事件在后台丢了，也强制收尾
+        let safetyTimer = null;
+        const armSafety = () => {
+            const dur = (videoEl.duration && !isNaN(videoEl.duration)) ? videoEl.duration : 4.5;
+            safetyTimer = setTimeout(() => { if (this.isVideoTransitioning) endedHandler(); }, dur * 1000 + 2000);
+        };
+
         const endedHandler = () => {
             // 停止高频渲染循环
             if (rafId) cancelAnimationFrame(rafId);
+            if (safetyTimer) clearTimeout(safetyTimer);
 
             $transitionLayer.removeClass('active');
             $transitionLayer.css('background-color', 'transparent');
             
             videoEl.removeEventListener('ended', endedHandler);
+            videoEl.removeEventListener('timeupdate', timeupdateHandler);
+            document.removeEventListener('visibilitychange', visibilityHandler);
             
             if (!callbackExecuted) {
                 callbackExecuted = true;
@@ -2147,6 +2216,7 @@ MaiRijiApp.prototype = {
         };
 
         videoEl.addEventListener('ended', endedHandler);
+        armSafety();
 
         // 4. 开始播放
         const playPromise = videoEl.play();

@@ -1,0 +1,5 @@
+['mrj_web_token','mrj_status_cache','mrj_faq_log','mrj_seen_shop_n','mrj_wa_snaps']
+  .forEach(k=>localStorage.removeItem(k));
+Object.keys(localStorage).filter(k=>k.indexOf('mrj_seen_at_')===0)
+  .forEach(k=>localStorage.removeItem(k));
+location.reload();
