@@ -337,7 +337,7 @@
     }
     fetchAndApply(true);
     clearInterval(pollTimer);
-    pollTimer = setInterval(function () { fetchAndApply(false); }, 15000);
+    pollTimer = setInterval(function () { if (!document.hidden) fetchAndApply(false); }, 15000);
   }
   function hideOrders() {
     backdrop.classList.remove('show'); modal.classList.remove('show');
@@ -843,6 +843,7 @@
 
   /* ---------- 后台轻监听：店家回复提醒（订单窗关着也能收到） ---------- */
   function bgWatch() {
+    if (document.hidden) return;                        /* 页面切后台不打服务器（省配额省电） */
     if (modal.classList.contains('show')) return;      /* 窗开着由主轮询负责 */
     var cached = loadCache();
     if (!cached || !cached.orders || !cached.orders.length) return;
