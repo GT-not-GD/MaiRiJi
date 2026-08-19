@@ -72,6 +72,8 @@
 '.mrj-li .st.ok{background:#eaf2e3;color:#7c9d5f}',
 '.mrj-li .st.bad{background:#fbeae7;color:#b0503f}',
 '.mrj-li.cxl .li-t{text-decoration:line-through;color:#b3a28c;font-weight:400}',
+'.mrj-li-ask{border-top:1px dashed #e0d0bd;border-radius:0 0 10px 10px;margin-top:4px;padding-top:12px}',
+'.mrj-li-ask .li-t{color:#8b5e3c}',
 '.mrj-li-dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%;background:#d9534f;display:none;box-shadow:0 0 0 2px #faf5ec}',
 '.mrj-back{display:none;align-items:center;gap:4px;font-size:13px;font-weight:700;color:#8b5e3c;cursor:pointer;margin-bottom:10px}',
 '@media (max-width:640px){',
@@ -333,6 +335,7 @@
     }
     if (!painted) {
       if (placing) { document.getElementById('mrj-obody').innerHTML = ''; renderPlacing(); }
+      else if (selectedOid === 'ask') { lastData = { ok: true, orders: [], msgs: [] }; renderFull(lastData); } /* 客服咨询：无缓存也直接渲染 */
       else document.getElementById('mrj-obody').innerHTML = '<div class="mrj-empty"><span>🍞</span>' + (isEn() ? 'Loading…' : '加载中…') + '</div>';
     }
     fetchAndApply(true);
@@ -439,20 +442,16 @@
       selectedOid = placing.orderId;
       placing = null;
     }
-    if (!r.orders.length) {
-      body.innerHTML = placing ? '' : '<div class="mrj-empty" style="flex:1"><span>🌾</span>' + (en ? 'No orders yet.<br>Pick something you love from our menu!' : '还没有订单记录<br>去菜单挑选喜欢的面包吧～') + '</div>';
-      renderPlacing();
-      return;
-    }
+    /* 无订单也不早退：客服咨询入口恒在（v4.12） */
     var ordersSorted = r.orders.slice().sort(function (a, b) {
       var ca = a.status.indexOf('cancelled') === 0 ? 1 : 0;
       var cb = b.status.indexOf('cancelled') === 0 ? 1 : 0;
       if (ca !== cb) return ca - cb; /* 已取消沉底 */
       return (b.order.at || 0) - (a.order.at || 0);
     });
-    /* 选中项失效时默认选第一单 */
-    if (!selectedOid || !ordersSorted.some(function (w) { return w.orderId === selectedOid; })) {
-      selectedOid = ordersSorted[0].orderId;
+    /* 选中项失效时：有订单选第一单，没订单选客服咨询 */
+    if (!selectedOid || (selectedOid !== 'ask' && !ordersSorted.some(function (w) { return w.orderId === selectedOid; }))) {
+      selectedOid = ordersSorted.length ? ordersSorted[0].orderId : 'ask';
     }
 
     /* 左栏：订单列表 */
@@ -468,11 +467,17 @@
         '</div>';
     }).join('');
 
+    /* 💬 客服咨询：常驻入口（不需要有订单） */
+    listHtml += '<div class="mrj-li mrj-li-ask' + (selectedOid === 'ask' ? ' sel' : '') + '" data-li="ask">' +
+      '<div class="li-t">💬 ' + (en ? 'Chat with us' : '客服咨询') + '</div>' +
+      '<div class="li-s">' + (en ? 'Custom orders & questions' : '定制 / 送礼 / 任何问题') + '</div>' +
+      '<span class="mrj-li-dot"' + (orderUnread(r, 'ask') && selectedOid !== 'ask' ? ' style="display:block"' : '') + '></span></div>';
+
     body.innerHTML = '<div class="mrj-split' + (mobDetail ? ' mob-detail' : '') + '">' +
       '<div class="mrj-list" id="mrj-list">' + listHtml + '</div>' +
       '<div class="mrj-detail" id="mrj-detail"></div></div>';
 
-    /* 右栏：选中订单的详情 */
+    /* 右栏：选中订单的详情（或客服咨询） */
     renderDetailPane(r, ordersSorted.filter(function (w) { return w.orderId === selectedOid; })[0]);
 
     /* 左栏点击切换 */
@@ -498,8 +503,24 @@
   /* 右栏渲染：一次只显示一个订单的进度+聊天 */
   function renderDetailPane(r, w) {
     var pane = document.getElementById('mrj-detail');
-    if (!pane || !w) { if (pane) pane.innerHTML = ''; return; }
+    if (!pane) return;
     var en = isEn();
+    /* 💬 客服咨询频道：无订单也能聊 */
+    if (selectedOid === 'ask') {
+      pane.innerHTML = '<div class="mrj-back" id="mrj-back">‹ ' + (en ? 'Back' : '返回') + '</div>' +
+        '<div class="mrj-title">💬 ' + (en ? 'Chat with MaiRiJi' : '客服咨询') + '</div>' +
+        '<div class="mrj-meta">' + (en ? 'Custom cakes, corporate gifts, or any questions' : '定制蛋糕 / 企业送礼 / 合作洽谈 / 任何问题') + '</div>' +
+        '<div class="mrj-chatwrap"><div class="mrj-chat" data-chat="ask"></div>' +
+        '<div class="mrj-newpill" data-pill="ask">↓ ' + (en ? 'New message' : '新消息') + '</div></div>' +
+        '<div class="mrj-inrow"><input type="text" maxlength="300" placeholder="' + (en ? 'Message us…' : '想问什么直接说～') + '" data-inp="ask"><button data-send="ask">' + (en ? 'Send' : '发送') + '</button></div>';
+      fillMsgs('ask', collectMsgs(r, 'ask'), true);
+      bindCardEvents(pane);
+      markOrderSeen('ask');
+      var bk = document.getElementById('mrj-back');
+      if (bk) bk.addEventListener('click', function () { mobDetail = false; renderFull(lastData || r); });
+      return;
+    }
+    if (!w) { pane.innerHTML = ''; return; }
     var o = w.order;
     var cancelled = w.status.indexOf('cancelled') === 0;
     var stepNames = en ? ['Pending', 'Confirmed', 'Baking', 'Ready', 'Delivered'] : ['待确认', '已确认', '制作中', '已完成', '已送达'];
@@ -574,7 +595,14 @@
     if (!chat) return;
     renderedKeys[orderId] = renderedKeys[orderId] || {};
     if (!msgs.length) {
-      chat.innerHTML = '<div class="mrj-spacer"></div><div class="mrj-chat-empty">' + (isEn() ? 'Questions? Leave us a message below.' : '有问题可以在下面留言，我们会尽快回复～') + '</div>';
+      if (orderId === 'ask') {
+        /* 开场白（本地显示，不占数据）：附 WhatsApp 可选跳转 */
+        chat.innerHTML = '<div class="mrj-spacer"></div><div class="mrj-bb s">' + (isEn()
+          ? '👋 Hello, this is MaiRiJi! Custom cakes, corporate gifts, or any questions — just leave a message and we will reply soon.<br>Prefer WhatsApp? <u class="mrj-wa-chat" style="cursor:pointer">Tap here to chat on WhatsApp</u>'
+          : '👋 您好，这里是麦日记！定制蛋糕、企业送礼、合作洽谈或任何问题，直接留言，我们会尽快回复您～<br>若您更习惯用 WhatsApp，<u class="mrj-wa-chat" style="cursor:pointer">点这里跳转 WhatsApp 聊</u>') + '</div>';
+      } else {
+        chat.innerHTML = '<div class="mrj-spacer"></div><div class="mrj-chat-empty">' + (isEn() ? 'Questions? Leave us a message below.' : '有问题可以在下面留言，我们会尽快回复～') + '</div>';
+      }
       return;
     }
     /* 顶部弹性占位：消息少时把气泡压到底部（固定高度聊天框专用） */
@@ -585,7 +613,7 @@
 
   /* ---------- 增量：只追加新消息（不动滚动位置，不在底部则显示泡泡） ---------- */
   function applyMsgDelta(r) {
-    r.orders.forEach(function (w) {
+    r.orders.concat([{ orderId: 'ask' }]).forEach(function (w) {
       var chat = document.querySelector('[data-chat="' + w.orderId + '"]');
       if (!chat) {
         /* 非选中订单：没有聊天框，只点亮左栏红点 */
@@ -778,8 +806,16 @@
 
   /* 聊天里的文字链接（事件委托：重开窗口/缓存重画后依然可点） */
   modal.addEventListener('click', function (e) {
-    var u = e.target.closest ? e.target.closest('.mrj-do-cancel, .mrj-wa-send') : null;
+    var u = e.target.closest ? e.target.closest('.mrj-do-cancel, .mrj-wa-send, .mrj-wa-chat') : null;
     if (!u) return;
+    if (u.classList.contains('mrj-wa-chat')) {
+      var waN = (window.app && window.app.config && window.app.config.waNumber) || '601115277643';
+      var txt = isEn() ? 'Hello MaiRiJi! I would like to inquire about custom orders.' : '你好，麦日记！我想咨询关于预定与客制化烘焙的问题。';
+      var wurl = 'https://wa.me/' + waN + '?text=' + encodeURIComponent(txt);
+      var w3 = window.open(wurl, '_blank');
+      if (!w3 || w3.closed || typeof w3.closed === 'undefined') location.href = wurl;
+      return;
+    }
     if (u.classList.contains('mrj-do-cancel')) {
       mrjConfirm(
         isEn() ? 'Really cancel this order?' : '真的要取消这笔订单吗？',
@@ -1092,6 +1128,9 @@
       doPlace();
     },
     showOrders: showOrders,
+
+    /* 💬 打开客服咨询频道（「预定与专属客服」卡片入口） */
+    openAsk: function () { selectedOid = 'ask'; mobDetail = true; showOrders(); },
 
     /* 🌟 VIP 注册：称呼+电话写进信箱 customers 表（同一 token，麦粒积分自动挂钩） */
     vipRegister: function (name, phone) {

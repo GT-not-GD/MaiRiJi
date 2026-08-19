@@ -402,6 +402,7 @@ MaiRijiApp.prototype = {
 
         this.renderProductGroup('bread', this.breadProducts, this.t('menu.bread_title'));
         this.renderProductGroup('cake', this.cakeProducts, this.t('menu.cake_title'));
+        this.reconcileCart(); /* 价格改动/商品下架 → 旧购物车自动对账 */
     },
 
     shuffleArray: function (array) {
@@ -452,7 +453,7 @@ MaiRijiApp.prototype = {
                     <div class="card-information" style="padding-top: 10px; text-align: center;">
                         <div class="card-information__wrapper">
                             <span class="card-information__text">${item.name}</span>
-                            <div class="price"><span class="price-item">RM ${item.price}</span></div>
+                            <div class="price">${item.oldPrice ? `<span class="price-old">RM ${item.oldPrice}</span> ` : ''}<span class="price-item ${item.oldPrice ? 'price-promo' : ''}">RM ${item.price}</span></div>
                         </div>
                     </div>
                 </a>
@@ -618,6 +619,14 @@ MaiRijiApp.prototype = {
     },
 
     bindEvents: function () {
+        /* 💰 促销价样式（划线原价 + 红色现价），一次性注入 */
+        if (!document.getElementById('mrj-promo-css')) {
+            const st = document.createElement('style');
+            st.id = 'mrj-promo-css';
+            st.textContent = '.price-old{text-decoration:line-through;color:#b3a28c;font-size:.85em;margin-right:4px}' +
+                '.price-promo{color:#c0392b;font-weight:700}';
+            document.head.appendChild(st);
+        }
         this.initStickyNav();
 
         $('#lang-float').off('click').on('click', (e) => {
@@ -1152,11 +1161,16 @@ MaiRijiApp.prototype = {
         $(document).on('click', '.quick-link-card', (e) => {
             const tab = $(e.currentTarget).data('guide-tab');
             if (tab === 'contact') {
+                /* v4.12：不再跳 WhatsApp，打开站内客服咨询聊天（开场白里有 WhatsApp 可选链接） */
+                if (window.MRJMailbox && window.MRJMailbox.openAsk) {
+                    window.MRJMailbox.openAsk();
+                    return;
+                }
+                /* 插件没加载时兜底：老流程跳 WhatsApp */
                 const isEn = this.getCurrentLanguage() === 'en';
                 const waMessage = this.t('contact.wa_msg') || (isEn ? 
                     "Hello MaiRiji! I would like to inquire about custom orders and pre-orders." : 
                     "你好，麦日记！我想咨询关于预定与客制化烘焙的问题。");
-                
                 const waUrl = `https://wa.me/${this.config.waNumber}?text=${encodeURIComponent(waMessage)}`;
                 window.open(waUrl, '_blank');
                 return;
@@ -1341,8 +1355,13 @@ MaiRijiApp.prototype = {
             $stickyBtn.html(inqBtnInnerHtml);
 
         } else {
-            els.detailPrice.text(`RM ${item.price}`);
-            $('#sticky-price').text(`RM ${item.price}`);
+            if (item.oldPrice) {
+                els.detailPrice.html(`<span class="price-old">RM ${item.oldPrice}</span> <span class="price-promo">RM ${item.price}</span>`);
+                $('#sticky-price').html(`<span class="price-old" style="font-size:.85em">RM ${item.oldPrice}</span> RM ${item.price}`);
+            } else {
+                els.detailPrice.text(`RM ${item.price}`);
+                $('#sticky-price').text(`RM ${item.price}`);
+            }
 
             $qtySelector.show();
 
@@ -1764,6 +1783,35 @@ MaiRijiApp.prototype = {
             return saved ? JSON.parse(saved) : [];
         } catch (e) {
             return [];
+        }
+    },
+
+    /* 🛒 购物车对账（v4.13）：产品数据加载后调用——
+     * ① 价格以最新 products.json 为准（改价后旧购物车自动更新）
+     * ② 已下架（不在菜单里）的商品自动移除并提示顾客 */
+    reconcileCart: function () {
+        if (!this.cart || !this.cart.length) return;
+        const all = [...(this.breadProducts || []), ...(this.cakeProducts || [])];
+        if (!all.length) return; /* 数据没加载成功时不动购物车 */
+        const isEn = this.getCurrentLanguage() === 'en';
+        const removed = [];
+        let changed = false;
+        this.cart = this.cart.filter(it => {
+            const p = all.find(x => x.id === it.id);
+            if (!p) { removed.push(it.name); changed = true; return false; } /* 下架商品移除 */
+            const now = parseFloat(p.price);
+            if (!isNaN(now) && now !== it.price) { it.price = now; changed = true; } /* 价格同步 */
+            if (p.name && p.name !== it.name) { it.name = p.name; changed = true; }  /* 名称同步（改名/换语言） */
+            return true;
+        });
+        if (changed) {
+            this.saveCart();
+            this.updateCartUI();
+            if (removed.length) {
+                this.showToast(isEn
+                    ? `Removed from basket (no longer available): ${removed.join(', ')}`
+                    : `已从购物篮移除（暂时下架）：${removed.join('、')}`);
+            }
         }
     },
 

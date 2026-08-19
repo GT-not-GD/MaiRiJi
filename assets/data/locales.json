@@ -68,8 +68,8 @@
       "card3_desc": "18小时低温慢发酵、预定下单流程与排单答疑。",
       "card3_btn": "阅读常见解答",
       "card4_title": "预定与专属客服",
-      "card4_desc": "有特殊需求或企业送礼定制？随时与我们二次沟通。",
-      "card4_btn": "WhatsApp 联系",
+      "card4_desc": "有特殊需求或企业送礼定制？直接在站内和我们聊。",
+      "card4_btn": "在线咨询",
       "modal_title": "服务指南与常见问题",
       "tab_delivery": "🛵 配送自提",
       "tab_care": "🌾 保存加热",
@@ -94,7 +94,7 @@
       "faq_q1": "⏱️ 1. 为什么要提前至少 1 天预定？",
       "faq_a1": "我们的酸种欧包采用传统纯手作与天然酵母发酵，需经过 18 小时以上的低温慢发酵排单。因此不接受突发即时订单，请提前预定以便为您准备面团。",
       "faq_q2": "📱 2. 如何确认我的订单？",
-      "faq_a2": "选好商品点「发送订单」后，订单会直接送达麦日记。您可以随时在「我的订单」（购物车底部入口）查看进度条：待确认 → 已确认 → 制作中 → 已完成 → 已送达。我们确认后会在订单聊天里回复您，有任何问题也可以直接在里面留言～"
+      "faq_a2": "选好商品点「发送订单」后，订单会直接送达麦日记。您可以随时在「我的订单」（购物车底部入口）查看进度：待确认 → 已确认 → 制作中 → 已完成 → 已送达。我们确认后会在订单聊天里回复您，有任何问题也可以直接在里面留言～"
     },
     "cart": {
       "title": "你的购物篮",
@@ -254,8 +254,8 @@
       "card3_desc": "18-hour slow fermentation, ordering process, and baking schedule FAQ.",
       "card3_btn": "Read FAQ",
       "card4_title": "Custom Orders & Support",
-      "card4_desc": "Special requests or gift orders? Get in touch with us on WhatsApp anytime.",
-      "card4_btn": "WhatsApp Us",
+      "card4_desc": "Special requests or gift orders? Chat with us right here.",
+      "card4_btn": "Chat with Us",
       "modal_title": "Customer Guides & FAQ",
       "tab_delivery": "🛵 Delivery & Pickup",
       "tab_care": "🌾 Care & Storage",
