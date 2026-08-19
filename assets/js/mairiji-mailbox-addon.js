@@ -1168,8 +1168,8 @@
           : '你好麦日记！我要找回我的麦友档案，我的验证码：' + r.code;
         mrjConfirm(
           en ? 'This phone already has a VIP profile' : '这个电话已经有麦友档案了',
-          en ? 'To protect your points, please send the code <b style="font-size:16px">' + r.code + '</b> to us via WhatsApp <b>from this phone number</b>. We will approve and restore your profile & points shortly.'
-             : '为保护您的积分，请<b>用这个电话号码的 WhatsApp</b> 把验证码 <b style="font-size:16px">' + r.code + '</b> 发给我们。店家确认是您本人后，档案和积分马上恢复～',
+          en ? 'To protect your points, please send the code <b style="font-size:16px">' + r.code + '</b> to us via WhatsApp <b>from this phone number</b>. Verification takes <b>1-3 working days</b>; your profile & points will be restored automatically once approved.'
+             : '为保护您的积分，请<b>用这个电话号码的 WhatsApp</b> 把验证码 <b style="font-size:16px">' + r.code + '</b> 发给我们。审核需要 <b>1-3 个工作日</b>，通过后档案和积分会自动恢复～',
           en ? 'Open WhatsApp' : '打开 WhatsApp 发送',
           en ? 'Later' : '稍后再说'
         ).then(function (yes) {
