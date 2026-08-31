@@ -930,6 +930,24 @@
     b.addEventListener('click', showOrders);
     vipBtn.parentNode.insertBefore(b, vipBtn.nextSibling);
   }
+  /* 🎟 WhatsApp 认领链接：#claim=码 → 自动把店内建的订单挂到本浏览器账号 */
+  function handleClaim() {
+    var m = (location.hash || '').match(/#claim=([a-z0-9]+)/i);
+    if (!m) return;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    post({ action: 'claim_order', token: getToken(), code: m[1] }).then(function (r) {
+      if (r.ok) {
+        try { localStorage.removeItem('mrj_status_cache'); } catch (e) {}
+        miniNote.textContent = isEn() ? '🍞 Order linked! Tap to track your bread' : '🍞 订单已绑定！点击查看面包进度';
+        miniNote.style.display = 'block';
+        setTimeout(showOrders, 800);
+      } else {
+        mrjAlert(isEn() ? 'Link expired or already used.' : '认领链接已失效或已被使用～有疑问请 WhatsApp 我们');
+      }
+    }).catch(function () {});
+  }
+  handleClaim();
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { injectEntry(); injectHeaderBtn(); });
   else { injectEntry(); injectHeaderBtn(); }
   setTimeout(function () { injectEntry(); injectHeaderBtn(); }, 2000);
