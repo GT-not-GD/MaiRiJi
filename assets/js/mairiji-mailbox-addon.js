@@ -938,7 +938,13 @@
     post({ action: 'claim_order', token: getToken(), code: m[1] }).then(function (r) {
       if (r.ok) {
         try { localStorage.removeItem('mrj_status_cache'); } catch (e) {}
-        miniNote.textContent = isEn() ? '🍞 Order linked! Tap to track your bread' : '🍞 订单已绑定！点击查看面包进度';
+        /* 👑 顺手建 VIP：服务端已入 customers 表，本地写档案（不覆盖已有的） */
+        try {
+          if (r.name && !localStorage.getItem('mairiji_cust_name')) localStorage.setItem('mairiji_cust_name', r.name);
+          if (r.phone && !localStorage.getItem('mairiji_cust_phone')) localStorage.setItem('mairiji_cust_phone', r.phone);
+          if (window.app && window.app.updateVIPBtnUI) window.app.updateVIPBtnUI();
+        } catch (e) {}
+        miniNote.textContent = isEn() ? '🍞 Order linked! You are now a VIP member too' : '🍞 订单已绑定！已顺手为您开通麦友档案 👑';
         miniNote.style.display = 'block';
         setTimeout(showOrders, 800);
       } else {
@@ -1212,12 +1218,44 @@
         div.style.cssText = 'margin-top:10px;padding-top:8px;border-top:1px dashed #d8c8b7';
         div.innerHTML = '<span style="font-size:12px;color:#888">' + (en ? 'Wheat Points: ' : '麦粒积分：') + '</span>' +
           '<strong id="mrj-vip-points" style="font-size:17px;color:#8b5e3c;margin-left:4px">…</strong>' +
-          '<span style="font-size:11px;color:#b3a28c;margin-left:6px">' + (en ? '(RM1 spent = 1 point)' : '（消费 RM1 = 1 粒）') + '</span>';
+          '<span style="font-size:11px;color:#b3a28c;margin-left:6px">' + (en ? '(RM1 spent = 1 point)' : '（消费 RM1 = 1 粒）') + '</span>' +
+          '<u id="mrj-edit-name" style="display:block;margin-top:8px;font-size:12px;color:#8b5e3c;cursor:pointer">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</u>';
         card.appendChild(div);
         box = document.getElementById('mrj-vip-points');
       }
       /* 缓存秒显 */
       box.textContent = localStorage.getItem('mrj_vip_points') || '0';
+      /* ✏ 改昵称：随时改、无限次（本地+customers表同步；不动积分不动电话） */
+      var eb = document.getElementById('mrj-edit-name');
+      if (eb && !eb._bound) {
+        eb._bound = 1;
+        eb.addEventListener('click', function () {
+          /* 自制输入弹窗（不用系统 prompt——会让自定义鼠标消失） */
+          var cur = localStorage.getItem('mairiji_cust_name') || '';
+          cfmBox.innerHTML = '<div class="t">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</div>' +
+            '<input id="mrj-nn-inp" type="text" maxlength="40" value="' + escB(cur) + '" style="width:100%;box-sizing:border-box;border:1px solid #d8c8b7;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;margin-bottom:14px;color:#3d2c1c" />' +
+            '<div class="btns"><button class="no">' + (en ? 'Cancel' : '取消') + '</button><button class="ok">' + (en ? 'Save' : '保存') + '</button></div>';
+          cfmBd.classList.add('show'); cfmBox.classList.add('show');
+          var inp = document.getElementById('mrj-nn-inp');
+          setTimeout(function () { inp.focus(); inp.select(); }, 80);
+          function done2() { cfmBd.classList.remove('show'); cfmBox.classList.remove('show'); cfmBd.onclick = null; }
+          function save2() {
+            var nn = String(inp.value).trim().slice(0, 40);
+            done2();
+            if (!nn || nn === cur) return;
+            localStorage.setItem('mairiji_cust_name', nn);
+            var pn = document.getElementById('profile-display-name');
+            if (pn) pn.textContent = nn;
+            if (window.app && window.app.updateVIPBtnUI) window.app.updateVIPBtnUI();
+            post({ action: 'vip_register', token: getToken(), name: nn,
+                   phone: localStorage.getItem('mairiji_cust_phone') || '' }).catch(function () {});
+          }
+          cfmBox.querySelector('.ok').onclick = save2;
+          cfmBox.querySelector('.no').onclick = done2;
+          cfmBd.onclick = done2;
+          inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') save2(); });
+        });
+      }
       /* 后台刷新（my_status 已带 vip 字段，无需新接口） */
       post({ action: 'my_status', token: getToken() }).then(function (r) {
         if (r.ok && r.vip) {
