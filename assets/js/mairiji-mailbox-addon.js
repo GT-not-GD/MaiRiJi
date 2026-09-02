@@ -232,20 +232,22 @@
   /* 🔑 重复档案横幅：同电话有旧档案（旧积分在别的设备上），点击去验证合并。
    * 常驻页面顶部，验证合并完成后自动消失 */
   var dupBanner = null;
-  /* v4.18：横幅改为「挤下去」而不是「盖上去」——
-   * 旧版 position:fixed 盖在官网导览栏上，把 LOGO/菜单全挡住。
-   * 新版插到 body 最前面占文档流（页面整体下移），同时把 fixed 定位的
-   * .main-header 往下推同样的高度，谁都不挡谁。关闭横幅即复原 */
+  /* v4.19：横幅「固定+不遮挡」——
+   * v4.18 的文档流方案有缺陷：往下滑横幅就跟着滚走了（用户反馈）。
+   * 正解：横幅 fixed 固定在最顶（滑到哪都在），同时把同为 fixed 的
+   * .main-header 往下推横幅的高度——两个都固定、上下排开、谁也不挡谁 */
   function dupBannerShift(on) {
     var h = on && dupBanner ? dupBanner.offsetHeight : 0;
     var hd = document.querySelector('.main-header');
     if (hd) hd.style.top = h ? h + 'px' : '';
+    /* 页面内容也垫一下，防止横幅盖住页面最顶部的内容 */
+    document.body.style.paddingTop = h ? h + 'px' : '';
   }
   function showDupBanner() {
     if (dupBanner) { dupBanner.style.display = 'flex'; dupBannerShift(true); return; }
     dupBanner = document.createElement('div');
     dupBanner.id = 'mrj-dup-banner';
-    dupBanner.style.cssText = 'position:relative;z-index:2001;background:#f7ece1;border-bottom:1px solid #d9a05b;color:#5a3a22;font-size:13px;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(60,42,26,.12)';
+    dupBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2001;background:#f7ece1;border-bottom:1px solid #d9a05b;color:#5a3a22;font-size:13px;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(60,42,26,.12)';
     var en = isEn();
     var pts = '';
     try { var c = JSON.parse(localStorage.getItem('mrj_status_cache') || 'null'); if (c && c.vip && c.vip.dupPoints) pts = c.vip.dupPoints; } catch (e) {}
@@ -254,7 +256,7 @@
           : '检测到这个电话已有麦友档案' + (pts ? '（' + pts + ' 麦粒）' : '') + '，验证后即可合并积分～') +
       '<button id="mrj-dup-go" style="border:none;background:#8b5e3c;color:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">' + (en ? 'Verify now' : '立即验证') + '</button>' +
       '<button id="mrj-dup-x" style="border:none;background:none;color:#a8977f;font-size:18px;cursor:pointer;line-height:1">&times;</button>';
-    document.body.insertBefore(dupBanner, document.body.firstChild); /* 占文档流：页面被挤下去 */
+    document.body.appendChild(dupBanner); /* fixed 固定顶部：滑动不消失 */
     dupBannerShift(true);
     window.addEventListener('resize', function () { if (dupBanner && dupBanner.style.display !== 'none') dupBannerShift(true); });
     document.getElementById('mrj-dup-go').addEventListener('click', function () {
@@ -497,9 +499,8 @@
           var old = lastData.orders.filter(function (x) { return x.orderId === w.orderId; })[0];
           return !old || old.status !== w.status;
         }) ||
-        /* 🚚 v4.14：拼单进度变化也整体重绘（进度条要动起来）；v4.17 预期日期变化同理 */
-        ((r.pool && r.pool.sum) || 0) !== ((lastData.pool && lastData.pool.sum) || 0) ||
-        ((r.pool && r.pool.eta) || '') !== ((lastData.pool && lastData.pool.eta) || '');
+        /* 🚚 拼单进度/预期日期/分组变化 → 整体重绘（v4.19 比整个 pools） */
+        JSON.stringify(r.pools || r.pool || 0) !== JSON.stringify(lastData.pools || lastData.pool || 0);
       lastData = r;
       if (structureChanged || isOpen && !document.querySelector('.mrj-split')) {
         renderFull(r); /* 订单增减/状态变化才整体重绘 */
@@ -614,9 +615,12 @@
    *        ②店家可在 APP 设置预期送货日期（pool.eta），凑单中/成团后都显示 */
   function poolHtml(r, w, en) {
     var o = w.order || {};
-    if (String(o.note || '').indexOf('等拼单') === -1) return '';
+    var gm = String(o.note || '').match(/等拼单#?(\d*)/);
+    if (!gm) return '';
     if (w.status === 'delivered' || w.status.indexOf('cancelled') === 0) return '';
-    var pool = (r && r.pool) || {};
+    /* v4.19 拼团分组：按订单自己的团号取数据（协商不拢店家会拆团，各团独立计） */
+    var grp = gm[1] || '1';
+    var pool = (r && r.pools && r.pools[grp]) || (grp === '1' && r && r.pool) || {};
     var goal = Number(pool.goal) || 50;
     var sum = Number(pool.sum) || Number(o.total) || 0;
     var n = Number(pool.n) || 1;
@@ -656,7 +660,13 @@
         ? '🚚 <b>Pooled delivery</b> — ' + n + ' order' + (n > 1 ? 's' : '') + ' pooled, RM ' + (goal - sum).toFixed(2) + ' to go. Share with friends nearby to bake it faster 🍞'
         : '🚚 <b>拼单配送中</b> — 已凑 ' + n + ' 单，还差 RM ' + (goal - sum).toFixed(2) + ' 成团。介绍邻居朋友一起下单，更快送到哦 🍞';
     }
-    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + wantsLine + etaLine +
+    /* 第2团及以后：标注团号+说明（顾客知道自己被安排到新团，不是掉队） */
+    var grpLine = grp !== '1'
+      ? '<div style="margin-top:4px;font-size:11px;opacity:.8">ℹ️ ' +
+        (en ? 'You are in pool #' + grp + ' (dates could not align with the earlier pool — this one ships separately).'
+            : '您在 ' + grp + ' 号团（与前团时间对不上，本团单独凑单配送，互不影响）。') + '</div>'
+      : '';
+    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + grpLine + wantsLine + etaLine +
       '<div class="pool-bar"><div class="pool-fill" style="width:' + pct + '%"></div></div>' +
       '<span style="font-size:11px;opacity:.75">' + pct + '%' + (full ? '' : (en ? ' · updates automatically' : ' · 进度自动更新')) + '</span></div>';
   }
