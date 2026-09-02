@@ -42,6 +42,7 @@
     { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已在发酵制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊' },
     { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；已经确认的订单请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
     { q: '配送范围和费用？', a: '目前 Tanjong Sepat 地区送货上门，Banting 需事先沟通安排，其他区域建议到店自提。有疑问请留言您的地址～' },
+    { q: '什么是拼单配送？', a: '拼单就是把同方向的订单凑在一起、一趟车一起送，帮大家省路费、也更环保 🍞 当同区凑满一定金额就「成团」，我们会协调一个大家都方便的日期统一配送。您在订单详情里能看到所在的「N 号团」和拼单进度条；成团后会显示「预计送货」日期（具体时间我们仍会再和您确认）。介绍邻居朋友一起下单，可以更快凑满、更快送到哦～' },
     { q: '面包如何保存？', a: '欧包常温密封可放 2 天；切片冷冻可保存 2 周，吃前 180°C 回烤 5 分钟风味最佳。芝士蛋糕请冷藏并在 3 天内享用～' },
     { q: '我想取消订单', a: '', cancel: true }, /* 动态回答 */
   ];
@@ -51,7 +52,7 @@
   css.textContent = [
 '#mrj-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(60,42,26,.45);backdrop-filter:blur(2px);z-index:100000;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}',
 '#mrj-backdrop.show{opacity:1;visibility:visible}',
-'#mrj-orders-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-45%);width:94%;max-width:720px;background:#fdf9f3;border-radius:14px;box-shadow:0 12px 36px rgba(60,42,26,.25);z-index:100001;opacity:0;visibility:hidden;transition:transform .3s,opacity .3s,visibility .3s;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;overflow:hidden}',
+'#mrj-orders-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-45%);width:96%;max-width:820px;background:#fdf9f3;border-radius:14px;box-shadow:0 12px 36px rgba(60,42,26,.25);z-index:100001;opacity:0;visibility:hidden;transition:transform .3s,opacity .3s,visibility .3s;height:90vh;height:90dvh;max-height:760px;display:flex;flex-direction:column;overflow:hidden}',
 '#mrj-orders-modal.show{opacity:1;visibility:visible;transform:translate(-50%,-50%)}',
 '.mrj-oh{display:flex;justify-content:space-between;align-items:center;padding:18px 22px 12px;border-bottom:1px dashed #e0d0bd;flex:none}',
 '.mrj-oh h3{margin:0;font-family:"Playfair Display","Noto Serif SC",serif;font-size:19px;font-weight:700;color:#5a3a22}',
@@ -60,9 +61,13 @@
 '#mrj-vip-mini:hover{background:#f4eae0 !important}',
 '.mrj-ob{overflow:hidden;padding:0;flex:1;display:flex;min-height:0}',
 /* 左右分栏：左=订单列表，右=详情+聊天 */
-'.mrj-split{display:flex;width:100%;min-height:min(420px,70vh)}',
+'.mrj-split{display:flex;width:100%;flex:1 1 auto;min-height:0;max-height:100%}',
 '.mrj-list{width:200px;flex:none;border-right:1px dashed #e0d0bd;overflow-y:auto;padding:12px 10px;background:#faf5ec;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}',
-'.mrj-detail{flex:1;overflow-y:auto;padding:14px 18px 18px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-width:0}',
+/* 详情栏：纵向 flex，整屏放得下不用滚（聊天框弹性伸缩，输入框永远钉在底部可见） */
+'.mrj-detail{flex:1;overflow:hidden;padding:14px 18px 18px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-width:0;min-height:0;display:flex;flex-direction:column}',
+'.mrj-detail>.mrj-back,.mrj-detail>.mrj-title,.mrj-detail>.mrj-meta,.mrj-detail>.mrj-steps,.mrj-detail>.mrj-cancelled,.mrj-detail>.mrj-faq,.mrj-detail>.mrj-inrow,.mrj-detail>#mrj-placing-card{flex:none}',
+/* 拼单信息可能很长：给上限 + 自己滚，绝不把输入框挤出屏幕 */
+'.mrj-detail>.mrj-pool{flex:none;max-height:26vh;overflow-y:auto}',
 '.mrj-li{position:relative;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:background .2s}',
 '.mrj-li:hover{background:#f4eae0}',
 '.mrj-li.sel{background:#fff;border-color:#eadfd0;box-shadow:0 2px 6px rgba(60,42,26,.08)}',
@@ -80,7 +85,7 @@
 ' .mrj-list{width:100%;border-right:none}',
 ' .mrj-detail{display:none}',
 ' .mrj-split.mob-detail .mrj-list{display:none}',
-' .mrj-split.mob-detail .mrj-detail{display:block}',
+' .mrj-split.mob-detail .mrj-detail{display:flex}', /* 保持纵向 flex：整屏放得下、输入框不被挤走 */
 ' .mrj-split.mob-detail .mrj-back{display:flex}',
 '}',
 '.mrj-card{background:#fff;border:1px solid #eadfd0;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(60,42,26,.05)}',
@@ -94,9 +99,10 @@
 '.mrj-step.done i{background:#7c9d5f;color:#fff}.mrj-step.done{color:#7c9d5f}',
 '.mrj-step.cur i{background:#8b5e3c;color:#fff;box-shadow:0 0 0 4px rgba(139,94,60,.18)}.mrj-step.cur{color:#5a3a22;font-weight:700}',
 '.mrj-cancelled{display:inline-block;margin:12px 0 4px;padding:5px 14px;border-radius:99px;background:#fbeae7;color:#b0503f;font-weight:700;font-size:12.5px}',
-'.mrj-chatwrap{position:relative;margin-top:14px}',
-/* 聊天框固定高度：不随内容伸缩（内容少留白、内容多滚动），按屏幕高度适配 */
-'.mrj-chat{background:#f7f0e6;border-radius:10px;padding:12px;height:clamp(220px,38vh,380px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}',
+/* 聊天框区域：弹性填充详情栏剩余空间——拼单信息长时它自动变矮，
+ * 保证下方的 FAQ + 输入框始终在一屏内可见，无需滚动 */
+'.mrj-chatwrap{position:relative;margin-top:14px;flex:1 1 auto;min-height:96px;display:flex;flex-direction:column}',
+'.mrj-chat{background:#f7f0e6;border-radius:10px;padding:12px;flex:1 1 auto;min-height:96px;max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}',
 '.mrj-chat .mrj-spacer{flex:1 0 auto}', /* 消息少时把气泡压到底部（像真聊天软件） */
 '.mrj-chat-empty{text-align:center;color:#b3a28c;font-size:12px;padding:6px 0}',
 '.mrj-bb{max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;margin-bottom:8px;line-height:1.55;box-shadow:0 1px 3px rgba(60,42,26,.08);word-break:break-word}',
@@ -120,6 +126,17 @@
 '.mrj-empty span{font-size:34px;display:block;margin-bottom:8px}',
 '@keyframes mrjspin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}',
 '.mrj-loadspin{font-size:34px;display:block;margin-bottom:8px;animation:mrjspin 1.6s ease-in-out infinite}',
+'.mrj-detail-loading{padding:26px 18px;text-align:center}',
+'.mrj-sk{height:14px;border-radius:7px;margin:12px auto 0;background:linear-gradient(90deg,#efe6d8 25%,#f7f0e6 37%,#efe6d8 63%);background-size:400% 100%;animation:mrjshimmer 1.4s ease infinite}',
+'.mrj-sk.sk1{width:70%}.mrj-sk.sk2{width:90%;height:44px;border-radius:10px}.mrj-sk.sk3{width:55%}',
+'@keyframes mrjshimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}',
+/* 首屏订单列表加载过场：几张流光骨架卡，让「订单还没出来」时有明确的加载动画 */
+'.mrj-listload{padding:16px 18px;flex:1;overflow:hidden}',
+'.mrj-listload-tip{text-align:center;color:#b3a28c;font-size:13px;line-height:1.7;margin-bottom:14px}',
+'.mrj-listload-tip .mrj-loadspin{font-size:30px}',
+'.mrj-skcard{background:#fff;border:1px solid #eadfd0;border-radius:12px;padding:15px 16px;margin-bottom:13px;box-shadow:0 2px 8px rgba(60,42,26,.05)}',
+'.mrj-skln{height:12px;border-radius:6px;background:linear-gradient(90deg,#efe6d8 25%,#f7f0e6 37%,#efe6d8 63%);background-size:400% 100%;animation:mrjshimmer 1.4s ease infinite}',
+'.mrj-skln.w1{width:60%}.mrj-skln.w2{width:38%;margin-top:10px}.mrj-skln.bar{width:100%;height:8px;margin-top:13px;border-radius:99px}',
 '#mrj-my-orders-link{display:block;text-align:center;margin:14px 16px 10px;padding:10px;font-size:13px;color:#8b5e3c;border:1px dashed #c19a6b;border-radius:8px;cursor:pointer;font-weight:700;position:relative}',
 '#mrj-my-orders-link:hover{background:#f4eae0}',
 '#mrj-my-orders-link .mrj-dot{position:absolute;top:6px;right:10px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:none}',
@@ -384,10 +401,16 @@
   }
   function renderLoading() {
     var en = isEn();
+    /* 首屏加载过场：面包转圈 + 安抚文案 + 3 张流光骨架卡（模拟订单正在加载出来），
+     * 订单接口有时较慢，用动画让顾客明确看到「正在加载」而不是空白卡住 */
+    var skCard = '<div class="mrj-skcard"><div class="mrj-skln w1"></div><div class="mrj-skln w2"></div><div class="mrj-skln bar"></div></div>';
     document.getElementById('mrj-obody').innerHTML =
-      '<div class="mrj-empty" id="mrj-loading"><span class="mrj-loadspin">🍞</span>' +
-      '<b style="color:#5a3a22">' + (en ? 'Fetching your orders…' : '正在取回您的订单…') + '</b>' +
-      '<small id="mrj-load-sub" style="margin-top:6px">' + (en ? 'Your orders are safely stored — just connecting to the bakery.' : '您的订单都好好保存着，正在连接烘焙坊～') + '</small></div>';
+      '<div class="mrj-listload" id="mrj-loading">' +
+      '<div class="mrj-listload-tip"><span class="mrj-loadspin">🍞</span>' +
+      '<b style="color:#5a3a22;display:block">' + (en ? 'Fetching your orders…' : '正在取回您的订单…') + '</b>' +
+      '<small id="mrj-load-sub" style="display:block;margin-top:4px">' + (en ? 'Your orders are safely stored — just connecting to the bakery.' : '您的订单都好好保存着，正在连接烘焙坊～') + '</small></div>' +
+      skCard + skCard + skCard +
+      '</div>';
     clearLoadTimers();
     /* 6秒还没回来：解释一下为什么慢 */
     loadT1 = setTimeout(function () {
@@ -449,6 +472,7 @@
     clearInterval(pollTimer);
     clearLoadTimers(); /* v4.16：关窗即撤加载文案定时器 */
     markShopSeen();
+    askByUser = false; /* 关窗复位：下次打开重新判定是否显示「订单加载中」 */
   }
 
   function shopMsgCount(d) {
@@ -502,8 +526,10 @@
         /* 🚚 拼单进度/预期日期/分组变化 → 整体重绘（v4.19 比整个 pools） */
         JSON.stringify(r.pools || r.pool || 0) !== JSON.stringify(lastData.pools || lastData.pool || 0);
       lastData = r;
-      if (structureChanged || isOpen && !document.querySelector('.mrj-split')) {
-        renderFull(r); /* 订单增减/状态变化才整体重绘 */
+      var firstLoad = !loadedOnce; /* 这是首次成功拿到数据 */
+      loadedOnce = true;
+      if (firstLoad || structureChanged || isOpen && !document.querySelector('.mrj-split')) {
+        renderFull(r); /* 首次到货 / 订单增减 / 状态变化 → 整体重绘（替换掉「订单加载中」占位） */
       } else {
         applyMsgDelta(r); /* 只追加新消息，不动滚动位置 */
       }
@@ -517,6 +543,8 @@
 
   /* ---------- 整体渲染（打开/结构变化时）：左右分栏 ---------- */
   var selectedOid = null;   /* 当前选中的订单（右栏显示谁） */
+  var loadedOnce = false;   /* 是否已成功拿到过一次 my_status（用于区分「订单加载中」和「真没订单」） */
+  var askByUser = false;    /* 客服咨询是否为用户主动点开（区分「主动进客服」和「订单没到的 fallback」） */
   var mobDetail = false;    /* 手机窄屏：是否处于详情页 */
 
   function orderUnread(r, orderId) {
@@ -558,9 +586,14 @@
       if (ca !== cb) return ca - cb; /* 已取消沉底 */
       return (b.order.at || 0) - (a.order.at || 0);
     });
-    /* 选中项失效时：有订单选第一单，没订单选客服咨询 */
-    if (!selectedOid || (selectedOid !== 'ask' && !ordersSorted.some(function (w) { return w.orderId === selectedOid; }))) {
-      selectedOid = ordersSorted.length ? ordersSorted[0].orderId : 'ask';
+    /* 选中项失效时：有订单选第一单；没订单时——
+     * 若用户主动点了客服咨询 / 已完成首次加载（确实没订单）→ 客服咨询；
+     * 否则（首次订单还没到）→ 用 '__loading__' 占位，右栏显示「订单加载中…」，
+     *   避免打开就直接掉进「只有客服咨询」、订单几秒后才慢慢冒出来的观感。 */
+    if (!selectedOid || selectedOid === '__loading__' ||
+        (selectedOid !== 'ask' && !ordersSorted.some(function (w) { return w.orderId === selectedOid; }))) {
+      selectedOid = ordersSorted.length ? ordersSorted[0].orderId
+        : (askByUser || loadedOnce ? 'ask' : '__loading__');
     }
 
     /* 左栏：订单列表 */
@@ -589,12 +622,22 @@
     /* 右栏：选中订单的详情（或客服咨询） */
     renderDetailPane(r, ordersSorted.filter(function (w) { return w.orderId === selectedOid; })[0]);
 
-    /* 左栏点击切换 */
+    /* 左栏点击切换 —— 就地切换，不整体重建 body：
+     * 数据都是本地现成的，直接重绘右侧详情栏 + 挪动列表高亮即可（瞬时完成），
+     * 不再拆掉整个 split 再重建，也不闪骨架屏——那会造成切换时的「黑条闪一下」。 */
     body.querySelectorAll('[data-li]').forEach(function (li) {
       li.addEventListener('click', function () {
         selectedOid = li.dataset.li;
+        if (selectedOid === 'ask') askByUser = true; /* 用户主动点客服咨询 */
         mobDetail = true; /* 手机上进详情页 */
-        renderFull(lastData || r);
+        var split = document.querySelector('.mrj-split');
+        if (split) split.classList.add('mob-detail');
+        /* 挪动左栏选中高亮（不重建列表 DOM，避免闪烁） */
+        body.querySelectorAll('[data-li]').forEach(function (x) {
+          x.classList.toggle('sel', x.dataset.li === selectedOid);
+        });
+        /* 只重绘右侧详情栏（本地数据，瞬时；有内容直接换，无空白过场） */
+        renderDetailPane(r, ordersSorted.filter(function (w) { return w.orderId === selectedOid; })[0]);
       });
     });
     renderPlacing(); /* 临时"发送中"卡片 */
@@ -660,22 +703,43 @@
         ? '🚚 <b>Pooled delivery</b> — ' + n + ' order' + (n > 1 ? 's' : '') + ' pooled, RM ' + (goal - sum).toFixed(2) + ' to go. Share with friends nearby to bake it faster 🍞'
         : '🚚 <b>拼单配送中</b> — 已凑 ' + n + ' 单，还差 RM ' + (goal - sum).toFixed(2) + ' 成团。介绍邻居朋友一起下单，更快送到哦 🍞';
     }
-    /* 第2团及以后：标注团号+说明（顾客知道自己被安排到新团，不是掉队） */
-    var grpLine = grp !== '1'
-      ? '<div style="margin-top:4px;font-size:11px;opacity:.8">ℹ️ ' +
-        (en ? 'You are in pool #' + grp + ' (dates could not align with the earlier pool — this one ships separately).'
-            : '您在 ' + grp + ' 号团（与前团时间对不上，本团单独凑单配送，互不影响）。') + '</div>'
-      : '';
+    /* 团号标注（1号团也显示；文案精简）：让顾客一眼知道自己在哪个团 */
+    var grpLine = '<div style="margin-top:4px;font-size:11px;opacity:.8">ℹ️ ' +
+      (en ? 'You are in pool #' + grp : '您在 ' + grp + ' 号团') + '</div>';
     return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + grpLine + wantsLine + etaLine +
       '<div class="pool-bar"><div class="pool-fill" style="width:' + pct + '%"></div></div>' +
       '<span style="font-size:11px;opacity:.75">' + pct + '%' + (full ? '' : (en ? ' · updates automatically' : ' · 进度自动更新')) + '</span></div>';
   }
 
   /* 右栏渲染：一次只显示一个订单的进度+聊天 */
+  /* ⏳ 详情加载过场：点开订单后详情还没就绪时显示（骨架屏 + 面包转圈），
+   * 避免右栏留白 / 卡顿感。返回按钮照常可用，手机上不会卡在空白页 */
+  function detailSkeletonHtml(en) {
+    return '<div class="mrj-back" id="mrj-back">‹ ' + (en ? 'All orders' : '返回订单列表') + '</div>' +
+      '<div class="mrj-detail-loading">' +
+      '<span class="mrj-loadspin">🍞</span>' +
+      '<b style="color:#5a3a22;display:block;margin-top:6px">' + (en ? 'Opening your order…' : '正在打开订单…') + '</b>' +
+      '<div class="mrj-sk sk1"></div><div class="mrj-sk sk2"></div><div class="mrj-sk sk3"></div>' +
+      '</div>';
+  }
+
   function renderDetailPane(r, w) {
     var pane = document.getElementById('mrj-detail');
     if (!pane) return;
     var en = isEn();
+    /* ⏳ 首次订单还没到：右栏显示「订单加载中…」过场（面包转圈 + 骨架条），
+     * 而不是直接掉进「客服咨询」——这样打开就明确看到订单正在加载 */
+    if (selectedOid === '__loading__') {
+      pane.innerHTML =
+        '<div class="mrj-detail-loading">' +
+        '<span class="mrj-loadspin">🍞</span>' +
+        '<b style="color:#5a3a22;display:block;margin-top:6px">' + (en ? 'Loading your orders…' : '订单加载中…') + '</b>' +
+        '<small id="mrj-load-sub" style="display:block;color:#b3a28c;margin-top:4px">' + (en ? 'Fetching from the bakery, just a moment 🌾' : '正在从烘焙坊取回您的订单，请稍候 🌾') + '</small>' +
+        '<div class="mrj-sk sk1"></div><div class="mrj-sk sk2"></div><div class="mrj-sk sk3"></div>' +
+        '</div>';
+      return;
+    }
+    /* 返回按钮：即使在过场骨架里也要能用（绑定在下面统一处理） */
     /* 💬 客服咨询频道：无订单也能聊 */
     if (selectedOid === 'ask') {
       pane.innerHTML = '<div class="mrj-back" id="mrj-back">‹ ' + (en ? 'Back' : '返回') + '</div>' +
@@ -691,7 +755,12 @@
       if (bk) bk.addEventListener('click', function () { mobDetail = false; renderFull(lastData || r); });
       return;
     }
-    if (!w) { pane.innerHTML = ''; return; }
+    if (!w) {
+      pane.innerHTML = detailSkeletonHtml(en); /* 数据还没到：显示加载过场，别留白让人以为卡住 */
+      var bk0 = document.getElementById('mrj-back');
+      if (bk0) bk0.addEventListener('click', function () { mobDetail = false; renderFull(lastData || r); });
+      return;
+    }
     var o = w.order;
     var cancelled = w.status.indexOf('cancelled') === 0;
     var stepNames = en ? ['Pending', 'Confirmed', 'Baking', 'Ready', 'Delivered'] : ['待确认', '已确认', '制作中', '已完成', '已送达'];
@@ -1343,7 +1412,7 @@
     showOrders: showOrders,
 
     /* 💬 打开客服咨询频道（「预定与专属客服」卡片入口） */
-    openAsk: function () { selectedOid = 'ask'; mobDetail = true; showOrders(); },
+    openAsk: function () { selectedOid = 'ask'; askByUser = true; mobDetail = true; showOrders(); },
 
     /* 🌟 VIP 注册：称呼+电话写进信箱 customers 表（同一 token，麦粒积分自动挂钩） */
     vipRegister: function (name, phone) {

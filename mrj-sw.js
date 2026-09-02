@@ -1,8 +1,11 @@
-/* 麦日记官网 PWA Service Worker（v1）
+/* 麦日记官网 PWA Service Worker（v2）
  * 策略：HTML 永远走网络（保证内容最新，断网才用缓存兜底）；
- *       静态资源（js/css/图片/字体）缓存优先，后台悄悄更新。
- * 注意：只缓存同源文件；Apps Script 请求（POST/跨域）一律直通不缓存 */
-var CACHE = 'mrj-web-v1';
+ *       静态资源（js/css/图片/字体）走 stale-while-revalidate：先给缓存秒开，
+ *       同时后台拉最新写回缓存——下次访问即最新（避免旧 JS 卡住功能更新）。
+ * 注意：只缓存同源文件；Apps Script 请求（POST/跨域）一律直通不缓存。
+ * ⚠️ 改了 main.js / addon 等静态资源后，请把 CACHE 版本号 +1（如 v2→v3），
+ *    activate 时会清掉旧缓存，回头客不会再被旧文件卡住。 */
+var CACHE = 'mrj-web-v7';
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
