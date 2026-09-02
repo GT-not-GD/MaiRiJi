@@ -252,8 +252,8 @@
     var pts = '';
     try { var c = JSON.parse(localStorage.getItem('mrj_status_cache') || 'null'); if (c && c.vip && c.vip.dupPoints) pts = c.vip.dupPoints; } catch (e) {}
     dupBanner.innerHTML = '👑 ' +
-      (en ? 'We found an existing VIP profile with this phone' + (pts ? ' (' + pts + ' pts)' : '') + '. Verify to merge your points.'
-          : '检测到这个电话已有麦友档案' + (pts ? '（' + pts + ' 麦粒）' : '') + '，验证后即可合并积分～') +
+      (en ? 'We found an existing VIP profile with this phone' + (pts ? ' (' + pts + ' pts)' : '') + '. Verify to merge your points & sync this device.'
+          : '检测到这个电话已有麦友档案' + (pts ? '（' + pts + ' 麦粒）' : '') + '，验证后即可合并积分、并让这台设备同步登入～') +
       '<button id="mrj-dup-go" style="border:none;background:#8b5e3c;color:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">' + (en ? 'Verify now' : '立即验证') + '</button>' +
       '<button id="mrj-dup-x" style="border:none;background:none;color:#a8977f;font-size:18px;cursor:pointer;line-height:1">&times;</button>';
     document.body.appendChild(dupBanner); /* fixed 固定顶部：滑动不消失 */
@@ -1394,74 +1394,10 @@
       }).catch(function () { mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
     },
 
-    /* 📱 v4.18 多设备同步：同一个账号（token）用在多台手机。
-     * 方向A（这台=老手机/主账号机）：生成 6 位配对码 → 发给/念给新手机
-     * 方向B（这台=新手机）：输入配对码 → 本机 token 替换成主账号 token →
-     *   订单/积分/聊天全部跟主账号一致。旧 token 的缓存清掉重拉 */
-    openPair: function () {
-      var en = isEn();
-      cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Sync devices' : '多设备同步') + '</div>' +
-        '<div class="d" style="text-align:left;line-height:1.7">' +
-        (en ? 'Use the SAME account on multiple phones:<br><b>① On your main phone</b> — tap "Generate code".<br><b>② On the new phone</b> — open this page, tap "Enter code".'
-            : '让多台手机用<b>同一个账号</b>（订单/积分/聊天全同步）：<br><b>① 在主手机</b>（有订单和积分的那台）点「生成配对码」；<br><b>② 在新手机</b>打开本页，点「输入配对码」。') + '</div>' +
-        '<div class="btns" style="flex-direction:column;gap:8px">' +
-        '<button class="ok" id="mrj-pair-make" style="width:100%">' + (en ? '① Generate code (main phone)' : '① 生成配对码（这台是主手机）') + '</button>' +
-        '<button class="ok" id="mrj-pair-use" style="width:100%;background:#a8977f">' + (en ? '② Enter code (new phone)' : '② 输入配对码（这台是新手机）') + '</button>' +
-        '<button class="no" style="width:100%">' + (en ? 'Cancel' : '取消') + '</button></div>';
-      cfmBd.classList.add('show'); cfmBox.classList.add('show');
-      function done3() { cfmBd.classList.remove('show'); cfmBox.classList.remove('show'); cfmBd.onclick = null; }
-      cfmBox.querySelector('.no').onclick = done3;
-      cfmBd.onclick = done3;
-      /* 方向A：生成码 */
-      document.getElementById('mrj-pair-make').onclick = function () {
-        this.disabled = true; this.textContent = en ? 'Generating…' : '生成中…';
-        post({ action: 'pair_make', token: getToken() }).then(function (r) {
-          if (!r.ok) { done3(); mrjAlert(r.error || (en ? 'Failed.' : '出错了，请稍后再试')); return; }
-          cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Pairing code' : '配对码') + '</div>' +
-            '<div class="d" style="text-align:center"><b style="font-size:30px;letter-spacing:.25em;color:#8b5e3c">' + r.code + '</b><br><br>' +
-            (en ? 'On the NEW phone: open our website → My Orders → 👑 → "Sync to another device" → "Enter code", within <b>10 minutes</b>.'
-                : '在<b>新手机</b>上打开官网 → 我的订单 → 👑 → 多设备同步 → 「输入配对码」，<b>10 分钟内</b>输入这个码即可。') + '</div>' +
-            '<div class="btns"><button class="ok">' + (en ? 'Done' : '知道了') + '</button></div>';
-          cfmBox.querySelector('.ok').onclick = done3;
-        }).catch(function () { done3(); mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
-      };
-      /* 方向B：输码 */
-      document.getElementById('mrj-pair-use').onclick = function () {
-        cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Enter pairing code' : '输入配对码') + '</div>' +
-          '<div class="d" style="text-align:left">' + (en ? '6-digit code shown on your main phone. <b>Note:</b> this phone will switch to the main account.' : '输入主手机上显示的 6 位数字。<b>注意：</b>这台手机将切换成主账号（本机原来的临时记录不再显示）。') + '</div>' +
-          '<input id="mrj-pair-inp" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="width:100%;box-sizing:border-box;border:1px solid #d8c8b7;border-radius:8px;padding:12px;font-size:22px;letter-spacing:.3em;text-align:center;font-family:inherit;margin-bottom:14px;color:#3d2c1c" />' +
-          '<div class="btns"><button class="no">' + (en ? 'Cancel' : '取消') + '</button><button class="ok">' + (en ? 'Sync now' : '开始同步') + '</button></div>';
-        var pin = document.getElementById('mrj-pair-inp');
-        setTimeout(function () { pin.focus(); }, 80);
-        cfmBox.querySelector('.no').onclick = done3;
-        function doPair() {
-          var code = String(pin.value).replace(/\D/g, '');
-          if (code.length !== 6) { pin.style.borderColor = '#c0392b'; return; }
-          cfmBox.querySelector('.ok').disabled = true;
-          cfmBox.querySelector('.ok').textContent = en ? 'Syncing…' : '同步中…';
-          post({ action: 'pair_use', token: getToken(), code: code }).then(function (r) {
-            done3();
-            if (!r.ok) { mrjAlert(r.error || (en ? 'Invalid code.' : '配对码无效或已过期')); return; }
-            /* 换 token + 补齐档案 + 清旧缓存重拉 */
-            try {
-              localStorage.setItem('mrj_web_token', r.token);
-              if (r.name) localStorage.setItem('mairiji_cust_name', r.name);
-              if (r.phone) localStorage.setItem('mairiji_cust_phone', r.phone);
-              localStorage.removeItem('mrj_status_cache');
-              localStorage.removeItem('mrj_seen_shop_n');
-              localStorage.removeItem('mrj_ding_n');
-            } catch (e) {}
-            if (window.app && window.app.updateVIPBtnUI) window.app.updateVIPBtnUI();
-            miniNote.textContent = en ? '📱 Synced! This phone now uses your main account.' : '📱 同步成功！这台手机已切换成主账号～';
-            miniNote.style.display = 'block';
-            lastData = null; selectedOid = null;
-            showOrders(); /* 立即用新 token 拉主账号的订单 */
-          }).catch(function () { done3(); mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
-        }
-        cfmBox.querySelector('.ok').onclick = doPair;
-        pin.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doPair(); });
-      };
-    },
+    /* 📱 多设备同步（v13）：不再用配对码。改为「验证手机号码」——
+     * 在新设备用同一电话注册麦友 → 顶部出现验证横幅 → 用该号码 WhatsApp 发码给店家 →
+     * 店家在 APP 批准后，新设备的 token 被【追加】进同一账号（旧 token 不删），
+     * 于是新旧手机都能登入、订单/积分/聊天全同步。openPair/配对码整条逻辑已删除。 */
 
     /* 🌾 麦粒积分：填进 VIP 档案窗（缓存秒显 → my_status 顺带刷新） */
     fillPoints: function () {
@@ -1477,8 +1413,8 @@
         div.innerHTML = '<span style="font-size:12px;color:#888">' + (en ? 'Wheat Points: ' : '麦粒积分：') + '</span>' +
           '<strong id="mrj-vip-points" style="font-size:17px;color:#8b5e3c;margin-left:4px">…</strong>' +
           '<span style="font-size:11px;color:#b3a28c;margin-left:6px">' + (en ? '(RM1 spent = 1 point)' : '（消费 RM1 = 1 粒）') + '</span>' +
-          '<u id="mrj-edit-name" style="display:block;margin-top:8px;font-size:12px;color:#8b5e3c;cursor:pointer">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</u>' +
-          '<u id="mrj-pair-dev" style="display:block;margin-top:6px;font-size:12px;color:#8b5e3c;cursor:pointer">📱 ' + (en ? 'Sync to another device' : '多设备同步（换手机/多台手机）') + '</u>';
+          '<u id="mrj-edit-name" style="display:block;margin-top:8px;font-size:12px;color:#8b5e3c;cursor:pointer">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</u>';
+          /* 📱「多设备同步」按钮已移除（v13）：改用顶部「验证手机号码」横幅统一处理 */
         card.appendChild(div);
         box = document.getElementById('mrj-vip-points');
       }
@@ -1515,12 +1451,7 @@
           inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') save2(); });
         });
       }
-      /* 📱 多设备同步（v4.18）：老手机生成配对码 / 新手机输码接管账号 */
-      var pb = document.getElementById('mrj-pair-dev');
-      if (pb && !pb._bound) {
-        pb._bound = 1;
-        pb.addEventListener('click', function () { window.MRJMailbox.openPair(); });
-      }
+      /* 📱 多设备同步入口已移除（v13）：统一走顶部「验证手机号码」横幅 */
       /* 后台刷新（my_status 已带 vip 字段，无需新接口） */
       post({ action: 'my_status', token: getToken() }).then(function (r) {
         if (r.ok && r.vip) {
