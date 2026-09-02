@@ -123,6 +123,14 @@
 '#mrj-my-orders-link .mrj-dot{position:absolute;top:6px;right:10px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:none}',
 /* 页面角落轻提示（店家回复） */
 '#mrj-mini-note{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#5a3a22;color:#fff;font-size:13px;padding:10px 18px;border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:99999;display:none;cursor:pointer;max-width:86vw;text-align:center}',
+'@keyframes mrjpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}',
+'#mrj-msg-btn.mrj-pulse{animation:mrjpulse 1.2s ease-in-out infinite}',
+'.mrj-pool{background:#fdf3d9;border:1.5px solid #d99a3d;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:12.5px;color:#8a6118;line-height:1.55}',
+'.mrj-pool .pool-bar{height:8px;background:#f0e2c8;border-radius:99px;margin:7px 0 4px;overflow:hidden}',
+'.mrj-pool .pool-fill{height:100%;background:linear-gradient(90deg,#d99a3d,#c9812a);border-radius:99px;transition:width .6s ease}',
+'.mrj-pool.full{background:#eef7ec;border-color:#5a9a4e;color:#33622b}',
+'.mrj-pool.full .pool-bar{background:#d8ecd4}',
+'.mrj-pool.full .pool-fill{background:linear-gradient(90deg,#5a9a4e,#417a37)}',
 /* 下单中的临时卡片（聊天式下单流程） */
 '.mrj-sending{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#8b5e3c;font-weight:700;line-height:1.6}',
 '.mrj-spin{width:15px;height:15px;border:2px solid #eadfd0;border-top-color:#8b5e3c;border-radius:50%;animation:mrjspin .8s linear infinite;flex:none}',
@@ -278,8 +286,38 @@
     scrollHideTimers[key] = setTimeout(function () { el.classList.remove('mrj-scrolling'); }, 800);
   }, true);
 
+  /* 🔔 v4.14 提示音：店家回复时轻轻「叮」一声（WebAudio，浏览器不允许就静默跳过） */
+  var dingCtx = null;
+  function ding() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!dingCtx) dingCtx = new AC();
+      if (dingCtx.state === 'suspended') dingCtx.resume();
+      var t = dingCtx.currentTime;
+      var o = dingCtx.createOscillator();
+      var g = dingCtx.createGain();
+      o.type = 'sine'; o.frequency.value = 987; /* B5，比门铃柔和 */
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+      o.connect(g); g.connect(dingCtx.destination);
+      o.start(t); o.stop(t + 0.65);
+    } catch (e) {}
+  }
+
+  /* 🔔 v4.14 网页标题提醒：切到别的分页也能看到「🍞有新回复」 */
+  var baseTitle = document.title;
+  function setTitleAlert(on) {
+    try {
+      if (on) { if (document.title.indexOf('🍞') !== 0) document.title = '🍞有新回复 · ' + baseTitle; }
+      else { baseTitle = baseTitle || document.title; if (document.title.indexOf('🍞') === 0) document.title = baseTitle; }
+    } catch (e) {}
+  }
+
   /* 购物车按钮 + 抽屉入口红点 */
   function setCartDot(on) {
+    setTitleAlert(on); /* 红点亮 = 标题也提醒；红点灭 = 标题恢复 */
     var entryDot = document.querySelector('#mrj-my-orders-link .mrj-dot');
     if (entryDot) entryDot.style.display = on ? 'block' : 'none';
     var cartBtn = document.getElementById('open-cart-btn') || document.querySelector('.cart-button, [id*="cart"][class*="btn"], .nav-action-btn.cart');
@@ -324,6 +362,7 @@
     backdrop.classList.add('show'); modal.classList.add('show');
     document.body.classList.add('no-scroll');
     setCartDot(false);
+    pulseMsgBtn(false); /* v4.14：打开窗即停呼吸提醒 */
     miniNote.style.display = 'none';
     refreshVipMini();
     /* 秒开：先用缓存渲染（坏缓存直接丢弃，绝不让窗口开不了） */
@@ -395,7 +434,9 @@
         r.orders.some(function (w) {
           var old = lastData.orders.filter(function (x) { return x.orderId === w.orderId; })[0];
           return !old || old.status !== w.status;
-        });
+        }) ||
+        /* 🚚 v4.14：拼单进度变化也整体重绘（进度条要动起来） */
+        ((r.pool && r.pool.sum) || 0) !== ((lastData.pool && lastData.pool.sum) || 0);
       lastData = r;
       if (structureChanged || isOpen && !document.querySelector('.mrj-split')) {
         renderFull(r); /* 订单增减/状态变化才整体重绘 */
@@ -500,6 +541,33 @@
     return { cls: '', label: en ? 'Pending' : '待确认' };
   }
 
+  /* 🚚 v4.14 拼单进度条：只在「等拼单」且还没送达/取消的订单里显示。
+   * 数据来自 my_status 的 pool 字段（全店活跃拼单合计，不含他人隐私） */
+  function poolHtml(r, w, en) {
+    var o = w.order || {};
+    if (String(o.note || '').indexOf('等拼单') === -1) return '';
+    if (w.status === 'delivered' || w.status.indexOf('cancelled') === 0) return '';
+    var pool = (r && r.pool) || {};
+    var goal = Number(pool.goal) || 50;
+    var sum = Number(pool.sum) || Number(o.total) || 0;
+    var n = Number(pool.n) || 1;
+    var pct = Math.min(100, Math.round(sum / goal * 100));
+    var full = sum >= goal;
+    var txt;
+    if (full) {
+      txt = en
+        ? '🎉 <b>Pool complete!</b> ' + n + ' order' + (n > 1 ? 's' : '') + ' heading your way — total RM ' + sum.toFixed(2) + '. We will confirm the delivery date with you soon!'
+        : '🎉 <b>拼单成团啦！</b>同方向已凑 ' + n + ' 单、合计 RM ' + sum.toFixed(2) + '，我们会尽快和您确认送达日期！';
+    } else {
+      txt = en
+        ? '🚚 <b>Pooled delivery</b> — ' + n + ' order' + (n > 1 ? 's' : '') + ' pooled, RM ' + sum.toFixed(2) + ' / RM ' + goal.toFixed(0) + '. RM ' + (goal - sum).toFixed(2) + ' to go. Share with friends nearby to bake it faster 🍞'
+        : '🚚 <b>拼单配送中</b> — 已凑 ' + n + ' 单、RM ' + sum.toFixed(2) + ' / RM ' + goal.toFixed(0) + '，还差 RM ' + (goal - sum).toFixed(2) + ' 成团。介绍邻居朋友一起下单，更快送到哦 🍞';
+    }
+    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt +
+      '<div class="pool-bar"><div class="pool-fill" style="width:' + pct + '%"></div></div>' +
+      '<span style="font-size:11px;opacity:.75">' + pct + '%' + (full ? '' : (en ? ' · updates automatically' : ' · 进度自动更新')) + '</span></div>';
+  }
+
   /* 右栏渲染：一次只显示一个订单的进度+聊天 */
   function renderDetailPane(r, w) {
     var pane = document.getElementById('mrj-detail');
@@ -536,7 +604,8 @@
     var html = '<div class="mrj-back" id="mrj-back">‹ ' + (en ? 'All orders' : '返回订单列表') + '</div>' +
       '<div class="mrj-title">' + escB(items) + '</div>' +
       '<div class="mrj-meta"><b>RM ' + (o.total || 0).toFixed(2) + '</b> · ' + (o.method === 'delivery' ? (en ? 'Delivery' : '配送') : (en ? 'Pickup' : '自取')) + (o.timeRaw ? ' · ' + o.timeRaw.replace('T', ' ') : '') + '</div>' +
-      steps;
+      steps +
+      poolHtml(r, w, en); /* 🚚 v4.14：等拼单的订单显示全店拼单进度条 */
 
     if (!cancelled) {
       var faqOpts = '<option value="">💡 ' + (en ? 'Quick questions (tap to ask)' : '常见问题（点选即问）') + '</option>' +
@@ -896,10 +965,24 @@
         miniNote.textContent = isEn() ? '🍞 MaiRiJi replied to your order — tap to view' : '🍞 麦日记回复了您的订单，点击查看';
         miniNote.style.display = 'block'; /* 永久显示，点击打开订单窗才消失 */
         setCartDot(true);
+        /* 🔔 v4.14：新回复不再默不作声——只在数量增加的这一刻响一声+按钮呼吸 */
+        if (n > lastDingN) {
+          ding();
+          pulseMsgBtn(true);
+          lastDingN = n;
+          try { localStorage.setItem('mrj_ding_n', String(n)); } catch (e) {}
+        }
       }
     }).catch(function () {});
   }
-  bgTimer = setInterval(bgWatch, 60000);
+  /* 🔔 记住上次响铃时的店家消息数：防止每 30 秒重复响 */
+  var lastDingN = Number(localStorage.getItem('mrj_ding_n') || 0) || seenShopN;
+  /* 信息按钮呼吸动画：有新回复时头部按钮轻轻放大缩小，一眼看到 */
+  function pulseMsgBtn(on) {
+    var b = document.getElementById('mrj-msg-btn');
+    if (b) { if (on) b.classList.add('mrj-pulse'); else b.classList.remove('mrj-pulse'); }
+  }
+  bgTimer = setInterval(bgWatch, 30000); /* v4.14: 60秒→30秒，回复提醒快一倍（仅活跃订单时才真打网络） */
   setTimeout(bgWatch, 5000); /* 打开页面 5 秒后先查一次 */
 
   /* ---------- 入口 ---------- */
@@ -996,7 +1079,9 @@
     var zoneEl = document.getElementById('cust-delivery-zone');
     var zoneVal = zoneEl ? zoneEl.value : '';
     msg += (zoneVal === 'pickup' ? (en ? 'Pickup Location: \n' : '自提地点：\n') : (en ? 'Delivery Address: \n' : '详细配送地址：\n')) + (data.address || '') + '\n';
-    msg += (en ? 'Preferred Date: ' : '期望日期：') + (data.date || '') + '\n\n';
+    msg += (en ? 'Preferred Time: ' : '期望时间：') + String(data.date || '').replace('T', ' ') + '\n';
+    if (data.pooled) msg += (en ? 'Note: below delivery threshold, waiting for pooled delivery (date TBC)' : '备注：未满起送额，等拼单配送（日期待确认）') + '\n';
+    msg += '\n';
     msg += en ? '【Order Details】\n' : '【商品明细】\n';
     cart.forEach(function (item, i) {
       var line = (item.price * item.qty).toFixed(2);
@@ -1137,7 +1222,8 @@
         name: data.name, phone: data.phone,
         method: zoneVal === 'pickup' ? 'pickup' : 'delivery',
         timeRaw: data.date || '', address: data.address || '',
-        note: (data.deliveryZone ? '[' + data.deliveryZone + '] ' : ''),
+        /* v4.4：deliveryZone 已含邮编；拼单单再补一个显眼标记，店家 APP 里一眼看到 */
+        note: (data.deliveryZone ? '[' + data.deliveryZone + '] ' : '') + (data.pooled ? '🚚⏳[等拼单] ' : ''),
         items: items, total: Math.round(total * 100) / 100,
       };
       /* 趁购物篮还在，先做好 WhatsApp 快照（成功后清空也能发） */

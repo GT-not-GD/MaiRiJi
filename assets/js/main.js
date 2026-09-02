@@ -174,11 +174,23 @@ function MaiRijiApp() {
     this.config = {
         waNumber: "601115277643",
         googleSheetUrl: "https://script.google.com/macros/s/AKfycby1Qm6k1oiw4zqqIS5WWFUKBGnWuW-CdvctB4DvHFPMFm4YcGsL_O3S8oNgB6IMzFVL5Q/exec",
+        /* 🚚 配送规则（v4.4）：
+         * minLeadHours: 欧包极限制作 24h + 排产缓冲 → 最少提前 36 小时（蛋糕也统一 36h）
+         * farMinRM: Banting 方向来回 ~50km，油+车损 ≈RM14 → 起送线 RM50，不满可下单但等拼单
+         * postcodes: 邮编 → 区域档位。local=Tanjong Sepat 本地；far=Banting 方向
+         *   42800 Tanjong Sepat/Batu Laut · 42700 Banting/Telok Datok/Morib/Kanchong · 42600 Jenjarom */
+        delivery: {
+            minLeadHours: 36,
+            farMinRM: 50,
+            postcodes: { '42800': 'local', '42700': 'far', '42600': 'far' },
+            farName: 'Banting'
+        },
         storageKeys: {
             cart: 'mairiji_cart',
             custName: 'mairiji_cust_name',
             custPhone: 'mairiji_cust_phone',
             custAddress: 'mairiji_cust_address',
+            custPostcode: 'mairiji_cust_postcode',
             lang: 'mairiji_lang'
         }
     };
@@ -835,17 +847,14 @@ MaiRijiApp.prototype = {
             const address = $('#cust-address').val().trim();
             const date = $('#cust-date').val();
             const zoneVal = $('#cust-delivery-zone').val();
+            const postcode = ($('#cust-postcode').val() || '').trim();
             const isEnglish = this.getCurrentLanguage() === 'en';
 
             this.clearFieldError($('#cust-name'));
             this.clearFieldError($('#cust-phone'));
             this.clearFieldError($('#cust-address'));
+            this.clearFieldError($('#cust-postcode'));
             this.clearFieldError($('#cust-date'));
-
-            if (zoneVal === 'other') {
-                this.showToast(isEnglish ? "Delivery is unavailable for other areas. Please select Self-Pickup." : "其他区域暂无配送服务，请选择【到店自提】哦！");
-                return;
-            }
 
             if (!name) {
                 this.showFieldError($('#cust-name'), isEnglish ? 'Please enter your name' : '请填写联系姓名');
@@ -863,27 +872,60 @@ MaiRijiApp.prototype = {
                 return;
             }
 
-            if (zoneVal !== 'pickup' && !address) {
-                this.showFieldError($('#cust-address'), isEnglish ? 'Please enter delivery address' : '请填写详细配送地址');
-                return;
+            /* 🚚 v4.4：配送必须有邮编，且邮编要在范围内（42600/42700/42800） */
+            const dCfg = this.config.delivery;
+            let pcTier = '';
+            if (zoneVal === 'delivery') {
+                if (!/^\d{5}$/.test(postcode)) {
+                    this.showFieldError($('#cust-postcode'), isEnglish ? 'Please enter your 5-digit postcode' : '请填写 5 位数字邮编');
+                    return;
+                }
+                pcTier = dCfg.postcodes[postcode] || '';
+                if (!pcTier) {
+                    this.showFieldError($('#cust-postcode'), isEnglish ?
+                        'This postcode is outside our delivery range. Please choose Self-Pickup.' :
+                        '该邮编超出配送范围，请选择【到店自提】哦！');
+                    return;
+                }
+                if (!address) {
+                    this.showFieldError($('#cust-address'), isEnglish ? 'Please enter delivery address' : '请填写详细配送地址');
+                    return;
+                }
             }
             
-            // 修复: 遗漏的送货/取货日期检测
             if (!date) {
-                this.showFieldError($('#cust-date'), isEnglish ? 'Please select a preferred date' : '请选择期望送货/取货日期');
+                this.showFieldError($('#cust-date'), isEnglish ? 'Please select preferred date & time' : '请选择期望送货/取货时间');
                 return;
             }
 
+            /* 🕐 v4.4：36 小时下限（欧包极限制作 24h，留足发酵与排产时间） */
+            const minStr = this.minPickupTimeStr();
+            if (date < minStr) {
+                this.showFieldError($('#cust-date'), isEnglish ?
+                    `Sourdough needs long fermentation — earliest available: ${minStr.replace('T', ' ')} (36 hours ahead)` :
+                    `酸种欧包需要长时间发酵，最早可选 ${minStr.replace('T', ' ')}（至少提前 36 小时）`);
+                return;
+            }
+
+            /* 🚚 Banting 方向未满起送线：可以下单，但先跟顾客说清楚要等拼单 */
+            const cartTotal = (this.cart || []).reduce((s, it) => s + it.price * it.qty, 0);
+            const isPooled = (pcTier === 'far' && cartTotal < dCfg.farMinRM);
+
             const zoneLabels = {
-                tj_sepat: isEnglish ? "Tanjong Sepat Delivery" : "Tanjong Sepat 地区送货",
-                banting: isEnglish ? "Banting Area (Arrangement Needed)" : "Banting 地区（需沟通安排）",
-                pickup: isEnglish ? "Self-Pickup (Tanjong Sepat)" : "Tanjong Sepat 店面自提"
+                pickup: isEnglish ? "Self-Pickup (Tanjong Sepat)" : "Tanjong Sepat 店面自提",
+                delivery: isEnglish ? `Delivery (Postcode ${postcode})` : `配送上门（邮编 ${postcode}）`
             };
-            const deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
+            let deliveryZoneText = zoneLabels[zoneVal] || zoneVal;
+            if (isPooled) {
+                deliveryZoneText += isEnglish ?
+                    ` [${dCfg.farName} pooled delivery — below RM${dCfg.farMinRM}, date TBC]` :
+                    ` [${dCfg.farName}方向拼单配送 — 未满RM${dCfg.farMinRM}，送达日期待确认]`;
+            }
 
             if (name) localStorage.setItem(this.config.storageKeys.custName, name);
             if (phone) localStorage.setItem(this.config.storageKeys.custPhone, phone);
             if (address && zoneVal !== 'pickup') localStorage.setItem(this.config.storageKeys.custAddress, address);
+            if (postcode && zoneVal === 'delivery') localStorage.setItem(this.config.storageKeys.custPostcode, postcode);
 
             if (this.config.googleSheetUrl && this.config.googleSheetUrl.indexOf("http") === 0) {
                 fetch(this.config.googleSheetUrl, {
@@ -906,7 +948,9 @@ MaiRijiApp.prototype = {
                     phone: phone,
                     address: address,
                     date: date,
-                    deliveryZone: deliveryZoneText
+                    deliveryZone: deliveryZoneText,
+                    postcode: postcode,
+                    pooled: isPooled /* 🚚 Banting方向未满RM50：等拼单 */
                 };
                 if (window.MRJMailbox && window.MRJMailbox.placeOrder) {
                     window.MRJMailbox.placeOrder(this, orderData);
@@ -1009,10 +1053,12 @@ MaiRijiApp.prototype = {
             $(e.currentTarget).removeAttr('data-is-auto-filled');
         });
 
+        /* 🚚 v4.4：只剩 自取/配送 两个选项；选配送时展开 邮编+地址 栏 */
         $(document).on('change', '#cust-delivery-zone', (e) => {
             const val = $(e.currentTarget).val();
             const isEnglish = this.getCurrentLanguage() === 'en';
             const $addressGroup = $('#cust-address-group');
+            const $postcodeGroup = $('#cust-postcode-group');
             const $notice = $('#zone-notice');
             const $pickupInfo = $('#cust-pickup-info');
             const $addressInput = $('#cust-address');
@@ -1022,23 +1068,14 @@ MaiRijiApp.prototype = {
 
             if (val === 'pickup') {
                 $addressGroup.slideUp(200);
+                $postcodeGroup.slideUp(200);
                 $notice.slideUp(200);
                 $pickupInfo.slideDown(200);
                 
                 $addressInput.val(`${pickupAddress} ${pickupLabel}`).attr('data-is-auto-filled', 'true');
-            } else if (val === 'other') {
-                $addressGroup.slideUp(200);
-                $pickupInfo.slideUp(200);
-                $notice.html(isEnglish ? 
-                    "⚠️ Sorry, we currently only deliver to <strong>Tanjong Sepat</strong> & <strong>Banting</strong>. Please select <strong>Self-Pickup</strong>." : 
-                    "⚠️ 抱歉！我们目前仅提供 <strong>Tanjong Sepat</strong> 配送及 <strong>Banting</strong> 地区安排配送。其他区域欢迎选择<strong>【到店自提】</strong>哦！"
-                ).slideDown(200);
-                
-                if ($addressInput.attr('data-is-auto-filled') === 'true') {
-                    $addressInput.val('').removeAttr('data-is-auto-filled');
-                }
             } else {
                 $addressGroup.slideDown(200);
+                $postcodeGroup.slideDown(200);
                 $notice.slideUp(200);
                 $pickupInfo.slideUp(200);
                 
@@ -1046,7 +1083,16 @@ MaiRijiApp.prototype = {
                     const savedAddress = localStorage.getItem(this.config.storageKeys.custAddress) || '';
                     $addressInput.val(savedAddress).removeAttr('data-is-auto-filled');
                 }
+                this.validatePostcodeUI();
             }
+        });
+
+        /* 🚚 邮编即时验证 + 地址栏失焦自动抓邮编 */
+        $(document).on('input', '#cust-postcode', () => {
+            this.validatePostcodeUI();
+        });
+        $(document).on('blur', '#cust-address', () => {
+            this.tryAutofillPostcode();
         });
 
         $('#close-thankyou-btn, #thankyou-modal-backdrop').on('click', () => {
@@ -1963,7 +2009,11 @@ MaiRijiApp.prototype = {
                 (isEnglish ? "Delivery Address: \n" : "详细配送地址：\n");
 
             msg += addressLabel + customerData.address + "\n";
-            msg += (isEnglish ? "Preferred Date: " : "期望日期：") + customerData.date + "\n\n";
+            msg += (isEnglish ? "Preferred Time: " : "期望时间：") + String(customerData.date || '').replace('T', ' ') + "\n";
+            if (customerData.pooled) {
+                msg += (isEnglish ? "Note: below delivery threshold, waiting for pooled delivery (date TBC)" : "备注：未满起送额，等拼单配送（日期待确认）") + "\n";
+            }
+            msg += "\n";
         }
 
         msg += isEnglish ? "【Order Details】\n" : "【商品明细】\n";
@@ -1995,24 +2045,122 @@ MaiRijiApp.prototype = {
         }
     },
 
+    /* 🕐 最早可选取货时间：现在 + 36小时，向上取整到整点（datetime-local 格式） */
+    minPickupTimeStr: function () {
+        const min = new Date(Date.now() + this.config.delivery.minLeadHours * 3600 * 1000);
+        if (min.getMinutes() > 0 || min.getSeconds() > 0) min.setHours(min.getHours() + 1);
+        min.setMinutes(0, 0, 0);
+        const p = n => String(n).padStart(2, '0');
+        return `${min.getFullYear()}-${p(min.getMonth() + 1)}-${p(min.getDate())}T${p(min.getHours())}:00`;
+    },
+
+    /* 🚚 v4.4 结账表单改造（幂等，只跑一次）：
+     * ① 配送方式 4 选项 → 2 选项（自取/配送），区域判定改由邮编负责
+     * ② 插入邮编栏（选配送才显示）：42800 本地 / 42700·42600 Banting 方向
+     * ③ 日期栏升级成 datetime-local（以小时为单位，最少提前 36 小时） */
+    setupCheckoutFormV44: function () {
+        const $zone = $('#cust-delivery-zone');
+        if (!$zone.length || $zone.data('v44')) return;
+        $zone.data('v44', 1);
+        $zone.empty()
+            .append('<option value="pickup" data-i18n="checkout.zone_pickup">🏡 到店自提（Tanjong Sepat）</option>')
+            .append('<option value="delivery" data-i18n="checkout.zone_delivery">🛵 配送上门（填邮编确认区域）</option>');
+        $('#cust-address-group').before(
+            `<div class="form-group" id="cust-postcode-group" style="display:none">
+                <label for="cust-postcode"><span data-i18n="checkout.postcode_label">邮编 Postcode</span> <span class="required">*</span></label>
+                <input type="text" id="cust-postcode" inputmode="numeric" maxlength="5" autocomplete="postal-code" data-i18n-placeholder="checkout.postcode_ph" placeholder="如：42800（用于确认配送区域与运费门槛）">
+                <div id="postcode-status" class="form-tip" style="display:none; margin-top:8px;"></div>
+            </div>`
+        );
+        this.updateDOMTranslations();
+    },
+
+    /* 🚚 邮编即时验证：绿=可配送 / 黄=Banting方向未满RM50等拼单 / 红=超范围 */
+    validatePostcodeUI: function () {
+        const isEnglish = this.getCurrentLanguage() === 'en';
+        const $st = $('#postcode-status');
+        const pc = ($('#cust-postcode').val() || '').trim();
+        if ($('#cust-delivery-zone').val() !== 'delivery' || !pc) { $st.hide(); return; }
+        if (!/^\d{5}$/.test(pc)) {
+            $st.html(isEnglish ? '✍️ Please enter a 5-digit postcode.' : '✍️ 请输入 5 位数字邮编。')
+               .css({ background: '#f7ece1', borderLeft: '3px solid #8b5e3c', color: '#5a3a22' }).show();
+            return;
+        }
+        const d = this.config.delivery;
+        const tier = d.postcodes[pc];
+        const total = (this.cart || []).reduce((s, it) => s + it.price * it.qty, 0);
+        if (tier === 'local') {
+            $st.html(isEnglish ? '✅ Tanjong Sepat area — delivery available!' : '✅ Tanjong Sepat 本地区域，可以配送！')
+               .css({ background: '#eef7ec', borderLeft: '3px solid #5a9a4e', color: '#33622b' }).show();
+        } else if (tier === 'far') {
+            if (total >= d.farMinRM) {
+                $st.html(isEnglish ?
+                    `✅ ${d.farName} area — order reaches RM${d.farMinRM}, delivery available!` :
+                    `✅ ${d.farName} 方向 — 订单已满 RM${d.farMinRM}，可以配送！`)
+                   .css({ background: '#eef7ec', borderLeft: '3px solid #5a9a4e', color: '#33622b' }).show();
+            } else {
+                $st.html(isEnglish ?
+                    `🚚 ${d.farName} direction (round trip ~50km). Orders below <strong>RM${d.farMinRM}</strong> can still be placed, but will wait for <strong>pooled delivery</strong> (we combine orders heading the same way — exact date to be confirmed). Add RM${(d.farMinRM - total).toFixed(2)} more for priority delivery, or choose self-pickup.` :
+                    `🚚 ${d.farName} 方向（来回约50km）。未满 <strong>RM${d.farMinRM}</strong> 也可以下单，但需<strong>等拼单</strong>（凑同方向订单一起送，具体日期另行确认）。再加 RM${(d.farMinRM - total).toFixed(2)} 即可优先安排，或选择到店自提。`)
+                   .css({ background: '#fdf2e9', borderLeft: '3px solid #e67e22', color: '#a04000' }).show();
+            }
+        } else {
+            $st.html(isEnglish ?
+                '❌ Sorry, this postcode is outside our delivery range (42600 / 42700 / 42800). Please choose <strong>Self-Pickup</strong>.' :
+                '❌ 抱歉，该邮编超出配送范围（42600 / 42700 / 42800）。欢迎选择<strong>到店自提</strong>哦！')
+               .css({ background: '#fdecea', borderLeft: '3px solid #c0392b', color: '#922b21' }).show();
+        }
+    },
+
+    /* 🚚 顾客手输地址后帮TA抓邮编：先正则抠 5 位数字；抠不到再免费反查一次（Nominatim） */
+    tryAutofillPostcode: function () {
+        if ($('#cust-delivery-zone').val() !== 'delivery') return;
+        if (($('#cust-postcode').val() || '').trim()) return; /* 已填就不打扰 */
+        const addr = ($('#cust-address').val() || '').trim();
+        if (!addr) return;
+        const m = addr.match(/\b(\d{5})\b/);
+        if (m) {
+            $('#cust-postcode').val(m[1]);
+            this.validatePostcodeUI();
+            return;
+        }
+        if (addr.length < 10) return; /* 太短查不准，不浪费请求 */
+        if (this._pcLookupBusy) return;
+        this._pcLookupBusy = true;
+        const isEnglish = this.getCurrentLanguage() === 'en';
+        fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=my&q=${encodeURIComponent(addr)}`)
+            .then(res => res.json())
+            .then((list) => {
+                const pc = list && list[0] && list[0].address && list[0].address.postcode;
+                if (pc && /^\d{5}$/.test(pc) && !($('#cust-postcode').val() || '').trim()) {
+                    $('#cust-postcode').val(pc);
+                    this.validatePostcodeUI();
+                    this.showToast(isEnglish ? `📮 Postcode detected: ${pc} (please verify)` : `📮 已帮您识别邮编：${pc}（请核对一下哦）`);
+                }
+            })
+            .catch(() => {})
+            .finally(() => { this._pcLookupBusy = false; });
+    },
+
     openCheckoutModal: function () {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const yyyy = tomorrow.getFullYear();
-        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        const dd = String(tomorrow.getDate()).padStart(2, '0');
-        const minDateStr = `${yyyy}-${mm}-${dd}`;
+        this.setupCheckoutFormV44();
 
+        /* 🕐 datetime-local + 36小时下限（以小时为单位） */
+        const minStr = this.minPickupTimeStr();
         const $dateInput = $('#cust-date');
-        $dateInput.attr('min', minDateStr);
-
-        if (!$dateInput.val() || $dateInput.val() < minDateStr) {
-            $dateInput.val(minDateStr);
+        $dateInput.attr('type', 'datetime-local').attr('min', minStr).attr('step', 3600);
+        if (!$dateInput.val() || $dateInput.val() < minStr) {
+            $dateInput.val(minStr);
         }
 
         const savedName = localStorage.getItem(this.config.storageKeys.custName);
         const savedPhone = localStorage.getItem(this.config.storageKeys.custPhone);
         const savedAddress = localStorage.getItem(this.config.storageKeys.custAddress);
+        const savedPostcode = localStorage.getItem(this.config.storageKeys.custPostcode);
+        if (savedPostcode && !$('#cust-postcode').val()) {
+            $('#cust-postcode').val(savedPostcode);
+        }
+        $('#cust-delivery-zone').trigger('change');
 
         if (savedName && !$('#cust-name').val()) {
             $('#cust-name').val(savedName);
@@ -2089,6 +2237,12 @@ MaiRijiApp.prototype = {
 
                     if (data.address && data.address.house_number) {
                         $('#gps-unit').val(`No. ${data.address.house_number}`);
+                    }
+
+                    /* 📮 v4.4：GPS 反查顺手抓邮编，自动填进结账表单并即时验证区域 */
+                    if (data.address && data.address.postcode && /^\d{5}$/.test(data.address.postcode)) {
+                        $('#cust-postcode').val(data.address.postcode);
+                        this.validatePostcodeUI();
                     }
 
                     $('#gps-loading-status').html(isEnglish ? "✅ Location detected! Please verify & enter house number." : "✅ 定位成功！请核对街道并补全门牌号。");
