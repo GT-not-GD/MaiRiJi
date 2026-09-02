@@ -39,12 +39,17 @@
 
   var STATUS_STEPS = ['pending', 'confirmed', 'baking', 'ready', 'delivered'];
   var FAQ = [
-    { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已在发酵制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊' },
-    { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；已经确认的订单请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
-    { q: '配送范围和费用？', a: '目前 Tanjong Sepat 地区送货上门，Banting 需事先沟通安排，其他区域建议到店自提。有疑问请留言您的地址～' },
-    { q: '什么是拼单配送？', a: '拼单就是把同方向的订单凑在一起、一趟车一起送，帮大家省路费、也更环保 🍞 当同区凑满一定金额就「成团」，我们会协调一个大家都方便的日期统一配送。您在订单详情里能看到所在的「N 号团」和拼单进度条；成团后会显示「预计送货」日期（具体时间我们仍会再和您确认）。介绍邻居朋友一起下单，可以更快凑满、更快送到哦～' },
-    { q: '面包如何保存？', a: '欧包常温密封可放 2 天；切片冷冻可保存 2 周，吃前 180°C 回烤 5 分钟风味最佳。芝士蛋糕请冷藏并在 3 天内享用～' },
-    { q: '我想取消订单', a: '', cancel: true }, /* 动态回答 */
+    { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已在发酵制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊',
+      qEn: 'When will my bread be ready?', aEn: 'Just check the progress bar above 😊 “Baking” means your dough is already in the fermenting/baking process, and “Ready” means it is out of the oven. The exact handover time follows the time you booked in your order.' },
+    { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；已经确认的订单请在下方留言告诉我们想改什么，师傅会尽快回复您～',
+      qEn: 'Can I change my order?', aEn: 'Before an order is confirmed you can simply cancel it and reorder. If it is already confirmed, please leave a message below telling us what you would like to change and our baker will reply as soon as possible.' },
+    { q: '配送范围和费用？', a: '目前 Tanjong Sepat 地区送货上门，Banting 需事先沟通安排，其他区域建议到店自提。有疑问请留言您的地址～',
+      qEn: 'Delivery area and fees?', aEn: 'We currently deliver within the Tanjong Sepat area. Banting needs to be arranged in advance; for other areas we recommend self-pickup at the shop. If unsure, leave your address below and we will help.' },
+    { q: '什么是拼单配送？', a: '拼单就是把同方向的订单凑在一起、一趟车一起送，帮大家省路费、也更环保 🍞 当同区凑满一定金额就「成团」，我们会协调一个大家都方便的日期统一配送。您在订单详情里能看到所在的「N 号团」和拼单进度条；成团后会显示「预计送货」日期（具体时间我们仍会再和您确认）。介绍邻居朋友一起下单，可以更快凑满、更快送到哦～',
+      qEn: 'What is pooled delivery?', aEn: 'Pooling means grouping orders heading the same direction and delivering them in one trip — it saves on delivery cost and is greener 🍞 Once orders in the same area reach a certain total, the pool is “complete” and we coordinate one delivery date that works for everyone. In your order details you can see which pool (#N) you are in and the pooling progress bar; once complete an “Expected delivery” date appears (we will still confirm the exact time with you). Invite neighbours or friends to order together to fill the pool and get it delivered faster!' },
+    { q: '面包如何保存？', a: '欧包常温密封可放 2 天；切片冷冻可保存 2 周，吃前 180°C 回烤 5 分钟风味最佳。芝士蛋糕请冷藏并在 3 天内享用～',
+      qEn: 'How do I store the bread?', aEn: 'Sourdough/artisan loaves keep 2 days sealed at room temperature; sliced and frozen they keep 2 weeks — for best flavour, reheat at 180°C for 5 minutes before eating. Please refrigerate cheesecake and enjoy it within 3 days.' },
+    { q: '我想取消订单', a: '', cancel: true, qEn: 'I want to cancel my order', aEn: '' }, /* 动态回答 */
   ];
 
   /* ---------- 样式 ---------- */
@@ -209,10 +214,10 @@
   backdrop.id = 'mrj-backdrop';
   var modal = document.createElement('div');
   modal.id = 'mrj-orders-modal';
-  modal.innerHTML = '<div class="mrj-oh"><h3>🌾 我的订单</h3>' +
+  modal.innerHTML = '<div class="mrj-oh"><h3>🌾 ' + (isEn() ? 'My Orders' : '我的订单') + '</h3>' +
     '<span style="display:flex;align-items:center;gap:10px">' +
-    '<button id="mrj-vip-mini" title="麦友 VIP">👑 <span id="mrj-vip-mini-pts"></span></button>' +
-    '<button id="mrj-oclose" title="关闭">&times;</button></span></div>' +
+    '<button id="mrj-vip-mini" title="' + (isEn() ? 'Member VIP' : '麦友 VIP') + '">👑 <span id="mrj-vip-mini-pts"></span></button>' +
+    '<button id="mrj-oclose" title="' + (isEn() ? 'Close' : '关闭') + '">&times;</button></span></div>' +
     '<div class="mrj-ob" id="mrj-obody"></div>';
   var miniNote = document.createElement('div');
   miniNote.id = 'mrj-mini-note';
@@ -781,7 +786,7 @@
 
     if (!cancelled) {
       var faqOpts = '<option value="">💡 ' + (en ? 'Quick questions (tap to ask)' : '常见问题（点选即问）') + '</option>' +
-        FAQ.map(function (f, i) { return '<option value="' + i + '">' + f.q + '</option>'; }).join('');
+        FAQ.map(function (f, i) { return '<option value="' + i + '">' + (en && f.qEn ? f.qEn : f.q) + '</option>'; }).join('');
       html +=
         '<div class="mrj-chatwrap"><div class="mrj-chat" data-chat="' + w.orderId + '"></div>' +
         '<div class="mrj-newpill" data-pill="' + w.orderId + '">↓ ' + (en ? 'New message' : '新消息') + '</div></div>' +
@@ -987,19 +992,30 @@
     body.querySelectorAll('[data-faq]').forEach(function (sel) {
       sel.addEventListener('change', function () {
         if (sel.value === '') return;
+        var en = isEn();
         var f = FAQ[+sel.value];
         sel.value = '';
+        /* 按当前语言取问答（英文缺失时回退中文，保证不空白） */
+        var fq = en && f.qEn ? f.qEn : f.q;
+        var fa = en && f.aEn ? f.aEn : f.a;
         if (f.cancel) {
-          /* 取消订单：动态回答 + 隐蔽的文字链接 */
+          /* 取消订单：动态回答 + 隐蔽的文字链接（双语） */
           var w0 = (lastData && lastData.orders || []).filter(function (x) { return x.orderId === sel.dataset.faq; })[0];
           var canCancel = w0 && (w0.status === 'pending' || w0.status === 'new');
-          f = { q: '我想取消订单', a: canCancel
-            ? '好的，订单还未确认可以取消。请确认您真的不需要了——手作烘焙每一单都是为您预留的食材呢 🥲 确定的话请点：<u class="mrj-do-cancel" data-oid="' + sel.dataset.faq + '" style="cursor:pointer">确认取消订单</u>'
-            : '您的订单已经确认，食材已为您安排，暂时不能直接取消了。如有特殊情况请在下方留言，师傅会尽快与您协商～' };
+          fq = en ? 'I want to cancel my order' : '我想取消订单';
+          if (en) {
+            fa = canCancel
+              ? 'Sure — since it is not confirmed yet, it can be cancelled. Please make sure you no longer need it: every handmade order reserves ingredients just for you 🥲 If you are certain, tap: <u class="mrj-do-cancel" data-oid="' + sel.dataset.faq + '" style="cursor:pointer">Confirm cancellation</u>'
+              : 'Your order is already confirmed and the ingredients have been set aside, so it cannot be cancelled directly for now. If something special has come up, please leave a message below and our baker will discuss it with you as soon as possible.';
+          } else {
+            fa = canCancel
+              ? '好的，订单还未确认可以取消。请确认您真的不需要了——手作烘焙每一单都是为您预留的食材呢 🥲 确定的话请点：<u class="mrj-do-cancel" data-oid="' + sel.dataset.faq + '" style="cursor:pointer">确认取消订单</u>'
+              : '您的订单已经确认，食材已为您安排，暂时不能直接取消了。如有特殊情况请在下方留言，师傅会尽快与您协商～';
+          }
         }
         var now = Date.now();
-        var qm = { orderId: sel.dataset.faq, from: 'customer', text: f.q, at: now };
-        var am = { orderId: sel.dataset.faq, from: 'shop', text: f.a, at: now + 1 };
+        var qm = { orderId: sel.dataset.faq, from: 'customer', text: fq, at: now };
+        var am = { orderId: sel.dataset.faq, from: 'shop', text: fa, at: now + 1 };
         localFaqLog.push(qm, am);
         if (localFaqLog.length > 40) localFaqLog = localFaqLog.slice(-40);
         localStorage.setItem('mrj_faq_log', JSON.stringify(localFaqLog));
@@ -1023,7 +1039,7 @@
             chat.scrollTop = chat.scrollHeight;
           }, 350);
           /* ③ 按答案长度模拟打字时间（0.9~2 秒），然后答案跳出 */
-          var thinkMs = Math.min(2000, 900 + f.a.length * 8);
+          var thinkMs = Math.min(2000, 900 + (fa || '').length * 8);
           setTimeout(function () {
             if (typing.parentNode) typing.remove();
             if (!chat.isConnected) return;

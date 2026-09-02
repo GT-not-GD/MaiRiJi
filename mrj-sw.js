@@ -5,7 +5,7 @@
  * 注意：只缓存同源文件；Apps Script 请求（POST/跨域）一律直通不缓存。
  * ⚠️ 改了 main.js / addon 等静态资源后，请把 CACHE 版本号 +1（如 v2→v3），
  *    activate 时会清掉旧缓存，回头客不会再被旧文件卡住。 */
-var CACHE = 'mrj-web-v7';
+var CACHE = 'mrj-web-v8';
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
