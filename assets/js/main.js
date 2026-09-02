@@ -373,6 +373,73 @@ MaiRijiApp.prototype = {
 
         this.updateScrollMetrics();
         this.updateVIPBtnUI();
+        this.initPWA();
+    },
+
+    /* 📲 PWA（v4.18）：让顾客把官网「安装」到手机桌面，像 APP 一样打开。
+     * ① 动态注入 manifest link + theme-color（index.html 一行不用改）
+     * ② 注册 Service Worker（mrj-sw.js：HTML网络优先/静态资源缓存优先）
+     * ③ Android/Chrome：拦下 beforeinstallprompt，30秒后弹一次自制安装横幅
+     *    （每7天最多提醒一次，点过"不用了"不再烦）
+     * ④ iPhone/Safari 不支持自动弹：显示"添加到主屏幕"教学提示 */
+    initPWA: function () {
+        try {
+            if (!document.querySelector('link[rel="manifest"]')) {
+                const lk = document.createElement('link');
+                lk.rel = 'manifest'; lk.href = 'manifest.json';
+                document.head.appendChild(lk);
+            }
+            if (!document.querySelector('meta[name="theme-color"]')) {
+                const mt = document.createElement('meta');
+                mt.name = 'theme-color'; mt.content = '#8b5e3c';
+                document.head.appendChild(mt);
+            }
+            if ('serviceWorker' in navigator && location.protocol === 'https:') {
+                navigator.serviceWorker.register('mrj-sw.js').catch(() => {});
+            }
+        } catch (e) {}
+
+        /* 已装过（standalone 打开）→ 什么都不提示 */
+        const standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone === true;
+        if (standalone) return;
+        /* 7天冷却：拒绝过/提示过就先不烦 */
+        const last = Number(localStorage.getItem('mrj_pwa_ask') || 0);
+        if (Date.now() - last < 7 * 86400000) return;
+
+        const isEnglish = () => this.getCurrentLanguage() === 'en';
+        const showBanner = (html, onOk) => {
+            const bar = document.createElement('div');
+            bar.id = 'mrj-pwa-bar';
+            bar.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99997;background:#fdf9f3;border:1.5px solid #d9c3a5;border-radius:14px;box-shadow:0 8px 26px rgba(60,42,26,.22);padding:12px 14px;display:flex;align-items:center;gap:10px;max-width:92vw;font-size:13px;color:#5a3a22;line-height:1.5';
+            bar.innerHTML = html;
+            document.body.appendChild(bar);
+            localStorage.setItem('mrj_pwa_ask', String(Date.now()));
+            const okB = bar.querySelector('.mrj-pwa-ok');
+            const noB = bar.querySelector('.mrj-pwa-no');
+            if (okB) okB.addEventListener('click', () => { bar.remove(); if (onOk) onOk(); });
+            if (noB) noB.addEventListener('click', () => bar.remove());
+        };
+
+        let deferred = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferred = e;
+        });
+        /* 30 秒后（顾客已经在逛了）才提示，不打扰刚进门的 */
+        setTimeout(() => {
+            const en = isEnglish();
+            if (deferred) {
+                showBanner('🍞 <span>' + (en ? 'Install <b>MaiRiJi</b> on your phone — one tap to order & track!' : '把<b>麦日记</b>装到手机桌面，下单看进度一点就开～') + '</span>' +
+                    '<button class="mrj-pwa-ok" style="border:none;background:#8b5e3c;color:#fff;border-radius:99px;padding:7px 16px;font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap">' + (en ? 'Install' : '安装') + '</button>' +
+                    '<button class="mrj-pwa-no" style="border:none;background:none;color:#a8977f;font-size:17px;cursor:pointer;line-height:1">&times;</button>',
+                    () => { try { deferred.prompt(); } catch (e) {} deferred = null; });
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && /Safari/i.test(navigator.userAgent) && !/CriOS|FxiOS/i.test(navigator.userAgent)) {
+                /* iOS Safari：不支持自动安装，给教学提示 */
+                showBanner('🍞 <span>' + (en ? 'Add <b>MaiRiJi</b> to Home Screen: tap <b>Share</b> ⬆ then "<b>Add to Home Screen</b>"' : '把<b>麦日记</b>加到主屏幕：点浏览器 <b>分享</b> ⬆ → 「<b>添加到主屏幕</b>」') + '</span>' +
+                    '<button class="mrj-pwa-no" style="border:none;background:none;color:#a8977f;font-size:17px;cursor:pointer;line-height:1">&times;</button>');
+            }
+        }, 30000);
     },
 
     pushModalState: function (stateName) {
@@ -2142,15 +2209,29 @@ MaiRijiApp.prototype = {
             .finally(() => { this._pcLookupBusy = false; });
     },
 
+    /* 🕐 默认预填时间（v4.15）：36小时之后的第一个早上11点。
+     * 例：周一 20:00 下单 → min=周三 08:00 → 默认填 周三 11:00；
+     *     周一 02:00 下单 → min=周二 14:00 → 11点已过 → 顺延 周三 11:00。
+     * 顾客仍可自由改成 min 之后的任何整点，这只是省事的默认值 */
+    defaultPickupTimeStr: function () {
+        const minStr = this.minPickupTimeStr();
+        const min = new Date(minStr);
+        const d = new Date(min);
+        d.setHours(11, 0, 0, 0);            /* 当天早上 11 点 */
+        if (d < min) d.setDate(d.getDate() + 1); /* 11点在下限之前 → 顺延到明天11点 */
+        const p = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T11:00`;
+    },
+
     openCheckoutModal: function () {
         this.setupCheckoutFormV44();
 
-        /* 🕐 datetime-local + 36小时下限（以小时为单位） */
+        /* 🕐 datetime-local + 36小时下限（以小时为单位）；默认填最近的早上11点 */
         const minStr = this.minPickupTimeStr();
         const $dateInput = $('#cust-date');
         $dateInput.attr('type', 'datetime-local').attr('min', minStr).attr('step', 3600);
         if (!$dateInput.val() || $dateInput.val() < minStr) {
-            $dateInput.val(minStr);
+            $dateInput.val(this.defaultPickupTimeStr());
         }
 
         const savedName = localStorage.getItem(this.config.storageKeys.custName);

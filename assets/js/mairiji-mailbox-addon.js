@@ -40,7 +40,7 @@
   var STATUS_STEPS = ['pending', 'confirmed', 'baking', 'ready', 'delivered'];
   var FAQ = [
     { q: '我的面包什么时候好？', a: '您可以看上方的进度条哦～「制作中」表示面团已在发酵制作流程里，「已完成」就代表出炉啦。具体交付时间以订单预定时间为准 😊' },
-    { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；确认后请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
+    { q: '可以修改订单吗？', a: '订单确认前可以直接取消后重新下单；已经确认的订单请在下方留言告诉我们想改什么，师傅会尽快回复您～' },
     { q: '配送范围和费用？', a: '目前 Tanjong Sepat 地区送货上门，Banting 需事先沟通安排，其他区域建议到店自提。有疑问请留言您的地址～' },
     { q: '面包如何保存？', a: '欧包常温密封可放 2 天；切片冷冻可保存 2 周，吃前 180°C 回烤 5 分钟风味最佳。芝士蛋糕请冷藏并在 3 天内享用～' },
     { q: '我想取消订单', a: '', cancel: true }, /* 动态回答 */
@@ -118,6 +118,8 @@
 
 '.mrj-empty{text-align:center;color:#b3a28c;padding:40px 10px;font-size:13.5px;line-height:1.8;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}',
 '.mrj-empty span{font-size:34px;display:block;margin-bottom:8px}',
+'@keyframes mrjspin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}',
+'.mrj-loadspin{font-size:34px;display:block;margin-bottom:8px;animation:mrjspin 1.6s ease-in-out infinite}',
 '#mrj-my-orders-link{display:block;text-align:center;margin:14px 16px 10px;padding:10px;font-size:13px;color:#8b5e3c;border:1px dashed #c19a6b;border-radius:8px;cursor:pointer;font-weight:700;position:relative}',
 '#mrj-my-orders-link:hover{background:#f4eae0}',
 '#mrj-my-orders-link .mrj-dot{position:absolute;top:6px;right:10px;width:9px;height:9px;border-radius:50%;background:#d9534f;display:none}',
@@ -230,11 +232,20 @@
   /* 🔑 重复档案横幅：同电话有旧档案（旧积分在别的设备上），点击去验证合并。
    * 常驻页面顶部，验证合并完成后自动消失 */
   var dupBanner = null;
+  /* v4.18：横幅改为「挤下去」而不是「盖上去」——
+   * 旧版 position:fixed 盖在官网导览栏上，把 LOGO/菜单全挡住。
+   * 新版插到 body 最前面占文档流（页面整体下移），同时把 fixed 定位的
+   * .main-header 往下推同样的高度，谁都不挡谁。关闭横幅即复原 */
+  function dupBannerShift(on) {
+    var h = on && dupBanner ? dupBanner.offsetHeight : 0;
+    var hd = document.querySelector('.main-header');
+    if (hd) hd.style.top = h ? h + 'px' : '';
+  }
   function showDupBanner() {
-    if (dupBanner) { dupBanner.style.display = 'flex'; return; }
+    if (dupBanner) { dupBanner.style.display = 'flex'; dupBannerShift(true); return; }
     dupBanner = document.createElement('div');
     dupBanner.id = 'mrj-dup-banner';
-    dupBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#f7ece1;border-bottom:1px solid #d9a05b;color:#5a3a22;font-size:13px;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(60,42,26,.12)';
+    dupBanner.style.cssText = 'position:relative;z-index:2001;background:#f7ece1;border-bottom:1px solid #d9a05b;color:#5a3a22;font-size:13px;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(60,42,26,.12)';
     var en = isEn();
     var pts = '';
     try { var c = JSON.parse(localStorage.getItem('mrj_status_cache') || 'null'); if (c && c.vip && c.vip.dupPoints) pts = c.vip.dupPoints; } catch (e) {}
@@ -243,16 +254,19 @@
           : '检测到这个电话已有麦友档案' + (pts ? '（' + pts + ' 麦粒）' : '') + '，验证后即可合并积分～') +
       '<button id="mrj-dup-go" style="border:none;background:#8b5e3c;color:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">' + (en ? 'Verify now' : '立即验证') + '</button>' +
       '<button id="mrj-dup-x" style="border:none;background:none;color:#a8977f;font-size:18px;cursor:pointer;line-height:1">&times;</button>';
-    document.body.appendChild(dupBanner);
+    document.body.insertBefore(dupBanner, document.body.firstChild); /* 占文档流：页面被挤下去 */
+    dupBannerShift(true);
+    window.addEventListener('resize', function () { if (dupBanner && dupBanner.style.display !== 'none') dupBannerShift(true); });
     document.getElementById('mrj-dup-go').addEventListener('click', function () {
       window.MRJMailbox.startRecoverPublic();
     });
     document.getElementById('mrj-dup-x').addEventListener('click', function () {
       dupBanner.style.display = 'none'; /* 只是本次收起；下次 my_status 发现还没合并会再出现 */
+      dupBannerShift(false);
     });
   }
   function hideDupBanner() {
-    if (dupBanner) dupBanner.style.display = 'none';
+    if (dupBanner) { dupBanner.style.display = 'none'; dupBannerShift(false); }
     try { localStorage.removeItem('mrj_dup_profile'); } catch (e) {}
   }
   backdrop.addEventListener('click', hideOrders);
@@ -358,6 +372,52 @@
   function escB(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function fmtT(ts) { var d = new Date(ts); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 
+  /* ⏳ v4.16 有温度的加载态：Apps Script 冷启动可达10-20秒，
+   * 旧版只有一行"加载中…"，顾客以为订单消失了。
+   * 新版：面包转圈 + 明确告知"订单都在" + 慢的时候更新文案 + 失败可重试 */
+  var loadT1 = null, loadT2 = null;
+  function clearLoadTimers() {
+    clearTimeout(loadT1); clearTimeout(loadT2);
+    loadT1 = null; loadT2 = null;
+  }
+  function renderLoading() {
+    var en = isEn();
+    document.getElementById('mrj-obody').innerHTML =
+      '<div class="mrj-empty" id="mrj-loading"><span class="mrj-loadspin">🍞</span>' +
+      '<b style="color:#5a3a22">' + (en ? 'Fetching your orders…' : '正在取回您的订单…') + '</b>' +
+      '<small id="mrj-load-sub" style="margin-top:6px">' + (en ? 'Your orders are safely stored — just connecting to the bakery.' : '您的订单都好好保存着，正在连接烘焙坊～') + '</small></div>';
+    clearLoadTimers();
+    /* 6秒还没回来：解释一下为什么慢 */
+    loadT1 = setTimeout(function () {
+      var sub = document.getElementById('mrj-load-sub');
+      if (sub) sub.innerHTML = en
+        ? '☁ Server is waking up from a nap — may take up to 20 seconds. Your orders are NOT lost!'
+        : '☁ 服务器刚睡醒，还需要几秒（最多约20秒）。<b>您的订单不会丢失！</b>';
+    }, 6000);
+    /* 15秒还没回来：再安抚一次 */
+    loadT2 = setTimeout(function () {
+      var sub = document.getElementById('mrj-load-sub');
+      if (sub) sub.innerHTML = en
+        ? 'Almost there… thanks for your patience 🌾'
+        : '就快好了…谢谢您的耐心 🌾';
+    }, 15000);
+  }
+  function renderLoadFailed() {
+    var en = isEn();
+    var body = document.getElementById('mrj-obody');
+    if (!document.getElementById('mrj-loading')) return; /* 已有内容渲染出来就别覆盖 */
+    body.innerHTML =
+      '<div class="mrj-empty"><span>🔌</span>' +
+      '<b style="color:#5a3a22">' + (en ? 'Network hiccup' : '网络不太顺') + '</b>' +
+      '<small style="margin:6px 0 12px">' + (en ? 'Your orders are safe on our server. Please retry.' : '您的订单安全保存在服务器上，没有丢失。请重试一下～') + '</small>' +
+      '<button id="mrj-load-retry" style="background:#8b5e3c;color:#fff;border:none;border-radius:99px;padding:10px 26px;font-size:14px;font-weight:700;cursor:pointer">' + (en ? '↻ Retry' : '↻ 重新加载') + '</button></div>';
+    var rb = document.getElementById('mrj-load-retry');
+    if (rb) rb.addEventListener('click', function () {
+      renderLoading();
+      fetchAndApply(true);
+    });
+  }
+
   function showOrders() {
     backdrop.classList.add('show'); modal.classList.add('show');
     document.body.classList.add('no-scroll');
@@ -375,7 +435,7 @@
     if (!painted) {
       if (placing) { document.getElementById('mrj-obody').innerHTML = ''; renderPlacing(); }
       else if (selectedOid === 'ask') { lastData = { ok: true, orders: [], msgs: [] }; renderFull(lastData); } /* 客服咨询：无缓存也直接渲染 */
-      else document.getElementById('mrj-obody').innerHTML = '<div class="mrj-empty"><span>🍞</span>' + (isEn() ? 'Loading…' : '加载中…') + '</div>';
+      else renderLoading(); /* v4.16：有温度的加载态（面包转圈+说明订单没丢+慢时安抚+失败重试） */
     }
     fetchAndApply(true);
     clearInterval(pollTimer);
@@ -385,6 +445,7 @@
     backdrop.classList.remove('show'); modal.classList.remove('show');
     document.body.classList.remove('no-scroll');
     clearInterval(pollTimer);
+    clearLoadTimers(); /* v4.16：关窗即撤加载文案定时器 */
     markShopSeen();
   }
 
@@ -399,7 +460,8 @@
 
   function fetchAndApply(isOpen) {
     post({ action: 'my_status', token: getToken() }).then(function (r) {
-      if (!r.ok) return;
+      clearLoadTimers(); /* v4.16：回来了就撤掉"慢加载"文案定时器 */
+      if (!r.ok) { renderLoadFailed(); return; } /* 服务器说不行 → 重试界面（仅加载态时覆盖） */
       if (!Array.isArray(r.orders)) r.orders = [];
       if (!Array.isArray(r.msgs)) r.msgs = [];
       cacheData(r);
@@ -435,8 +497,9 @@
           var old = lastData.orders.filter(function (x) { return x.orderId === w.orderId; })[0];
           return !old || old.status !== w.status;
         }) ||
-        /* 🚚 v4.14：拼单进度变化也整体重绘（进度条要动起来） */
-        ((r.pool && r.pool.sum) || 0) !== ((lastData.pool && lastData.pool.sum) || 0);
+        /* 🚚 v4.14：拼单进度变化也整体重绘（进度条要动起来）；v4.17 预期日期变化同理 */
+        ((r.pool && r.pool.sum) || 0) !== ((lastData.pool && lastData.pool.sum) || 0) ||
+        ((r.pool && r.pool.eta) || '') !== ((lastData.pool && lastData.pool.eta) || '');
       lastData = r;
       if (structureChanged || isOpen && !document.querySelector('.mrj-split')) {
         renderFull(r); /* 订单增减/状态变化才整体重绘 */
@@ -444,7 +507,11 @@
         applyMsgDelta(r); /* 只追加新消息，不动滚动位置 */
       }
       if (modal.classList.contains('show')) markShopSeen();
-    }).catch(function () {});
+    }).catch(function () {
+      /* v4.16：网络失败——正在显示加载态才切到重试界面；已有内容就静默（下轮轮询自动补） */
+      clearLoadTimers();
+      renderLoadFailed();
+    });
   }
 
   /* ---------- 整体渲染（打开/结构变化时）：左右分栏 ---------- */
@@ -541,8 +608,10 @@
     return { cls: '', label: en ? 'Pending' : '待确认' };
   }
 
-  /* 🚚 v4.14 拼单进度条：只在「等拼单」且还没送达/取消的订单里显示。
-   * 数据来自 my_status 的 pool 字段（全店活跃拼单合计，不含他人隐私） */
+  /* 🚚 v4.17 拼单进度条：只在「等拼单」且还没送达/取消的订单里显示。
+   * 数据来自 my_status 的 pool 字段（全店活跃拼单合计，不含他人隐私）。
+   * v4.17：①成团后不再显示合计金额（不泄露销售额），只报喜+预期日期；
+   *        ②店家可在 APP 设置预期送货日期（pool.eta），凑单中/成团后都显示 */
   function poolHtml(r, w, en) {
     var o = w.order || {};
     if (String(o.note || '').indexOf('等拼单') === -1) return '';
@@ -551,19 +620,43 @@
     var goal = Number(pool.goal) || 50;
     var sum = Number(pool.sum) || Number(o.total) || 0;
     var n = Number(pool.n) || 1;
+    var eta = String(pool.eta || '');
     var pct = Math.min(100, Math.round(sum / goal * 100));
     var full = sum >= goal;
-    var txt;
+    var txt, etaLine = '';
+    /* 📅 v4.18：各拼单顾客的期望日期（匿名，只有日期）——
+     * 大家先看到彼此的期望，心里有数最终会协商到一个日期 */
+    var wantsLine = '';
+    var wants = pool.wants || [];
+    if (wants.length > 1) {
+      var wtxt = wants.map(function (w) {
+        /* 2026-09-01T11:00 → 9/1；解析不了就原样（去T） */
+        var mm = String(w).match(/^\d{4}-(\d{1,2})-(\d{1,2})/);
+        return mm ? (+mm[1]) + '/' + (+mm[2]) : String(w).replace('T', ' ');
+      }).join('、');
+      wantsLine = '<div style="margin-top:5px;font-size:11.5px;opacity:.85">🗓 ' +
+        (en ? 'Preferred dates in this pool: ' + escB(wtxt) + ' — we will coordinate one delivery date with everyone.'
+            : '拼友们的期望日期：' + escB(wtxt) + ' — 最终会协商统一为一天配送，请留意通知～') + '</div>';
+    }
+    if (eta) {
+      etaLine = '<div style="margin-top:5px;padding-top:5px;border-top:1px dashed ' + (full ? '#a5cb9d' : '#e5cf9e') + '">📅 ' +
+        (en ? '<b>Expected delivery: ' + escB(eta) + '</b> (we will confirm the exact time with you)'
+            : '<b>预计送货：' + escB(eta) + '</b>（具体时间我们会再和您确认）') + '</div>';
+    } else if (full) {
+      etaLine = '<div style="margin-top:5px;padding-top:5px;border-top:1px dashed #a5cb9d">📅 ' +
+        (en ? 'We are arranging the delivery date — stay tuned!' : '正在安排送货日期，请留意订单消息～') + '</div>';
+    }
     if (full) {
+      /* 成团：只报喜，不亮金额（销售额是店家的隐私） */
       txt = en
-        ? '🎉 <b>Pool complete!</b> ' + n + ' order' + (n > 1 ? 's' : '') + ' heading your way — total RM ' + sum.toFixed(2) + '. We will confirm the delivery date with you soon!'
-        : '🎉 <b>拼单成团啦！</b>同方向已凑 ' + n + ' 单、合计 RM ' + sum.toFixed(2) + '，我们会尽快和您确认送达日期！';
+        ? '🎉 <b>Pool complete!</b> ' + n + ' order' + (n > 1 ? 's' : '') + ' heading your way together.'
+        : '🎉 <b>拼单成团啦！</b>同方向已凑满 ' + n + ' 单，一起为您送过来。';
     } else {
       txt = en
-        ? '🚚 <b>Pooled delivery</b> — ' + n + ' order' + (n > 1 ? 's' : '') + ' pooled, RM ' + sum.toFixed(2) + ' / RM ' + goal.toFixed(0) + '. RM ' + (goal - sum).toFixed(2) + ' to go. Share with friends nearby to bake it faster 🍞'
-        : '🚚 <b>拼单配送中</b> — 已凑 ' + n + ' 单、RM ' + sum.toFixed(2) + ' / RM ' + goal.toFixed(0) + '，还差 RM ' + (goal - sum).toFixed(2) + ' 成团。介绍邻居朋友一起下单，更快送到哦 🍞';
+        ? '🚚 <b>Pooled delivery</b> — ' + n + ' order' + (n > 1 ? 's' : '') + ' pooled, RM ' + (goal - sum).toFixed(2) + ' to go. Share with friends nearby to bake it faster 🍞'
+        : '🚚 <b>拼单配送中</b> — 已凑 ' + n + ' 单，还差 RM ' + (goal - sum).toFixed(2) + ' 成团。介绍邻居朋友一起下单，更快送到哦 🍞';
     }
-    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt +
+    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + wantsLine + etaLine +
       '<div class="pool-bar"><div class="pool-fill" style="width:' + pct + '%"></div></div>' +
       '<span style="font-size:11px;opacity:.75">' + pct + '%' + (full ? '' : (en ? ' · updates automatically' : ' · 进度自动更新')) + '</span></div>';
   }
@@ -1291,6 +1384,75 @@
       }).catch(function () { mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
     },
 
+    /* 📱 v4.18 多设备同步：同一个账号（token）用在多台手机。
+     * 方向A（这台=老手机/主账号机）：生成 6 位配对码 → 发给/念给新手机
+     * 方向B（这台=新手机）：输入配对码 → 本机 token 替换成主账号 token →
+     *   订单/积分/聊天全部跟主账号一致。旧 token 的缓存清掉重拉 */
+    openPair: function () {
+      var en = isEn();
+      cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Sync devices' : '多设备同步') + '</div>' +
+        '<div class="d" style="text-align:left;line-height:1.7">' +
+        (en ? 'Use the SAME account on multiple phones:<br><b>① On your main phone</b> — tap "Generate code".<br><b>② On the new phone</b> — open this page, tap "Enter code".'
+            : '让多台手机用<b>同一个账号</b>（订单/积分/聊天全同步）：<br><b>① 在主手机</b>（有订单和积分的那台）点「生成配对码」；<br><b>② 在新手机</b>打开本页，点「输入配对码」。') + '</div>' +
+        '<div class="btns" style="flex-direction:column;gap:8px">' +
+        '<button class="ok" id="mrj-pair-make" style="width:100%">' + (en ? '① Generate code (main phone)' : '① 生成配对码（这台是主手机）') + '</button>' +
+        '<button class="ok" id="mrj-pair-use" style="width:100%;background:#a8977f">' + (en ? '② Enter code (new phone)' : '② 输入配对码（这台是新手机）') + '</button>' +
+        '<button class="no" style="width:100%">' + (en ? 'Cancel' : '取消') + '</button></div>';
+      cfmBd.classList.add('show'); cfmBox.classList.add('show');
+      function done3() { cfmBd.classList.remove('show'); cfmBox.classList.remove('show'); cfmBd.onclick = null; }
+      cfmBox.querySelector('.no').onclick = done3;
+      cfmBd.onclick = done3;
+      /* 方向A：生成码 */
+      document.getElementById('mrj-pair-make').onclick = function () {
+        this.disabled = true; this.textContent = en ? 'Generating…' : '生成中…';
+        post({ action: 'pair_make', token: getToken() }).then(function (r) {
+          if (!r.ok) { done3(); mrjAlert(r.error || (en ? 'Failed.' : '出错了，请稍后再试')); return; }
+          cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Pairing code' : '配对码') + '</div>' +
+            '<div class="d" style="text-align:center"><b style="font-size:30px;letter-spacing:.25em;color:#8b5e3c">' + r.code + '</b><br><br>' +
+            (en ? 'On the NEW phone: open our website → My Orders → 👑 → "Sync to another device" → "Enter code", within <b>10 minutes</b>.'
+                : '在<b>新手机</b>上打开官网 → 我的订单 → 👑 → 多设备同步 → 「输入配对码」，<b>10 分钟内</b>输入这个码即可。') + '</div>' +
+            '<div class="btns"><button class="ok">' + (en ? 'Done' : '知道了') + '</button></div>';
+          cfmBox.querySelector('.ok').onclick = done3;
+        }).catch(function () { done3(); mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
+      };
+      /* 方向B：输码 */
+      document.getElementById('mrj-pair-use').onclick = function () {
+        cfmBox.innerHTML = '<div class="t">📱 ' + (en ? 'Enter pairing code' : '输入配对码') + '</div>' +
+          '<div class="d" style="text-align:left">' + (en ? '6-digit code shown on your main phone. <b>Note:</b> this phone will switch to the main account.' : '输入主手机上显示的 6 位数字。<b>注意：</b>这台手机将切换成主账号（本机原来的临时记录不再显示）。') + '</div>' +
+          '<input id="mrj-pair-inp" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="width:100%;box-sizing:border-box;border:1px solid #d8c8b7;border-radius:8px;padding:12px;font-size:22px;letter-spacing:.3em;text-align:center;font-family:inherit;margin-bottom:14px;color:#3d2c1c" />' +
+          '<div class="btns"><button class="no">' + (en ? 'Cancel' : '取消') + '</button><button class="ok">' + (en ? 'Sync now' : '开始同步') + '</button></div>';
+        var pin = document.getElementById('mrj-pair-inp');
+        setTimeout(function () { pin.focus(); }, 80);
+        cfmBox.querySelector('.no').onclick = done3;
+        function doPair() {
+          var code = String(pin.value).replace(/\D/g, '');
+          if (code.length !== 6) { pin.style.borderColor = '#c0392b'; return; }
+          cfmBox.querySelector('.ok').disabled = true;
+          cfmBox.querySelector('.ok').textContent = en ? 'Syncing…' : '同步中…';
+          post({ action: 'pair_use', token: getToken(), code: code }).then(function (r) {
+            done3();
+            if (!r.ok) { mrjAlert(r.error || (en ? 'Invalid code.' : '配对码无效或已过期')); return; }
+            /* 换 token + 补齐档案 + 清旧缓存重拉 */
+            try {
+              localStorage.setItem('mrj_web_token', r.token);
+              if (r.name) localStorage.setItem('mairiji_cust_name', r.name);
+              if (r.phone) localStorage.setItem('mairiji_cust_phone', r.phone);
+              localStorage.removeItem('mrj_status_cache');
+              localStorage.removeItem('mrj_seen_shop_n');
+              localStorage.removeItem('mrj_ding_n');
+            } catch (e) {}
+            if (window.app && window.app.updateVIPBtnUI) window.app.updateVIPBtnUI();
+            miniNote.textContent = en ? '📱 Synced! This phone now uses your main account.' : '📱 同步成功！这台手机已切换成主账号～';
+            miniNote.style.display = 'block';
+            lastData = null; selectedOid = null;
+            showOrders(); /* 立即用新 token 拉主账号的订单 */
+          }).catch(function () { done3(); mrjAlert(en ? 'Network error.' : '网络异常，请稍后再试'); });
+        }
+        cfmBox.querySelector('.ok').onclick = doPair;
+        pin.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doPair(); });
+      };
+    },
+
     /* 🌾 麦粒积分：填进 VIP 档案窗（缓存秒显 → my_status 顺带刷新） */
     fillPoints: function () {
       var en = isEn();
@@ -1305,7 +1467,8 @@
         div.innerHTML = '<span style="font-size:12px;color:#888">' + (en ? 'Wheat Points: ' : '麦粒积分：') + '</span>' +
           '<strong id="mrj-vip-points" style="font-size:17px;color:#8b5e3c;margin-left:4px">…</strong>' +
           '<span style="font-size:11px;color:#b3a28c;margin-left:6px">' + (en ? '(RM1 spent = 1 point)' : '（消费 RM1 = 1 粒）') + '</span>' +
-          '<u id="mrj-edit-name" style="display:block;margin-top:8px;font-size:12px;color:#8b5e3c;cursor:pointer">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</u>';
+          '<u id="mrj-edit-name" style="display:block;margin-top:8px;font-size:12px;color:#8b5e3c;cursor:pointer">✏ ' + (en ? 'Change my name' : '修改我的昵称') + '</u>' +
+          '<u id="mrj-pair-dev" style="display:block;margin-top:6px;font-size:12px;color:#8b5e3c;cursor:pointer">📱 ' + (en ? 'Sync to another device' : '多设备同步（换手机/多台手机）') + '</u>';
         card.appendChild(div);
         box = document.getElementById('mrj-vip-points');
       }
@@ -1341,6 +1504,12 @@
           cfmBd.onclick = done2;
           inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') save2(); });
         });
+      }
+      /* 📱 多设备同步（v4.18）：老手机生成配对码 / 新手机输码接管账号 */
+      var pb = document.getElementById('mrj-pair-dev');
+      if (pb && !pb._bound) {
+        pb._bound = 1;
+        pb.addEventListener('click', function () { window.MRJMailbox.openPair(); });
       }
       /* 后台刷新（my_status 已带 vip 字段，无需新接口） */
       post({ action: 'my_status', token: getToken() }).then(function (r) {
