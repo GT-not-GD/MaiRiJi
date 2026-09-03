@@ -155,6 +155,10 @@
 '.mrj-pool.full{background:#eef7ec;border-color:#5a9a4e;color:#33622b}',
 '.mrj-pool.full .pool-bar{background:#d8ecd4}',
 '.mrj-pool.full .pool-fill{background:linear-gradient(90deg,#5a9a4e,#417a37)}',
+'.mrj-pool-join{margin-top:8px;padding-top:8px;border-top:1px dashed #d99a3d;font-size:12px}',
+'.mrj-pool-join.done{color:#33622b;border-top-color:#a5cb9d;font-weight:600}',
+'.mrj-pool-join-btn{display:block;width:100%;padding:9px 12px;border:0;border-radius:9px;background:linear-gradient(90deg,#5a9a4e,#417a37);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;line-height:1.4}',
+'.mrj-pool-join-btn:active{transform:scale(.98)}',
 /* 下单中的临时卡片（聊天式下单流程） */
 '.mrj-sending{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#8b5e3c;font-weight:700;line-height:1.6}',
 '.mrj-spin{width:15px;height:15px;border:2px solid #eadfd0;border-top-color:#8b5e3c;border-radius:50%;animation:mrjspin .8s linear infinite;flex:none}',
@@ -676,6 +680,34 @@
     var pct = Math.min(100, Math.round(sum / goal * 100));
     var full = sum >= goal;
     var txt, etaLine = '';
+    /* 🤝 本单是否「还没并入本团」：自己的备注没有 🤝（未被店家定案并入本团）。
+     *   若本团已定好送货时间（eta 存在）而本单还没并入 = 这单其实是「来晚了/待加入」，
+     *   绝不能把它显示成「已经在成团里」，否则顾客会以为自动进了已定案的团（issue #1）。 */
+    var mine = String(o.note || '').indexOf('🤝') === -1;
+    var agreed = !!o.poolJoinAgreed;
+    var lateUnjoined = mine && !!eta && !agreed; /* 本团已定案，但本单还没并入、也还没同意 */
+    var etaMs = 0;
+    var em = String(eta).match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})/);
+    if (em) etaMs = new Date(+em[1], +em[2] - 1, +em[3], +em[4], +em[5], 0, 0).getTime();
+    var can36 = etaMs && (etaMs - Date.now() >= 36 * 3600 * 1000);
+    /* ⏰ 「来晚了/待加入」独立卡片：不显示成团/预计送货（避免误以为已进团）。
+     *   ≥36h → 亮出「加入本团」邀请；<36h → 温和告知会安排下一趟，不打扰。 */
+    if (lateUnjoined) {
+      if (can36) {
+        return '<div class="mrj-pool">' +
+          '<div style="margin-bottom:4px">🤝 ' +
+          (en ? 'Pool #' + grp + ' already has a set delivery time: <b>' + escB(eta) + '</b>. You are <b>not in it yet</b> — join to be delivered together? Your delivery date would change to this time.'
+              : grp + ' 号团已定好送货时间：<b>' + escB(eta) + '</b>。您<b>还没加入</b>——要加入一起配送吗？加入后您的送货日期会改为这个时间。') + '</div>' +
+          '<button class="mrj-pool-join-btn" data-pooljoin="' + escB(w.orderId) + '" data-poolgrp="' + escB(grp) + '">' +
+          (en ? '🤝 Join pool #' + grp + ' (delivery → ' + escB(eta) + ')' : '🤝 加入 ' + grp + ' 号团（送货改为 ' + escB(eta) + '）') +
+          '</button>' +
+          '<div style="margin-top:6px;font-size:11px;opacity:.8">' +
+          (en ? 'Prefer another date? Just leave it — we will pool you with the next batch.' : '想要别的日期也没关系，不加入就好，我们会把您和下一批一起拼团。') + '</div></div>';
+      }
+      return '<div class="mrj-pool">🚚 ' +
+        (en ? 'Your order is being arranged in an upcoming pooled delivery — stay tuned! 🍞'
+            : '您的订单会安排在接下来的拼团配送里，请留意订单消息～ 🍞') + '</div>';
+    }
     /* 📅 v4.18：各拼单顾客的期望日期（匿名，只有日期）——
      * 大家先看到彼此的期望，心里有数最终会协商到一个日期 */
     var wantsLine = '';
@@ -711,7 +743,14 @@
     /* 团号标注（1号团也显示；文案精简）：让顾客一眼知道自己在哪个团 */
     var grpLine = '<div style="margin-top:4px;font-size:11px;opacity:.8">ℹ️ ' +
       (en ? 'You are in pool #' + grp : '您在 ' + grp + ' 号团') + '</div>';
-    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + grpLine + wantsLine + etaLine +
+    /* 🤝 已同意加入本团（等店家确认）：显示确认态提示 */
+    var joinLine = '';
+    if (agreed) {
+      joinLine = '<div class="mrj-pool-join done">✅ ' +
+        (en ? 'You have agreed to join pool #' + grp + '. Delivery will change to ' + escB(eta) + ' once the bakery confirms.'
+            : '您已同意加入 ' + grp + ' 号团，送货日期将在店家确认后统一为 ' + escB(eta) + '。') + '</div>';
+    }
+    return '<div class="mrj-pool' + (full ? ' full' : '') + '">' + txt + grpLine + wantsLine + etaLine + joinLine +
       '<div class="pool-bar"><div class="pool-fill" style="width:' + pct + '%"></div></div>' +
       '<span style="font-size:11px;opacity:.75">' + pct + '%' + (full ? '' : (en ? ' · updates automatically' : ' · 进度自动更新')) + '</span></div>';
   }
@@ -1061,6 +1100,20 @@
     });
   }
 
+  /* 🤝 加入本团邀请按钮（事件委托）：顾客点同意 → 请求加入，交店家复核 */
+  modal.addEventListener('click', function (e) {
+    var jb = e.target.closest ? e.target.closest('.mrj-pool-join-btn') : null;
+    if (!jb) return;
+    var en = isEn();
+    mrjConfirm(
+      en ? 'Join pool #' + jb.dataset.poolgrp + '?' : '加入 ' + jb.dataset.poolgrp + ' 号团？',
+      en ? 'Your delivery date will change to the pool\'s unified time. The bakery will confirm before finalising.'
+         : '您的送货日期会改为本团的统一时间，店家确认后正式并入。',
+      en ? 'Yes, join' : '确定加入',
+      en ? 'Not now' : '再想想'
+    ).then(function (yes) { if (yes) doPoolJoin(jb.dataset.pooljoin, jb.dataset.poolgrp); });
+  });
+
   /* 聊天里的文字链接（事件委托：重开窗口/缓存重画后依然可点） */
   modal.addEventListener('click', function (e) {
     var u = e.target.closest ? e.target.closest('.mrj-do-cancel, .mrj-wa-send, .mrj-wa-chat') : null;
@@ -1101,6 +1154,22 @@
     chat.insertAdjacentHTML('beforeend', bubbleHtml(m));
     chat.scrollTop = chat.scrollHeight;
     return chat.lastElementChild;
+  }
+  /* 🤝 顾客同意加入本团：即时反馈 + 请求后端；成功后刷新（进度卡换成「已同意」态） */
+  function doPoolJoin(orderId, grp) {
+    var en = isEn();
+    post({ action: 'pool_join_request', token: getToken(), orderId: orderId, group: grp }).then(function (r) {
+      if (!r || !r.ok) {
+        mrjAlert((en ? 'Could not join: ' : '暂时无法加入：') + ((r && r.error) || (en ? 'please try again later.' : '请稍后再试。')));
+        return;
+      }
+      mrjAlert(en
+        ? '✓ Request sent! We will confirm and finalise your spot in the pool shortly. 🌾'
+        : '✓ 已提交！店家确认后就会把您正式并入本团，请留意订单消息～ 🌾');
+      setTimeout(function () { fetchAndApply(true); }, 800);
+    }).catch(function () {
+      mrjAlert(en ? 'Network hiccup — please try again.' : '网络不太稳定，请再试一次～');
+    });
   }
   function doCancelOrder(orderId) {
     var en = isEn();
